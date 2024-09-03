@@ -29,7 +29,7 @@ export const AdvertContent = styled.ul`
   font-size: 1rem;
   white-space: nowrap;
   display: inline-block;
-  animation: ${scrollLeft} 10s linear infinite;
+  animation: ${scrollLeft} 15s linear infinite;
   position: relative;
   z-index: 1;
 `;
@@ -37,4 +37,7 @@ export const AdvertContent = styled.ul`
 export const AdvertContentItem = styled.li`
   display: inline-block;
   padding: 0 1rem;
+  &:not(:last-child) {
+    border-right: 1px solid ${({ theme }) => theme.colors.white};
+  }
 `;

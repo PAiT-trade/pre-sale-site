@@ -33,7 +33,7 @@ export const NavbarLogoCircle = styled.div`
     rotateY(0deg) rotateZ(0deg) skewX(0deg) skewY(0deg);
   transform-style: preserve-3d;
   will-change: transform;
-  animation: ${blink} 1s infinite;
+  animation: ${blink} 1.4s infinite;
 `;
 
 export const NavbarLogoCircleRight = styled(NavbarLogoCircle)`
