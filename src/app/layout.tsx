@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import "@rainbow-me/rainbowkit/styles.css";
 import { Providers } from "@/providers";
 import { BaseLayout } from "@/components/wraps/base/BaseLayout";
 
