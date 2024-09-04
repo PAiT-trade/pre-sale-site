@@ -10,7 +10,7 @@ import {
   NavbarSocialsItem,
   NavbarSocialsWraper,
 } from "./Navbar.styled";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
 interface NavbarProps {}
 export const Navbar: React.FC<NavbarProps> = () => {
@@ -30,7 +30,7 @@ export const Navbar: React.FC<NavbarProps> = () => {
       </NavbarNavWrapper>
       <NavbarSocialsWraper>
         <NavbarSocialsItem>
-          <ConnectButton />
+          <WalletMultiButton />
         </NavbarSocialsItem>
       </NavbarSocialsWraper>
     </NavbarWrapper>

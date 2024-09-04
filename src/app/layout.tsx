@@ -3,6 +3,8 @@ import { Inter } from "next/font/google";
 import "@rainbow-me/rainbowkit/styles.css";
 import { Providers } from "@/providers";
 import { BaseLayout } from "@/components/wraps/base/BaseLayout";
+import { ClusterProvider } from "./solana/cluster/cluster-data-access";
+import { SolanaProvider } from "./solana/solana-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -77,9 +79,13 @@ export default function RootLayout({
         <link rel="stylesheet" href="/" />
       </head>
       <body className={inter.className}>
-        <Providers>
-          <BaseLayout>{children}</BaseLayout>
-        </Providers>
+        <ClusterProvider>
+          <SolanaProvider>
+            <Providers>
+              <BaseLayout>{children}</BaseLayout>
+            </Providers>
+          </SolanaProvider>
+        </ClusterProvider>
       </body>
     </html>
   );
