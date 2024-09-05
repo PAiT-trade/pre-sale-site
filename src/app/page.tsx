@@ -53,7 +53,11 @@ export default function Home() {
           <Button
             label="Pay with Card"
             icon={<CreditCardIcon />}
-            onClick={() => setPaymentModal(!paymentModal)}
+            onClick={() => {
+              setIsMoonPayEnabled(false);
+              setIsTransakEnabled(false);
+              setPaymentModal(!paymentModal);
+            }}
           />
         </FlexItem>
         <FlexItem>
