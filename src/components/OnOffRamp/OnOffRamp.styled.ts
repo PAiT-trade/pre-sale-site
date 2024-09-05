@@ -3,6 +3,7 @@ import { styled } from "styled-components";
 export const PaymentOption = styled.div`
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   padding: 16px;
   border-bottom: 1px solid rgba(113, 94, 255, 0.5);
   cursor: pointer;

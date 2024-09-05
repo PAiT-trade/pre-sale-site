@@ -6,6 +6,7 @@ import { Navbar } from "@/components/navigation/nav/Navbar";
 import { GlobalStyle } from "@/styles/Globals";
 import React from "react";
 import { ThemeProvider } from "styled-components";
+import { Container } from "./BaseLayout.styled";
 interface BaseLayoutProps {
   children: React.ReactNode;
 }
@@ -14,8 +15,8 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({ children }) => {
     <ThemeProvider theme={theme}>
       <GlobalStyle />
       <Navbar />
-      <Advert />
-      {children}
+      {/* <Advert /> */}
+      <Container>{children}</Container>
     </ThemeProvider>
   );
 };

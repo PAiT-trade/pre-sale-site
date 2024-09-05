@@ -22,11 +22,11 @@ export const Navbar: React.FC<NavbarProps> = () => {
         <NavbarLogoCircleRight />
       </NavbarLogoWrapper>
       <NavbarNavWrapper>
-        <NavbarNavItem>Home</NavbarNavItem>
+        {/* <NavbarNavItem>Home</NavbarNavItem>
         <NavbarNavItem>Tokenomics</NavbarNavItem>
         <NavbarNavItem>Whitepaper</NavbarNavItem>
         <NavbarNavItem>Team</NavbarNavItem>
-        <NavbarNavItem>FAQ</NavbarNavItem>
+        <NavbarNavItem>FAQ</NavbarNavItem> */}
       </NavbarNavWrapper>
       <NavbarSocialsWraper>
         <NavbarSocialsItem>

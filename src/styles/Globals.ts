@@ -13,6 +13,7 @@ export const GlobalStyle = createGlobalStyle`
         background-color: ${({ theme }) => theme.colors.primary};
         color: ${({ theme }) => theme.colors.text};
         font-size: ${({ theme }) => theme.fontSizes.medium};
+        height: 100vh;
     }
     
     img  {

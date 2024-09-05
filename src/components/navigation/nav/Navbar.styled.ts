@@ -25,7 +25,7 @@ export const NavbarLogoCircle = styled.div`
   height: 0.5rem;
   padding: 0;
   position: absolute;
-  top: 1.45rem;
+  top: 1.6rem;
   left: 3.35rem;
   right: auto;
   padding-right: 0.2rem;
