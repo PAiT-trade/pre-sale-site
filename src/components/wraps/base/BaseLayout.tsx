@@ -14,6 +14,7 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({ children }) => {
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
+
       <Navbar />
       {/* <Advert /> */}
       <Container>{children}</Container>

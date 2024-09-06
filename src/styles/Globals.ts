@@ -12,7 +12,7 @@ export const GlobalStyle = createGlobalStyle`
         font-family: ${({ theme }) => theme.fonts.main};
         background-color: ${({ theme }) => theme.colors.primary};
         color: ${({ theme }) => theme.colors.text};
-        font-size: ${({ theme }) => theme.fontSizes.medium};
+        font-size: 87.5%;
         height: 100vh;
     }
     

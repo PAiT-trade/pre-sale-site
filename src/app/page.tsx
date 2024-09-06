@@ -3,11 +3,10 @@ import { useState } from "react";
 import styled from "styled-components";
 import MoonPayOnRamp from "@/components/OnOffRamp/MoonPay";
 import TransakOnOffRamp from "@/components/OnOffRamp/TransakOnOffRamp";
-import { Button } from "@/components/button/Button";
-import { CreditCardIcon } from "lucide-react";
 import { ModalSection } from "@/components/modal/Modal";
 import { FlexBox } from "@/components/common/Common";
 import { FlexItem } from "@/components/common/Common.styled";
+import { BuyCard } from "@/components/buyCard/BuyCard";
 export default function Home() {
   const [isMoonPayEnabled, setIsMoonPayEnabled] = useState<boolean>(false);
   const [isTransakEnabled, setIsTransakEnabled] = useState<boolean>(false);
@@ -17,8 +16,73 @@ export default function Home() {
 
   const [paymentModal, setPaymentModal] = useState<boolean>(false);
 
+  const content = [
+    {
+      title: "Huge Discounts",
+      description:
+        "Start with 40% off in the first round, then 30%, and so on. The earlier, the better!",
+    },
+    {
+      title: "Limited Supply",
+      description:
+        "Only 8 million tokens available. Check the updated allocation every 24 hours.",
+    },
+    {
+      title: "TGE on October 24, 2024",
+      description: "Be ready when we go live!",
+    },
+    {
+      title: "Unlock Schedule",
+      description:
+        "10% at TGE, I-month cliff, and the rest vests over 5 months.",
+    },
+    {
+      title: "Daily Token Access",
+      description: "Gain access to your tokens every 24 hours via Streamflow.",
+    },
+  ];
+
   return (
     <>
+      <FlexBox
+        direction="row"
+        justify="space-between"
+        align="center"
+        gap="0.6rem"
+        margin="0px"
+        wrap="nowrap"
+      >
+        <FlexItem>
+          {/* <Button
+            label="Pay with Card"
+            icon={<CreditCardIcon />}
+            onClick={() => {
+              setIsMoonPayEnabled(false);
+              setIsTransakEnabled(false);
+              setPaymentModal(!paymentModal);
+            }}
+          /> */}
+
+          <BuyCard />
+        </FlexItem>
+        <FlexItem>
+          <Content>
+            <PageAdvertisement>
+              <PageAdvertisementIcon src="/hamster.svg" />
+            </PageAdvertisement>
+
+            <PageTitle>PAiT Token Pre-Sale - Don’t Miss Out!</PageTitle>
+
+            {content.map((item, index) => (
+              <PageContent key={index}>
+                <PageSubTitle>{item.title}</PageSubTitle>
+                <PageDescription>{item.description}</PageDescription>
+              </PageContent>
+            ))}
+          </Content>
+        </FlexItem>
+      </FlexBox>
+
       <ModalSection
         isOpen={paymentModal}
         setIsOpen={setPaymentModal}
@@ -41,65 +105,16 @@ export default function Home() {
           amount={Number(inputValue ? inputValue : "0")}
         />
       </ModalSection>
-      <FlexBox
-        direction="row"
-        justify="space-between"
-        align="center"
-        gap="2rem"
-        margin="0px"
-        wrap="nowrap"
-      >
-        <FlexItem>
-          <Button
-            label="Pay with Card"
-            icon={<CreditCardIcon />}
-            onClick={() => {
-              setIsMoonPayEnabled(false);
-              setIsTransakEnabled(false);
-              setPaymentModal(!paymentModal);
-            }}
-          />
-        </FlexItem>
-        <FlexItem>
-          <PageTitle>Congratulations and Welcome!</PageTitle>
-          <PageAdvertisement>
-            <PageAdvertisementIcon src="/hamster.svg" />
-          </PageAdvertisement>
-          <PageDescription>
-            Buy our pre-sale tokens for a huge public sale discount.
-          </PageDescription>
-          <PageSubTitle>Allocations are going fast!</PageSubTitle>
-
-          <PageRules>
-            <PageRulesTitle>PAiT DEX</PageRulesTitle>
-
-            <PageDescription>Pump your gains with no effort</PageDescription>
-            <PageDescription>
-              Copy trade your way to generational wealth.
-            </PageDescription>
-
-            <Rules>
-              <Rule>Play the Game Daily</Rule>
-              <Rule>Invite Friends Daily</Rule>
-            </Rules>
-
-            <LearnMoreButton> Learn More </LearnMoreButton>
-          </PageRules>
-        </FlexItem>
-      </FlexBox>
     </>
   );
 }
 
 const PageTitle = styled.h3`
-  font-weight: 600;
-  font-size: 1.5rem;
+  font-weight: 700;
+  font-size: 24px;
   margin-bottom: 1rem;
   line-height: 2.5rem;
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  text-align: center;
+  font-family: "Poppins", sans-serif;
 `;
 
 const PageAdvertisement = styled.div`
@@ -107,63 +122,39 @@ const PageAdvertisement = styled.div`
   border-radius: 0.3rem;
   margin-bottom: 1rem;
 `;
-const PageAdvertisementIcon = styled.img``;
-
-const PageDescription = styled.p`
-  font-size: 1rem;
-  color: #e4e7f0;
-  text-align: left;
+const PageAdvertisementIcon = styled.img`
+  width: 100%;
 `;
 
-const PageSubTitle = styled.h5``;
+const PageDescription = styled.p`
+  font-size: 15px;
+  color: #e0e5f0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+`;
 
-const PageRules = styled.div`
+const PageContent = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
-  padding-left: 2rem;
-  gap: 1rem;
+  margin-bottom: 1rem;
 `;
 
-const PageRulesTitle = styled(PageTitle)`
-  color: #000;
-  font-size: 1.2rem;
+const PageSubTitle = styled.h5`
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: #afbad2;
+  line-height: 1.7rem;
 `;
 
-const Rules = styled.ul`
+const Content = styled.div`
   display: flex;
   flex-direction: column;
+  width: 608px;
   gap: 1rem;
-  list-style-type: square;
 `;
-const Rule = styled.li`
-  color: #5f30a0;
-`;
-
-const LearnMoreButton = styled.button`
-  background-color: #306c6d;
-  border-radius: 0.5rem;
-  padding: 0.5rem 1rem;
-  color: #fff;
-  border: none;
-  outline-width: 0;
-  width: 100%;
-  font-size: 14px;
-`;
-
-// Payment Card
-export const PaymentCard = styled.div``;
-export const PaymentCardHeader = styled.div``;
-export const PaymentCardBody = styled.div``;
-export const PaymentCardFooter = styled.div``;
-export const PaymentCardLabel = styled.span``;
-export const PaymentCardSubLabel = styled.span``;
-export const PaymentCardIconWrapper = styled.span``;
-export const PaymentCardContainer = styled.div``;
-export const PaymentCardFlex = styled.div``;
-
-// timer counter
-export const Timer = styled.div``;
-export const TimerLabel = styled.span``;
-export const TimerContainer = styled.div``;
