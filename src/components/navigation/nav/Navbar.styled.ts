@@ -13,8 +13,7 @@ export const NavbarWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  /* padding: 2rem 0rem; */
-  padding-bottom: 2rem;
+  padding: 1rem 2rem;
 `;
 export const NavbarLogoWrapper = styled.a``;
 export const NavbarLogo = styled.img``;

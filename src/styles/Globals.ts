@@ -1,11 +1,23 @@
+import { pixelToViewPortWidth } from "@/utils/common";
 import { createGlobalStyle } from "styled-components";
 
 export const GlobalStyle = createGlobalStyle`
     * {
-        box-sizing: border-box;
         margin: 0;
         padding: 0;
+        box-sizing: border-box;
         text-decoration: none;
+    }
+    :root {
+        font-size: ${pixelToViewPortWidth(24)};
+
+        @media (min-width: 768px) {
+            font-size: ${pixelToViewPortWidth(18)};
+        }
+
+        @media (min-width: 1024px) {
+            font-size: ${pixelToViewPortWidth(16)};
+        }
     }
 
     body {
@@ -14,6 +26,7 @@ export const GlobalStyle = createGlobalStyle`
         color: ${({ theme }) => theme.colors.text};
         font-size: 87.5%;
         height: 100vh;
+        line-height: 1.5;
     }
     
     img  {

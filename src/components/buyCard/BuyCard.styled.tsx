@@ -1,13 +1,25 @@
+import { devices } from "@/utils/common";
 import styled from "styled-components";
 
 export const BuyCardContainer = styled.div`
   top: 0;
   background-color: #141824;
-  width: 30rem;
+  width: 100%;
   border-radius: 10px;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  padding-bottom: 1rem;
+
+  @media ${devices.mobile} {
+  }
+
+  @media ${devices.tablet} {
+  }
+
+  @media ${devices.desktop} {
+    width: 23.625rem;
+    /* margin: 2.3rem; */
+  }
 `;
 
 export const BuyCardHeader = styled.div`
@@ -18,6 +30,13 @@ export const BuyCardHeaderTitle = styled.h1`
   font-size: 1.6rem;
   font-weight: 600;
   line-height: 1.5;
+
+  @media ${devices.mobile} {
+    font-size: 2.6rem;
+  }
+  @media ${devices.tablet} {
+    font-size: 2.6rem;
+  }
 `;
 export const BuyCardHeaderSubTitle = styled.h4`
   color: #7c8cae;
@@ -88,14 +107,14 @@ export const BuyCardActionButtonWrapper = styled.div`
   width: 100%;
   justify-content: space-between;
   align-items: center;
-  background-color: #333e59;
+  background-color: #3a4662;
   padding: 0.3rem;
   border-radius: 0.5rem;
   cursor: crosshair;
 `;
 
 interface BuyCardActionButtonProps {
-  method?: string;
+  selectColor?: string;
 }
 export const BuyCardActionButton = styled.button<BuyCardActionButtonProps>`
   cursor: pointer;
@@ -103,8 +122,8 @@ export const BuyCardActionButton = styled.button<BuyCardActionButtonProps>`
   z-index: 999;
   gap: 0.5rem;
   justify-content: center;
-  background-color: ${({ method }) =>
-    method == "card" ? "#141824" : "#2e364e"};
+  background-color: ${({ selectColor }) =>
+    selectColor ? selectColor : "#2e364e"};
   border-radius: 0.5rem;
   padding: 0.5rem;
   color: #fff;
@@ -116,7 +135,16 @@ export const BuyCardActionButton = styled.button<BuyCardActionButtonProps>`
 export const BuyCardActionButtonIcon = styled.div``;
 export const BuyCardActionButtonText = styled.p``;
 
-export const BuyCardControlGroup = styled.div``;
+export const BuyCardControlGroup = styled.div`
+  border: 1px solid #7c8cae;
+  width: 100%;
+  padding: 1.6rem;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.3rem;
+`;
 
 export const BuyCardInputs = styled.div`
   display: flex;
@@ -127,15 +155,74 @@ export const BuyCardInputs = styled.div`
 `;
 export const BuyCardControlInputGroup = styled.div`
   display: flex;
-  gap: 1rem;
+  gap: 4px;
   justify-content: space-between;
   align-items: center;
   width: 100%;
   flex-direction: column;
 `;
 export const BuyCardActions = styled.div``;
-export const BuyCardControlInputLabelGroup = styled.div``;
-export const BuyCardControlInputLabelLeft = styled.label``;
-export const BuyCardControlInputLabelRight = styled.span``;
-export const BuyCardControlInputControl = styled.div``;
-export const BuyCardControlInput = styled.input``;
+export const BuyCardControlInputLabelGroup = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px !important;
+`;
+export const BuyCardControlInputLabelLeft = styled.label`
+  color: #7c8cae;
+`;
+export const BuyCardControlInputLabelRight = styled.span`
+  color: #5cdfd8;
+  font-weight: 600;
+  cursor: pointer;
+  text-transform: uppercase;
+`;
+export const BuyCardControlInputControl = styled.div`
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  height: 32px;
+  width: 100%;
+  background-color: #333e59;
+  padding: 0.5rem;
+  border-radius: 6px;
+`;
+export const BuyCardControlInput = styled.input`
+  border: none;
+  background: none;
+  outline-width: 0;
+  color: #fff;
+  border-radius: 0.5rem;
+  width: 100%;
+`;
+
+export const BuyCardControlButton = styled.button`
+  color: #e0e5f0;
+  border: none;
+  outline-width: 0;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  width: 100%;
+  height: 31px;
+  background-color: #27334e;
+  &:hover,
+  &:active {
+    background-color: #27334e;
+  }
+`;
+
+export const DontHaveWallet = styled.a`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: underline;
+  color: #7c8cae;
+  @media ${devices.mobile} {
+    font-size: 1.5rem;
+  }
+  @media ${devices.tablet} {
+    font-size: 1.5rem;
+  }
+`;

@@ -1,8 +1,15 @@
+import { devices } from "@/utils/common";
 import styled from "styled-components";
 
-export const Container = styled.div`
-  max-width: 87.5rem;
+export const AppWrapper = styled.div`
+  max-width: 77.5rem;
   margin: 0 auto;
   height: 100vh;
-  padding: 4rem 4rem;
+
+  @media ${devices.mobile} {
+    padding: 1rem;
+  }
+  @media ${devices.tablet} {
+    padding: 1rem;
+  }
 `;

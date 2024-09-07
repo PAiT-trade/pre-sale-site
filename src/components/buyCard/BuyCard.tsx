@@ -10,8 +10,6 @@ import {
   BuyCardHeaderSubTitle,
   BuyCardHeaderTitle,
   BuyCardsText as BText,
-  BoughtCardSubTitle,
-  BoughtCardTitle,
   BoughCard,
   BuyCardActionWrapper,
   BuyCardsText,
@@ -28,15 +26,37 @@ import {
   BuyCardControlInputLabelRight,
   BuyCardInputs,
   BuyCardActions,
+  BuyCardControlButton,
+  DontHaveWallet,
 } from "./BuyCard.styled";
 import { ProgressBar } from "../PogressBar";
 import { CountdownTimer } from "../CountdownTimer";
 import { FlexBox } from "../common/Common";
 import { Dot, FlexItem } from "../common/Common.styled";
 import { CreditCardIcon } from "lucide-react";
+import { formatNumber } from "@/utils/common";
 
-interface BuyCardProps {}
-export const BuyCard: React.FC<BuyCardProps> = () => {
+interface BuyCardProps {
+  amountInUsd: number;
+  amountInPait: number;
+  isConnected: boolean;
+  endDateTime: string;
+  priceOfPait: number;
+  allocations: {
+    bought: number;
+    total: number;
+  };
+  setAmountInUsd: (amount: number) => void;
+}
+export const BuyCard: React.FC<BuyCardProps> = ({
+  allocations,
+  amountInPait,
+  amountInUsd,
+  endDateTime,
+  isConnected,
+  priceOfPait,
+  setAmountInUsd,
+}) => {
   const [paymentMethod, setPaymentMethod] = useState<string>("usdt");
   return (
     <BuyCardContainer>
@@ -49,16 +69,21 @@ export const BuyCard: React.FC<BuyCardProps> = () => {
               <BText>Remaining allocation</BText>
             </BuyCardHeaderAllocationLabel>
             <BuyCardHeaderAllocationValue>
-              <BText>1,500,000 / 4,000,000</BText>
+              <BText>
+                {formatNumber(allocations.bought)} /{" "}
+                {formatNumber(allocations.total)}
+              </BText>
             </BuyCardHeaderAllocationValue>
           </BuyCardHeaderAllocationHeader>
 
           <ProgressBar progress={30} />
 
-          <BText color="#4daa90">1 $PAiT = 0.30 USDT</BText>
+          <BText color="#4daa90">
+            1 $PAiT = {formatNumber(priceOfPait)} USDT
+          </BText>
         </BuyCardHeaderAllocationWrapper>
       </BuyCardHeader>
-      <CountdownTimer targetDate="2024-10-24T00:00:00" />
+      <CountdownTimer targetDate={endDateTime} />
 
       {/* <BoughCard>
         <FlexBox
@@ -85,17 +110,17 @@ export const BuyCard: React.FC<BuyCardProps> = () => {
         <BuyCardsText>Choose payment method</BuyCardsText>
         <BuyCardActionButtonWrapper>
           <BuyCardActionButton
-            method={paymentMethod}
+            selectColor={paymentMethod == "usd" ? "#131928" : ""}
             onClick={() => setPaymentMethod("usdt")}
           >
             <BuyCardActionButtonIcon>
               <Dot />
             </BuyCardActionButtonIcon>
-            <BuyCardActionButtonText>USDT(SOL)</BuyCardActionButtonText>
+            <BuyCardActionButtonText>USDT</BuyCardActionButtonText>
           </BuyCardActionButton>
 
           <BuyCardActionButton
-            method={paymentMethod}
+            selectColor={paymentMethod == "card" ? "#131928" : ""}
             onClick={() => setPaymentMethod("card")}
           >
             <BuyCardActionButtonIcon>
@@ -105,7 +130,7 @@ export const BuyCard: React.FC<BuyCardProps> = () => {
           </BuyCardActionButton>
         </BuyCardActionButtonWrapper>
 
-        {/* <BuyCardControlGroup>
+        <BuyCardControlGroup>
           <BuyCardInputs>
             <BuyCardControlInputGroup>
               <BuyCardControlInputLabelGroup>
@@ -117,38 +142,35 @@ export const BuyCard: React.FC<BuyCardProps> = () => {
                 </BuyCardControlInputLabelRight>
               </BuyCardControlInputLabelGroup>
               <BuyCardControlInputControl>
-                <BuyCardControlInput />
-                <Dot bgColor="#4daa90" />
+                <BuyCardControlInput
+                  value={amountInUsd}
+                  onChange={(e) =>
+                    setAmountInUsd(e.target.value ? Number(e.target.value) : 0)
+                  }
+                />
+                <Dot bgcolor="#4daa90" />
               </BuyCardControlInputControl>
             </BuyCardControlInputGroup>
             <BuyCardControlInputGroup>
               <BuyCardControlInputLabelGroup>
                 <BuyCardControlInputLabelLeft>
-                  Pay with $USDT
+                  $PAiT you receive
                 </BuyCardControlInputLabelLeft>
                 <BuyCardControlInputLabelRight>
-                  Max
+                  {/* Max */}
                 </BuyCardControlInputLabelRight>
               </BuyCardControlInputLabelGroup>
               <BuyCardControlInputControl>
-                <BuyCardControlInput />
-                <Dot bgColor="#4daa90" />
+                <BuyCardControlInput disabled={true} value={amountInPait} />
+                <Dot bgcolor=" #4E4189" />
               </BuyCardControlInputControl>
             </BuyCardControlInputGroup>
           </BuyCardInputs>
 
-          <BuyCardActions></BuyCardActions>
-        </BuyCardControlGroup> */}
+          <BuyCardControlButton>Connect Wallet</BuyCardControlButton>
+        </BuyCardControlGroup>
       </BuyCardActionWrapper>
+      <DontHaveWallet href="/">Don't have wallet?</DontHaveWallet>
     </BuyCardContainer>
   );
 };
-
-/**
- * export const BuyCardControlGroup = styled.div``;
-export const BuyCardControlInputGroup = styled.div``;
-export const BuyCardControlInputLabel = styled.label``;
-export const BuyCardControlInputControl = styled.div``;
-export const BuyCardControlInput = styled.input``;
-
- */

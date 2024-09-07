@@ -72,7 +72,6 @@ export const CountdownTimerContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
-  margin-bottom: 1rem;
 `;
 
 const TimerContainer = styled.div`

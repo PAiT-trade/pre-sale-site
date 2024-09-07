@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 import MoonPayOnRamp from "@/components/OnOffRamp/MoonPay";
 import TransakOnOffRamp from "@/components/OnOffRamp/TransakOnOffRamp";
@@ -7,15 +7,37 @@ import { ModalSection } from "@/components/modal/Modal";
 import { FlexBox } from "@/components/common/Common";
 import { FlexItem } from "@/components/common/Common.styled";
 import { BuyCard } from "@/components/buyCard/BuyCard";
+import { Grid } from "styled-css-grid";
+import { devices } from "@/utils/common";
+import { useWallet } from "@solana/wallet-adapter-react";
 export default function Home() {
+  const { connected, wallet, autoConnect } = useWallet();
+
   const [isMoonPayEnabled, setIsMoonPayEnabled] = useState<boolean>(false);
   const [isTransakEnabled, setIsTransakEnabled] = useState<boolean>(false);
+  const [symbol, setSymbol] = useState("USDT");
+  const [] = useState("ERgpvPPvSYnqTNay5uFRvcCiHYF48g9VkqXw8NroFepx");
 
   const [inputValue, setInputValue] = useState<string>("");
-  const tokenSymbol = "SOL";
 
   const [paymentModal, setPaymentModal] = useState<boolean>(false);
 
+  const [allocations, setAllocations] = useState<{
+    bought: number;
+    total: number;
+  }>({
+    bought: 1500000,
+    total: 4000000,
+  });
+  const [amountInUsd, setAmountInUsd] = useState<number>(20);
+  const [amountInPait, setAmountInPait] = useState<number>(1);
+  const [endDateTime, setEndDateTime] = useState<string>("2024-10-24T00:00:00");
+  const [priceOfPait, setPriceOfPait] = useState<number>(0.3);
+
+  useEffect(() => {
+    const amounts = amountInUsd * priceOfPait;
+    setAmountInPait(amounts);
+  }, [amountInPait, amountInUsd, setAmountInPait, setPriceOfPait]);
   const content = [
     {
       title: "Huge Discounts",
@@ -63,7 +85,15 @@ export default function Home() {
             }}
           /> */}
 
-          <BuyCard />
+          <BuyCard
+            allocations={allocations}
+            isConnected={connected}
+            amountInPait={amountInPait}
+            amountInUsd={amountInUsd}
+            setAmountInUsd={setAmountInUsd}
+            endDateTime={endDateTime}
+            priceOfPait={priceOfPait}
+          />
         </FlexItem>
         <FlexItem>
           <Content>
@@ -93,7 +123,7 @@ export default function Home() {
           setIsDrawerOpen={setIsMoonPayEnabled}
           setVisible={setIsMoonPayEnabled}
           visible={isMoonPayEnabled}
-          tokenSymbol={tokenSymbol}
+          tokenSymbol={symbol}
         />
 
         <TransakOnOffRamp
@@ -113,7 +143,6 @@ const PageTitle = styled.h3`
   font-weight: 700;
   font-size: 24px;
   margin-bottom: 1rem;
-  line-height: 2.5rem;
   font-family: "Poppins", sans-serif;
 `;
 
@@ -155,6 +184,16 @@ const PageSubTitle = styled.h5`
 const Content = styled.div`
   display: flex;
   flex-direction: column;
-  width: 608px;
   gap: 1rem;
+
+  @media ${devices.mobile} {
+  }
+
+  @media ${devices.tablet} {
+  }
+
+  @media ${devices.desktop} {
+    width: 38rem;
+    padding: 0 2rem;
+  }
 `;
