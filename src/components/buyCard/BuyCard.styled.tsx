@@ -115,3 +115,27 @@ export const BuyCardActionButton = styled.button<BuyCardActionButtonProps>`
 `;
 export const BuyCardActionButtonIcon = styled.div``;
 export const BuyCardActionButtonText = styled.p``;
+
+export const BuyCardControlGroup = styled.div``;
+
+export const BuyCardInputs = styled.div`
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+`;
+export const BuyCardControlInputGroup = styled.div`
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  flex-direction: column;
+`;
+export const BuyCardActions = styled.div``;
+export const BuyCardControlInputLabelGroup = styled.div``;
+export const BuyCardControlInputLabelLeft = styled.label``;
+export const BuyCardControlInputLabelRight = styled.span``;
+export const BuyCardControlInputControl = styled.div``;
+export const BuyCardControlInput = styled.input``;

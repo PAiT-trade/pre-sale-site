@@ -15,9 +15,11 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({ children }) => {
     <ThemeProvider theme={theme}>
       <GlobalStyle />
 
-      <Navbar />
       {/* <Advert /> */}
-      <Container>{children}</Container>
+      <Container>
+        <Navbar />
+        {children}
+      </Container>
     </ThemeProvider>
   );
 };

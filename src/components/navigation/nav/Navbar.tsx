@@ -18,8 +18,8 @@ export const Navbar: React.FC<NavbarProps> = () => {
     <NavbarWrapper>
       <NavbarLogoWrapper href="/">
         <NavbarLogo src="https://cdn.prod.website-files.com/6645e7046629ba71066f47ff/66564c89e5896a4f1953b083_PAIT_White%20Logo%201.svg" />
-        <NavbarLogoCircle />
-        <NavbarLogoCircleRight />
+        {/* <NavbarLogoCircle />
+        <NavbarLogoCircleRight /> */}
       </NavbarLogoWrapper>
       <NavbarNavWrapper>
         {/* <NavbarNavItem>Home</NavbarNavItem>

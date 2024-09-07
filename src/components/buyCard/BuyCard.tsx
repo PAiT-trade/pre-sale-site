@@ -19,6 +19,15 @@ import {
   BuyCardActionButton,
   BuyCardActionButtonText,
   BuyCardActionButtonIcon,
+  BuyCardControlGroup,
+  BuyCardControlInput,
+  BuyCardControlInputControl,
+  BuyCardControlInputGroup,
+  BuyCardControlInputLabelGroup,
+  BuyCardControlInputLabelLeft,
+  BuyCardControlInputLabelRight,
+  BuyCardInputs,
+  BuyCardActions,
 } from "./BuyCard.styled";
 import { ProgressBar } from "../PogressBar";
 import { CountdownTimer } from "../CountdownTimer";
@@ -46,12 +55,12 @@ export const BuyCard: React.FC<BuyCardProps> = () => {
 
           <ProgressBar progress={30} />
 
-          <BText color="#4daa90">1 $PAIT = 0.30 USDT - 40% discount</BText>
+          <BText color="#4daa90">1 $PAiT = 0.30 USDT</BText>
         </BuyCardHeaderAllocationWrapper>
       </BuyCardHeader>
-      <CountdownTimer targetDate="2024-10-04T00:00:00" />
+      <CountdownTimer targetDate="2024-10-24T00:00:00" />
 
-      <BoughCard>
+      {/* <BoughCard>
         <FlexBox
           direction="row"
           justify="space-between"
@@ -70,7 +79,7 @@ export const BuyCard: React.FC<BuyCardProps> = () => {
           </FlexItem>
           <FlexItem></FlexItem>
         </FlexBox>
-      </BoughCard>
+      </BoughCard> */}
 
       <BuyCardActionWrapper>
         <BuyCardsText>Choose payment method</BuyCardsText>
@@ -95,7 +104,51 @@ export const BuyCard: React.FC<BuyCardProps> = () => {
             <BuyCardActionButtonText>Credit Card</BuyCardActionButtonText>
           </BuyCardActionButton>
         </BuyCardActionButtonWrapper>
+
+        {/* <BuyCardControlGroup>
+          <BuyCardInputs>
+            <BuyCardControlInputGroup>
+              <BuyCardControlInputLabelGroup>
+                <BuyCardControlInputLabelLeft>
+                  Pay with $USDT
+                </BuyCardControlInputLabelLeft>
+                <BuyCardControlInputLabelRight>
+                  Max
+                </BuyCardControlInputLabelRight>
+              </BuyCardControlInputLabelGroup>
+              <BuyCardControlInputControl>
+                <BuyCardControlInput />
+                <Dot bgColor="#4daa90" />
+              </BuyCardControlInputControl>
+            </BuyCardControlInputGroup>
+            <BuyCardControlInputGroup>
+              <BuyCardControlInputLabelGroup>
+                <BuyCardControlInputLabelLeft>
+                  Pay with $USDT
+                </BuyCardControlInputLabelLeft>
+                <BuyCardControlInputLabelRight>
+                  Max
+                </BuyCardControlInputLabelRight>
+              </BuyCardControlInputLabelGroup>
+              <BuyCardControlInputControl>
+                <BuyCardControlInput />
+                <Dot bgColor="#4daa90" />
+              </BuyCardControlInputControl>
+            </BuyCardControlInputGroup>
+          </BuyCardInputs>
+
+          <BuyCardActions></BuyCardActions>
+        </BuyCardControlGroup> */}
       </BuyCardActionWrapper>
     </BuyCardContainer>
   );
 };
+
+/**
+ * export const BuyCardControlGroup = styled.div``;
+export const BuyCardControlInputGroup = styled.div``;
+export const BuyCardControlInputLabel = styled.label``;
+export const BuyCardControlInputControl = styled.div``;
+export const BuyCardControlInput = styled.input``;
+
+ */
