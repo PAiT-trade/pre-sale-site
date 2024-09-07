@@ -46,6 +46,7 @@ interface BuyCardProps {
     bought: number;
     total: number;
   };
+  buyPait: () => Promise<void>;
   setAmountInUsd: (amount: number) => void;
 }
 export const BuyCard: React.FC<BuyCardProps> = ({
@@ -55,6 +56,7 @@ export const BuyCard: React.FC<BuyCardProps> = ({
   endDateTime,
   isConnected,
   priceOfPait,
+  buyPait,
   setAmountInUsd,
 }) => {
   const [paymentMethod, setPaymentMethod] = useState<string>("usdt");
@@ -167,10 +169,23 @@ export const BuyCard: React.FC<BuyCardProps> = ({
             </BuyCardControlInputGroup>
           </BuyCardInputs>
 
-          <BuyCardControlButton>Connect Wallet</BuyCardControlButton>
+          <BuyCardControlButton disabled={!isConnected}>
+            {isConnected ? "Buy PAiT" : "Connect Wallet"}
+          </BuyCardControlButton>
         </BuyCardControlGroup>
       </BuyCardActionWrapper>
-      <DontHaveWallet href="/">Don't have wallet?</DontHaveWallet>
+
+      {!isConnected ? (
+        <>
+          <DontHaveWallet href="/">Don't have wallet?</DontHaveWallet>
+          <DontHaveWallet href="/">Get Terms and conditions</DontHaveWallet>
+        </>
+      ) : (
+        <>
+          <DontHaveWallet href="/">Don't have wallet?</DontHaveWallet>
+          <DontHaveWallet href="/">Get Terms and conditions</DontHaveWallet>
+        </>
+      )}
     </BuyCardContainer>
   );
 };

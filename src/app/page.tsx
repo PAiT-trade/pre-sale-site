@@ -64,6 +64,8 @@ export default function Home() {
     },
   ];
 
+  const buyPait = async () => {};
+
   return (
     <>
       <FlexBox
@@ -92,6 +94,7 @@ export default function Home() {
             amountInUsd={amountInUsd}
             setAmountInUsd={setAmountInUsd}
             endDateTime={endDateTime}
+            buyPait={buyPait}
             priceOfPait={priceOfPait}
           />
         </FlexItem>
