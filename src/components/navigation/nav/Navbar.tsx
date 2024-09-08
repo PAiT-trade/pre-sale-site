@@ -29,7 +29,7 @@ export const Navbar: React.FC<NavbarProps> = () => {
         <NavbarNavItem>FAQ</NavbarNavItem> */}
       </NavbarNavWrapper>
       <NavbarSocialsWraper>
-        <NavbarSocialsItem>
+        <NavbarSocialsItem suppressHydrationWarning>
           <WalletMultiButton />
         </NavbarSocialsItem>
       </NavbarSocialsWraper>

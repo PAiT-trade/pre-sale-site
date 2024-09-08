@@ -7,6 +7,8 @@ import { GlobalStyle } from "@/styles/Globals";
 import React from "react";
 import { ThemeProvider } from "styled-components";
 import { AppWrapper } from "./BaseLayout.styled";
+import { Toaster } from "react-hot-toast";
+
 interface BaseLayoutProps {
   children: React.ReactNode;
 }
@@ -20,6 +22,7 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({ children }) => {
         <Navbar />
         {children}
       </AppWrapper>
+      <Toaster />
     </ThemeProvider>
   );
 };

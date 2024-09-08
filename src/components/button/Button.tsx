@@ -42,16 +42,16 @@ export const Button: React.FC<ButtonProps> = ({
       $isActive={$isActive}
       $borderRadius={$borderRadius}
     >
-      {icon && iconPosition === "left" && (
+      {/* {icon && iconPosition === "left" && (
         <IconWrapper $isActive={$isActive}>{icon}</IconWrapper>
-      )}
+      )} */}
       <LabelContainer>
         {label && <Label>{label}</Label>}
         {sublabel && <SubLabel>{sublabel}</SubLabel>}
       </LabelContainer>
-      {icon && iconPosition === "right" && (
+      {/* {icon && iconPosition === "right" && (
         <IconWrapper $isActive={$isActive}>{icon}</IconWrapper>
-      )}
+      )} */}
     </StyledButton>
   );
 };

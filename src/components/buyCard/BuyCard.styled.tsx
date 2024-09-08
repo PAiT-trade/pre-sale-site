@@ -114,7 +114,7 @@ export const BuyCardActionButtonWrapper = styled.div`
 `;
 
 interface BuyCardActionButtonProps {
-  selectColor?: string;
+  bgcolor?: string;
 }
 export const BuyCardActionButton = styled.button<BuyCardActionButtonProps>`
   cursor: pointer;
@@ -122,8 +122,7 @@ export const BuyCardActionButton = styled.button<BuyCardActionButtonProps>`
   z-index: 999;
   gap: 0.5rem;
   justify-content: center;
-  background-color: ${({ selectColor }) =>
-    selectColor ? selectColor : "#2e364e"};
+  background-color: ${({ bgcolor }) => (bgcolor ? bgcolor : "#2e364e")};
   border-radius: 0.5rem;
   padding: 0.5rem;
   color: #fff;
@@ -132,7 +131,11 @@ export const BuyCardActionButton = styled.button<BuyCardActionButtonProps>`
   width: 100%;
   font-size: 14px;
 `;
-export const BuyCardActionButtonIcon = styled.div``;
+export const BuyCardActionButtonIcon = styled.div`
+  display: flex;
+  gap: 0.3rem;
+  align-items: center;
+`;
 export const BuyCardActionButtonText = styled.p``;
 
 export const BuyCardControlGroup = styled.div`
@@ -198,6 +201,7 @@ export const BuyCardControlInput = styled.input`
 `;
 
 export const BuyCardControlButton = styled.button`
+  z-index: 999;
   color: #e0e5f0;
   border: none;
   outline-width: 0;

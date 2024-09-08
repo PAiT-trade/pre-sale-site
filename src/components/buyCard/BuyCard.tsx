@@ -48,6 +48,8 @@ interface BuyCardProps {
   };
   buyPait: () => Promise<void>;
   setAmountInUsd: (amount: number) => void;
+  paymentMethod: string;
+  setPaymentMethod: (method: string) => void;
 }
 export const BuyCard: React.FC<BuyCardProps> = ({
   allocations,
@@ -57,9 +59,10 @@ export const BuyCard: React.FC<BuyCardProps> = ({
   isConnected,
   priceOfPait,
   buyPait,
+  setPaymentMethod,
+  paymentMethod,
   setAmountInUsd,
 }) => {
-  const [paymentMethod, setPaymentMethod] = useState<string>("usdt");
   return (
     <BuyCardContainer>
       <BuyCardHeader>
@@ -78,7 +81,9 @@ export const BuyCard: React.FC<BuyCardProps> = ({
             </BuyCardHeaderAllocationValue>
           </BuyCardHeaderAllocationHeader>
 
-          <ProgressBar progress={30} />
+          <ProgressBar
+            progress={(allocations.bought / allocations.total) * 100}
+          />
 
           <BText color="#4daa90">
             1 $PAiT = {formatNumber(priceOfPait)} USDT
@@ -112,20 +117,24 @@ export const BuyCard: React.FC<BuyCardProps> = ({
         <BuyCardsText>Choose payment method</BuyCardsText>
         <BuyCardActionButtonWrapper>
           <BuyCardActionButton
-            selectColor={paymentMethod == "usd" ? "#131928" : ""}
+            bgcolor={paymentMethod == "usdt" ? "#131928" : ""}
             onClick={() => setPaymentMethod("usdt")}
           >
-            <BuyCardActionButtonIcon>
-              <Dot />
-            </BuyCardActionButtonIcon>
+            {paymentMethod == "usdt" ? (
+              <BuyCardActionButtonIcon>
+                <Dot />
+              </BuyCardActionButtonIcon>
+            ) : null}
+
             <BuyCardActionButtonText>USDT</BuyCardActionButtonText>
           </BuyCardActionButton>
 
           <BuyCardActionButton
-            selectColor={paymentMethod == "card" ? "#131928" : ""}
+            bgcolor={paymentMethod == "card" ? "#131928" : ""}
             onClick={() => setPaymentMethod("card")}
           >
             <BuyCardActionButtonIcon>
+              {paymentMethod == "card" ? <Dot /> : null}
               <CreditCardIcon size={16} />
             </BuyCardActionButtonIcon>
             <BuyCardActionButtonText>Credit Card</BuyCardActionButtonText>
@@ -169,7 +178,12 @@ export const BuyCard: React.FC<BuyCardProps> = ({
             </BuyCardControlInputGroup>
           </BuyCardInputs>
 
-          <BuyCardControlButton disabled={!isConnected}>
+          <BuyCardControlButton
+            onClick={() => {
+              console.log("App Log....");
+              buyPait();
+            }}
+          >
             {isConnected ? "Buy PAiT" : "Connect Wallet"}
           </BuyCardControlButton>
         </BuyCardControlGroup>

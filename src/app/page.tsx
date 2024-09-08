@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import styled from "styled-components";
 import MoonPayOnRamp from "@/components/OnOffRamp/MoonPay";
 import TransakOnOffRamp from "@/components/OnOffRamp/TransakOnOffRamp";
@@ -9,14 +9,29 @@ import { FlexItem } from "@/components/common/Common.styled";
 import { BuyCard } from "@/components/buyCard/BuyCard";
 import { Grid } from "styled-css-grid";
 import { devices } from "@/utils/common";
-import { useWallet } from "@solana/wallet-adapter-react";
+import { useWallet, useConnection } from "@solana/wallet-adapter-react";
+import { PublicKey, Transaction, Signer } from "@solana/web3.js";
+import toast from "react-hot-toast";
+import {
+  getAssociatedTokenAddress,
+  getOrCreateAssociatedTokenAccount,
+  createTransferInstruction,
+} from "@solana/spl-token";
+
 export default function Home() {
-  const { connected, wallet, autoConnect } = useWallet();
+  const { connected, wallet, publicKey, sendTransaction } = useWallet();
+  const { connection } = useConnection();
 
   const [isMoonPayEnabled, setIsMoonPayEnabled] = useState<boolean>(false);
   const [isTransakEnabled, setIsTransakEnabled] = useState<boolean>(false);
   const [symbol, setSymbol] = useState("USDT");
-  const [] = useState("ERgpvPPvSYnqTNay5uFRvcCiHYF48g9VkqXw8NroFepx");
+  const [USDTAddress, setUSDTAddress] = useState(
+    "Es9vMFrzaCERXgGyQr57yVCrr6oYqN2NEPNwv3PWoTy" // USDT Mint Adderss
+  );
+
+  const [recipientAddress, setRecipientAddress] = useState<string>(
+    "ERgpvPPvSYnqTNay5uFRvcCiHYF48g9VkqXw8NroFepx" // my local address
+  );
 
   const [inputValue, setInputValue] = useState<string>("");
 
@@ -26,13 +41,14 @@ export default function Home() {
     bought: number;
     total: number;
   }>({
-    bought: 1500000,
+    bought: 150000,
     total: 4000000,
   });
   const [amountInUsd, setAmountInUsd] = useState<number>(20);
   const [amountInPait, setAmountInPait] = useState<number>(1);
   const [endDateTime, setEndDateTime] = useState<string>("2024-10-24T00:00:00");
   const [priceOfPait, setPriceOfPait] = useState<number>(0.3);
+  const [paymentMethod, setPaymentMethod] = useState<string>("usdt");
 
   useEffect(() => {
     const amounts = amountInUsd * priceOfPait;
@@ -64,7 +80,61 @@ export default function Home() {
     },
   ];
 
-  const buyPait = async () => {};
+  const peformTrade = useCallback(async () => {
+    if (!connected || !wallet || !publicKey) {
+      toast.error("Please connect your wallet first");
+      return;
+    }
+
+    try {
+      const mintPublicKey = new PublicKey(USDTAddress);
+      const recipientPublicKey = new PublicKey(recipientAddress);
+
+      // Get the sender's associated token account for USDT
+      const senderTokenAccount = await getAssociatedTokenAddress(
+        mintPublicKey,
+        publicKey
+      );
+
+      console.log("senderTokenAccount", senderTokenAccount);
+      console.log("Recipient", recipientPublicKey);
+
+      // // Ensure the recipient has a token account; if not, create it
+      // const recipientTokenAccount = await getOrCreateAssociatedTokenAccount(
+      //   connection, // Solana connection
+      //   publicKey?.toBase58(), // Payer (publicKey of the sender)
+      //   mintPublicKey, // USDT Mint Address
+      //   recipientPublicKey, // Recipient Address
+      //   false, // allowOwnerOffCurve
+      //   "processed", // Commitment level
+      //   { preflightCommitment: "processed" } // Confirm options
+      // );
+
+      // // Create the transfer instruction
+      // const transaction = new Transaction().add(
+      //   createTransferInstruction(
+      //     senderTokenAccount, // Sender's token account
+      //     recipientTokenAccount.address, // Recipient's token account
+      //     publicKey, // Owner of the sender's account
+      //     parseFloat(amountInPait.toString()) * 1e18
+      //   )
+      // );
+
+      // const signature = await sendTransaction(transaction, connection);
+      // await connection.confirmTransaction(signature, "processed");
+      // toast.error(`Transaction confirmed: ${signature}`);
+    } catch (error) {
+      console.error("Error sending USDT:", error);
+      toast.error(`Error sending USDT`);
+    }
+  }, []);
+
+  const sendUsdt = async () => {
+    if (!connected || !wallet || !publicKey) {
+      toast.error("Please connect your wallet first");
+      return;
+    }
+  };
 
   return (
     <>
@@ -94,8 +164,10 @@ export default function Home() {
             amountInUsd={amountInUsd}
             setAmountInUsd={setAmountInUsd}
             endDateTime={endDateTime}
-            buyPait={buyPait}
+            buyPait={peformTrade}
             priceOfPait={priceOfPait}
+            paymentMethod={paymentMethod}
+            setPaymentMethod={setPaymentMethod}
           />
         </FlexItem>
         <FlexItem>
@@ -162,10 +234,7 @@ const PageDescription = styled.p`
   font-size: 15px;
   color: #e0e5f0;
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: flex-start;
-  flex-wrap: wrap;
+  text-align: left;
 `;
 
 const PageContent = styled.div`
@@ -187,7 +256,7 @@ const PageSubTitle = styled.h5`
 const Content = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.3rem;
 
   @media ${devices.mobile} {
   }
@@ -196,7 +265,7 @@ const Content = styled.div`
   }
 
   @media ${devices.desktop} {
-    width: 38rem;
+    width: 30rem;
     padding: 0 2rem;
   }
 `;
