@@ -58,4 +58,34 @@ export const NavbarNavItem = styled.li`
   cursor: pointer;
 `;
 export const NavbarSocialsWraper = styled.div``;
-export const NavbarSocialsItem = styled.div``;
+export const NavbarSocialsItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+`;
+export const NavbarSocialsItemWallet = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  & > div {
+    width: 100% !important;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    height: 5.2rem;
+    width: 100%;
+    padding: 0.5rem 1.2rem !important;
+    border-radius: 6px;
+    border: 1px solid #5cdfd8;
+
+    &:hover,
+    &:active {
+      padding: 10px !important;
+    }
+
+    & > .wallet-adapter-button {
+      color: #a6fff3;
+    }
+  }
+`;

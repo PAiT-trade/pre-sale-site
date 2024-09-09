@@ -9,15 +9,17 @@ import {
   NavbarNavItem,
   NavbarSocialsItem,
   NavbarSocialsWraper,
+  NavbarSocialsItemWallet,
 } from "./Navbar.styled";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { WalletButton } from "@/app/solana/solana-provider";
 
 interface NavbarProps {}
 export const Navbar: React.FC<NavbarProps> = () => {
   return (
     <NavbarWrapper>
       <NavbarLogoWrapper href="/">
-        <NavbarLogo src="https://cdn.prod.website-files.com/6645e7046629ba71066f47ff/66564c89e5896a4f1953b083_PAIT_White%20Logo%201.svg" />
+        <NavbarLogo src="/Logo.svg" />
         {/* <NavbarLogoCircle />
         <NavbarLogoCircleRight /> */}
       </NavbarLogoWrapper>
@@ -30,7 +32,9 @@ export const Navbar: React.FC<NavbarProps> = () => {
       </NavbarNavWrapper>
       <NavbarSocialsWraper>
         <NavbarSocialsItem suppressHydrationWarning>
-          <WalletMultiButton />
+          <NavbarSocialsItemWallet>
+            <WalletButton> Connect Wallet</WalletButton>
+          </NavbarSocialsItemWallet>
         </NavbarSocialsItem>
       </NavbarSocialsWraper>
     </NavbarWrapper>
