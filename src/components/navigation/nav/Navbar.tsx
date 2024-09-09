@@ -31,8 +31,8 @@ export const Navbar: React.FC<NavbarProps> = () => {
         <NavbarNavItem>FAQ</NavbarNavItem> */}
       </NavbarNavWrapper>
       <NavbarSocialsWraper>
-        <NavbarSocialsItem suppressHydrationWarning>
-          <NavbarSocialsItemWallet>
+        <NavbarSocialsItem>
+          <NavbarSocialsItemWallet suppressHydrationWarning>
             <WalletButton> Connect Wallet</WalletButton>
           </NavbarSocialsItemWallet>
         </NavbarSocialsItem>
