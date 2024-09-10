@@ -14,6 +14,8 @@ export const NavbarWrapper = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
+  max-width: 77.5rem;
+  margin: 0 auto;
 `;
 export const NavbarLogoWrapper = styled.a``;
 export const NavbarLogo = styled.img``;

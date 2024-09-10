@@ -181,7 +181,11 @@ export const BuyCardControlInputLabelRight = styled.span`
   cursor: pointer;
   text-transform: uppercase;
 `;
-export const BuyCardControlInputControl = styled.div`
+
+interface BuyCardControlInputControlProps {
+  error?: boolean;
+}
+export const BuyCardControlInputControl = styled.div<BuyCardControlInputControlProps>`
   display: flex;
   gap: 4px;
   align-items: center;
@@ -190,6 +194,12 @@ export const BuyCardControlInputControl = styled.div`
   background-color: #333e59;
   padding: 0.5rem;
   border-radius: 6px;
+  border: ${({ error }) => (error ? "1px solid red" : "none")};
+`;
+
+export const BuyCardControlInputIcon = styled.img`
+  width: 18px;
+  height: 18px;
 `;
 export const BuyCardControlInput = styled.input`
   border: none;

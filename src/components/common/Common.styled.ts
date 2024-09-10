@@ -65,6 +65,7 @@ export const Flex = styled.div<FlexProps>`
   }
 
   @media ${devices.desktop} {
+    padding: 2.3rem;
   }
 `;
 export const FlexItem = styled.div`

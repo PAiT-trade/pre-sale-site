@@ -28,6 +28,7 @@ import {
   BuyCardActions,
   BuyCardControlButton,
   DontHaveWallet,
+  BuyCardControlInputIcon,
 } from "./BuyCard.styled";
 import { ProgressBar } from "../PogressBar";
 import { CountdownTimer } from "../CountdownTimer";
@@ -39,6 +40,9 @@ import { formatNumber } from "@/utils/common";
 interface BuyCardProps {
   amountInUsd: string;
   amountInPait: string;
+  mininumAmount: string;
+  maximumAmount: string;
+  isInValid: boolean;
   isConnected: boolean;
   endDateTime: string;
   priceOfPait: string;
@@ -68,11 +72,21 @@ export const BuyCard: React.FC<BuyCardProps> = ({
   buyPait,
   setPaymentMethod,
   paymentMethod,
+  isInValid,
   setAmountInUsd,
+  mininumAmount,
+  maximumAmount,
 }) => {
   console.log("App Log....", isConnected);
 
-  useEffect(() => {}, [setAmountInUsd, isConnected]);
+  useEffect(() => {}, [
+    setAmountInUsd,
+    isConnected,
+    isInValid,
+    mininumAmount,
+    maximumAmount,
+  ]);
+
   return (
     <BuyCardContainer>
       <BuyCardHeader>
@@ -101,28 +115,6 @@ export const BuyCard: React.FC<BuyCardProps> = ({
         </BuyCardHeaderAllocationWrapper>
       </BuyCardHeader>
       <CountdownTimer targetDate={endDateTime} />
-
-      {/* <BoughCard>
-        <FlexBox
-          direction="row"
-          justify="space-between"
-          align="center"
-          gap="0px"
-          margin="0px"
-          wrap="nowrap"
-        >
-          <FlexItem>
-            <BoughtCardTitle>10</BoughtCardTitle>
-            <BoughtCardSubTitle>Your purchased $PAIT</BoughtCardSubTitle>
-          </FlexItem>
-          <FlexItem>
-            <BoughtCardTitle>10</BoughtCardTitle>
-            <BoughtCardSubTitle>Your stakeable $PAIT</BoughtCardSubTitle>
-          </FlexItem>
-          <FlexItem></FlexItem>
-        </FlexBox>
-      </BoughCard> */}
-
       <BuyCardActionWrapper>
         <BuyCardsText>Choose payment method</BuyCardsText>
         <BuyCardActionButtonWrapper>
@@ -130,11 +122,9 @@ export const BuyCard: React.FC<BuyCardProps> = ({
             bgcolor={paymentMethod == "usdt" ? "#131928" : ""}
             onClick={() => setPaymentMethod("usdt")}
           >
-            {paymentMethod == "usdt" ? (
-              <BuyCardActionButtonIcon>
-                <Dot />
-              </BuyCardActionButtonIcon>
-            ) : null}
+            <BuyCardActionButtonIcon>
+              <BuyCardControlInputIcon src="/usdt_icon.svg" />
+            </BuyCardActionButtonIcon>
 
             <BuyCardActionButtonText>USDT</BuyCardActionButtonText>
           </BuyCardActionButton>
@@ -144,7 +134,6 @@ export const BuyCard: React.FC<BuyCardProps> = ({
             onClick={() => setPaymentMethod("card")}
           >
             <BuyCardActionButtonIcon>
-              {paymentMethod == "card" ? <Dot /> : null}
               <CreditCardIcon size={16} />
             </BuyCardActionButtonIcon>
             <BuyCardActionButtonText>Credit Card</BuyCardActionButtonText>
@@ -162,12 +151,12 @@ export const BuyCard: React.FC<BuyCardProps> = ({
                   Max
                 </BuyCardControlInputLabelRight>
               </BuyCardControlInputLabelGroup>
-              <BuyCardControlInputControl>
+              <BuyCardControlInputControl error={isInValid}>
                 <BuyCardControlInput
                   value={amountInUsd}
                   onChange={(e) => setAmountInUsd(e.target.value)}
                 />
-                <Dot bgcolor="#4daa90" />
+                <BuyCardControlInputIcon src="/usdt_icon.svg" />
               </BuyCardControlInputControl>
             </BuyCardControlInputGroup>
             <BuyCardControlInputGroup>
@@ -181,14 +170,13 @@ export const BuyCard: React.FC<BuyCardProps> = ({
               </BuyCardControlInputLabelGroup>
               <BuyCardControlInputControl>
                 <BuyCardControlInput disabled={true} value={amountInPait} />
-                <Dot bgcolor=" #4E4189" />
+                <BuyCardControlInputIcon src="/pait_icon.svg" />
               </BuyCardControlInputControl>
             </BuyCardControlInputGroup>
           </BuyCardInputs>
 
           <BuyCardControlButton
             onClick={() => {
-              console.log("App Log....");
               buyPait();
             }}
           >
@@ -200,12 +188,10 @@ export const BuyCard: React.FC<BuyCardProps> = ({
       {!isConnected ? (
         <>
           <DontHaveWallet href="/">Don't have wallet?</DontHaveWallet>
-          <DontHaveWallet href="/">Get Terms and conditions</DontHaveWallet>
         </>
       ) : (
         <>
           <DontHaveWallet href="/">Don't have wallet?</DontHaveWallet>
-          <DontHaveWallet href="/">Get Terms and conditions</DontHaveWallet>
         </>
       )}
     </BuyCardContainer>

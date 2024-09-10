@@ -6,7 +6,7 @@ import { Navbar } from "@/components/navigation/nav/Navbar";
 import { GlobalStyle } from "@/styles/Globals";
 import React from "react";
 import { ThemeProvider } from "styled-components";
-import { AppWrapper } from "./BaseLayout.styled";
+import { AppWrapper, NavBarAppWrapper } from "./BaseLayout.styled";
 import { Toaster } from "react-hot-toast";
 
 interface BaseLayoutProps {
@@ -18,10 +18,10 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({ children }) => {
       <GlobalStyle />
 
       {/* <Advert /> */}
-      <AppWrapper>
+      <NavBarAppWrapper>
         <Navbar />
-        {children}
-      </AppWrapper>
+      </NavBarAppWrapper>
+      <AppWrapper>{children}</AppWrapper>
       <Toaster />
     </ThemeProvider>
   );

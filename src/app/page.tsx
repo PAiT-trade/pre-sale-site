@@ -6,7 +6,7 @@ import { ModalSection } from "@/components/modal/Modal";
 import { FlexBox } from "@/components/common/Common";
 import { FlexItem } from "@/components/common/Common.styled";
 import { BuyCard } from "@/components/buyCard/BuyCard";
-import { devices } from "@/utils/common";
+import { devices, formatNumber } from "@/utils/common";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 import { PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import toast from "react-hot-toast";
@@ -49,18 +49,43 @@ export default function Home() {
     total: 4000000,
   });
   const [amountInUsd, setAmountInUsd] = useState("20");
+  const [mininumAmount, setMinimumAmount] = useState("20");
+  const [isInValid, setInValid] = useState(false);
+  const [maximumAmount, setMaximumAmount] = useState("10000");
   const [amountInPait, setAmountInPait] = useState("1");
   const [endDateTime, setEndDateTime] = useState<string>("2024-10-24T00:00:00");
   const [priceOfPait, setPriceOfPait] = useState("0.3");
   const [paymentMethod, setPaymentMethod] = useState<string>("usdt");
 
   /**
-   *
+   * Get the current price of PAiT token
    */
-
   useEffect(() => {
-    setAmountInPait((Number(amountInUsd) / Number(priceOfPait)).toString());
-  }, [amountInUsd, amountInPait, endDateTime, priceOfPait, paymentMethod]);
+    if (
+      Number(amountInUsd) <= Number(mininumAmount) &&
+      Number(amountInUsd) > Number(maximumAmount)
+    ) {
+      console.log("Invalid Amount");
+      setInValid(true);
+    } else {
+      setInValid(false);
+    }
+    console.log("is-inValid: ", isInValid);
+
+    const paits = Number(amountInUsd) / Number(priceOfPait);
+
+    setAmountInPait(
+      formatNumber(Math.round(Number(paits) * 100) / 100).toString()
+    );
+  }, [
+    amountInUsd,
+    amountInPait,
+    endDateTime,
+    priceOfPait,
+    paymentMethod,
+    mininumAmount,
+    maximumAmount,
+  ]);
 
   useEffect(() => {
     getBalances();
@@ -80,7 +105,7 @@ export default function Home() {
     {
       title: "Huge Discounts",
       description:
-        "Start with 40% off in the first round, then 30%, and so on. The earlier, the better!",
+        "Start with 40% off in the first round. The earlier, the better!",
     },
     {
       title: "Limited Supply",
@@ -94,11 +119,11 @@ export default function Home() {
     {
       title: "Unlock Schedule",
       description:
-        "10% at TGE, I-month cliff, and the rest vests over 5 months.",
+        "10% at TGE, 1-month cliff, and the rest vests over 5 months.",
     },
     {
       title: "Daily Token Access",
-      description: "Gain access to your tokens every 24 hours via Streamflow.",
+      description: "TBD",
     },
   ];
 
@@ -233,7 +258,10 @@ export default function Home() {
 
           <BuyCard
             allocations={allocations}
+            isInValid={isInValid}
             isConnected={connected}
+            mininumAmount={mininumAmount}
+            maximumAmount={maximumAmount}
             amountInPait={amountInPait}
             setIsMoonPayEnabled={setIsMoonPayEnabled}
             setPaymentModal={setPaymentModal}
@@ -264,6 +292,8 @@ export default function Home() {
                 <PageDescription>{item.description}</PageDescription>
               </PageContent>
             ))}
+
+            <TermsAndConditions>Terms and conditions apply </TermsAndConditions>
           </Content>
         </FlexItem>
       </FlexBox>
@@ -348,4 +378,15 @@ const Content = styled.div`
     width: 30rem;
     padding: 0 2rem;
   }
+`;
+
+const TermsAndConditions = styled.a`
+  font-size: 14px;
+  color: #7c8cae;
+  cursor: pointer;
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-start;
+  font-weight: 600;
+  line-height: 1.1rem;
 `;
