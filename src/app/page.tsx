@@ -176,16 +176,7 @@ export default function Home() {
     setPaymentModal(false);
   };
 
-  const peformTrade = useCallback(async () => {
-    reset();
-    console.log("Connected Wallet: ", connected);
-    console.log("Public Key: ", publicKey);
-    console.log("Wallet: ", wallet);
-
-    if (amountInUsd === "0") {
-      toast.error("Please enter a valid amount");
-      return;
-    }
+  const saveRecord = async () => {
     setAmountInPait((Number(amountInUsd) / Number(priceOfPait)).toString());
     try {
       const response = await fetch("/api/google-save-data", {
@@ -206,7 +197,6 @@ export default function Home() {
 
       if (result.status === "success") {
         await fetchData();
-        console.log("Data saved successfully!");
       } else {
         console.log("Error saving data.");
       }
@@ -214,6 +204,23 @@ export default function Home() {
       console.log("Error saving data.");
       console.error(error);
     }
+    if (!connected || !wallet || !publicKey) {
+      toast.error("Please connect your wallet first");
+      return;
+    }
+  };
+
+  const peformTrade = useCallback(async () => {
+    reset();
+    console.log("Connected Wallet: ", connected);
+    console.log("Public Key: ", publicKey);
+    console.log("Wallet: ", wallet);
+
+    if (amountInUsd === "0") {
+      toast.error("Please enter a valid amount");
+      return;
+    }
+
     if (!connected || !wallet || !publicKey) {
       toast.error("Please connect your wallet first");
       return;
@@ -234,13 +241,15 @@ export default function Home() {
       console.log("Mint", mintPublicKey);
       console.log("Payment Method: ", paymentMethod);
 
-      if (paymentMethod == "usdt") {
+      if (paymentMethod == "card") {
         setIsMoonPayEnabled(false);
         setIsTransakEnabled(false);
         setPaymentModal(true);
       } else {
         reset();
       }
+
+      saveRecord();
 
       // // Ensure the recipient has a token account; if not, create it
       // const recipientTokenAccount = await getOrCreateAssociatedTokenAccount(
