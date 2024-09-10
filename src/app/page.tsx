@@ -1,29 +1,35 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import styled from "styled-components";
-import MoonPayOnRamp from "@/components/OnOffRamp/MoonPay";
 import TransakOnOffRamp from "@/components/OnOffRamp/TransakOnOffRamp";
 import { ModalSection } from "@/components/modal/Modal";
 import { FlexBox } from "@/components/common/Common";
 import { FlexItem } from "@/components/common/Common.styled";
 import { BuyCard } from "@/components/buyCard/BuyCard";
-import { Grid } from "styled-css-grid";
 import { devices } from "@/utils/common";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
-import { PublicKey, Transaction, Signer } from "@solana/web3.js";
+import { PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import toast from "react-hot-toast";
 import {
   getAssociatedTokenAddress,
   getOrCreateAssociatedTokenAccount,
   createTransferInstruction,
 } from "@solana/spl-token";
+import axios from "axios";
 
 export default function Home() {
   const { connected, wallet, publicKey, sendTransaction } = useWallet();
-  const { connection } = useConnection();
 
+  const { connection } = useConnection();
   const [isMoonPayEnabled, setIsMoonPayEnabled] = useState<boolean>(false);
   const [isTransakEnabled, setIsTransakEnabled] = useState<boolean>(false);
+  const [paymentModal, setPaymentModal] = useState<boolean>(false);
+
+  const [balances, setBalances] = useState<{ sol: string; usdt: string }>({
+    sol: "0",
+    usdt: "0",
+  });
+
   const [symbol, setSymbol] = useState("USDT");
   const [USDTAddress, setUSDTAddress] = useState(
     "Es9vMFrzaCERXgGyQr57yVCrr6oYqN2NEPNwv3PWoTy" // USDT Mint Adderss
@@ -35,8 +41,6 @@ export default function Home() {
 
   const [inputValue, setInputValue] = useState<string>("");
 
-  const [paymentModal, setPaymentModal] = useState<boolean>(false);
-
   const [allocations, setAllocations] = useState<{
     bought: number;
     total: number;
@@ -44,16 +48,34 @@ export default function Home() {
     bought: 150000,
     total: 4000000,
   });
-  const [amountInUsd, setAmountInUsd] = useState<number>(20);
-  const [amountInPait, setAmountInPait] = useState<number>(1);
+  const [amountInUsd, setAmountInUsd] = useState("20");
+  const [amountInPait, setAmountInPait] = useState("1");
   const [endDateTime, setEndDateTime] = useState<string>("2024-10-24T00:00:00");
-  const [priceOfPait, setPriceOfPait] = useState<number>(0.3);
+  const [priceOfPait, setPriceOfPait] = useState("0.3");
   const [paymentMethod, setPaymentMethod] = useState<string>("usdt");
 
+  /**
+   *
+   */
+
   useEffect(() => {
-    const amounts = amountInUsd * priceOfPait;
-    setAmountInPait(amounts);
-  }, [amountInPait, amountInUsd, setAmountInPait, setPriceOfPait]);
+    setAmountInPait((Number(amountInUsd) / Number(priceOfPait)).toString());
+  }, [amountInUsd, amountInPait, endDateTime, priceOfPait, paymentMethod]);
+
+  useEffect(() => {
+    getBalances();
+  }, [connected, wallet, publicKey]);
+
+  const getBalances = async () => {
+    // if (publicKey) {
+    //   setRecipientAddress(publicKey.toBase58());
+    //   const solBalance =
+    //     (await connection.getBalance(publicKey)) / LAMPORTS_PER_SOL;
+    //   const usdtBalance = await connection.getTokenAccountBalance(
+    //     new PublicKey(USDTAddress)
+    //   );
+    // }
+  };
   const content = [
     {
       title: "Huge Discounts",
@@ -80,7 +102,49 @@ export default function Home() {
     },
   ];
 
+  const reset = () => {
+    setIsMoonPayEnabled(false);
+    setIsTransakEnabled(false);
+    setPaymentModal(false);
+  };
+
   const peformTrade = useCallback(async () => {
+    reset();
+    console.log("Connected Wallet: ", connected);
+    console.log("Public Key: ", publicKey);
+    console.log("Wallet: ", wallet);
+
+    if (amountInUsd === "0") {
+      toast.error("Please enter a valid amount");
+      return;
+    }
+    setAmountInPait((Number(amountInUsd) / Number(priceOfPait)).toString());
+    try {
+      const response = await fetch("/api/google-save-data", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          data: {
+            user: recipientAddress,
+            usd: amountInUsd,
+            pait: amountInPait,
+          },
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.status === "success") {
+        console.log("Data saved successfully!");
+      } else {
+        console.log("Error saving data.");
+      }
+    } catch (error) {
+      console.log("Error saving data.");
+      console.error(error);
+    }
     if (!connected || !wallet || !publicKey) {
       toast.error("Please connect your wallet first");
       return;
@@ -98,6 +162,16 @@ export default function Home() {
 
       console.log("senderTokenAccount", senderTokenAccount);
       console.log("Recipient", recipientPublicKey);
+      console.log("Mint", mintPublicKey);
+      console.log("Payment Method: ", paymentMethod);
+
+      if (paymentMethod == "usdt") {
+        setIsMoonPayEnabled(false);
+        setIsTransakEnabled(false);
+        setPaymentModal(true);
+      } else {
+        reset();
+      }
 
       // // Ensure the recipient has a token account; if not, create it
       // const recipientTokenAccount = await getOrCreateAssociatedTokenAccount(
@@ -127,7 +201,7 @@ export default function Home() {
       console.error("Error sending USDT:", error);
       toast.error(`Error sending USDT`);
     }
-  }, []);
+  }, [amountInPait, setAmountInPait, amountInUsd, connected, publicKey]);
 
   const sendUsdt = async () => {
     if (!connected || !wallet || !publicKey) {
@@ -161,6 +235,12 @@ export default function Home() {
             allocations={allocations}
             isConnected={connected}
             amountInPait={amountInPait}
+            setIsMoonPayEnabled={setIsMoonPayEnabled}
+            setPaymentModal={setPaymentModal}
+            setIsTransakEnabled={setIsTransakEnabled}
+            paymentModal={paymentModal}
+            isMoonPayEnabled={isMoonPayEnabled}
+            isTransakEnabled={isTransakEnabled}
             amountInUsd={amountInUsd}
             setAmountInUsd={setAmountInUsd}
             endDateTime={endDateTime}
@@ -193,13 +273,13 @@ export default function Home() {
         setIsOpen={setPaymentModal}
         title="Pay With Card"
       >
-        <MoonPayOnRamp
+        {/* <MoonPayOnRamp
           inputValue={inputValue}
           setIsDrawerOpen={setIsMoonPayEnabled}
           setVisible={setIsMoonPayEnabled}
           visible={isMoonPayEnabled}
           tokenSymbol={symbol}
-        />
+        /> */}
 
         <TransakOnOffRamp
           apiKey="e6e15239-cae2-4d5d-bb8d-8f98346c576c"

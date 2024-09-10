@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   BuyCardContainer,
   BuyCardHeader,
@@ -37,20 +37,27 @@ import { CreditCardIcon } from "lucide-react";
 import { formatNumber } from "@/utils/common";
 
 interface BuyCardProps {
-  amountInUsd: number;
-  amountInPait: number;
+  amountInUsd: string;
+  amountInPait: string;
   isConnected: boolean;
   endDateTime: string;
-  priceOfPait: number;
+  priceOfPait: string;
+  isMoonPayEnabled: boolean;
+  isTransakEnabled: boolean;
+  paymentModal: boolean;
   allocations: {
     bought: number;
     total: number;
   };
+  setIsTransakEnabled: (value: boolean) => void;
+  setIsMoonPayEnabled: (value: boolean) => void;
+  setPaymentModal: (value: boolean) => void;
   buyPait: () => Promise<void>;
-  setAmountInUsd: (amount: number) => void;
+  setAmountInUsd: (amount: string) => void;
   paymentMethod: string;
   setPaymentMethod: (method: string) => void;
 }
+
 export const BuyCard: React.FC<BuyCardProps> = ({
   allocations,
   amountInPait,
@@ -63,6 +70,9 @@ export const BuyCard: React.FC<BuyCardProps> = ({
   paymentMethod,
   setAmountInUsd,
 }) => {
+  console.log("App Log....", isConnected);
+
+  useEffect(() => {}, [setAmountInUsd, isConnected]);
   return (
     <BuyCardContainer>
       <BuyCardHeader>
@@ -86,7 +96,7 @@ export const BuyCard: React.FC<BuyCardProps> = ({
           />
 
           <BText color="#4daa90">
-            1 $PAiT = {formatNumber(priceOfPait)} USDT
+            1 $PAiT = {formatNumber(Number(priceOfPait))} USDT
           </BText>
         </BuyCardHeaderAllocationWrapper>
       </BuyCardHeader>
@@ -155,9 +165,7 @@ export const BuyCard: React.FC<BuyCardProps> = ({
               <BuyCardControlInputControl>
                 <BuyCardControlInput
                   value={amountInUsd}
-                  onChange={(e) =>
-                    setAmountInUsd(e.target.value ? Number(e.target.value) : 0)
-                  }
+                  onChange={(e) => setAmountInUsd(e.target.value)}
                 />
                 <Dot bgcolor="#4daa90" />
               </BuyCardControlInputControl>

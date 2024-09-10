@@ -82,7 +82,7 @@ export const NavbarSocialsItemWallet = styled.div`
 
     &:hover,
     &:active {
-      padding: 0.8rem !important;
+      /* padding: 0.8rem !important; */
     }
 
     & > .wallet-adapter-button {

@@ -44,9 +44,6 @@ export const GlobalStyle = createGlobalStyle`
         align-items: center;
         width: 100%;
         padding: 0 !important;
-        &:hover, &:active {
-            padding: 10px !important;
-        }
     
     }
 
@@ -64,7 +61,7 @@ export const GlobalStyle = createGlobalStyle`
         top: 100%;
         left: 0;
         width: 100%;
-        background-color: #fff;
+        background-color: ${({ theme }) => theme.colors.primary};
         border-radius: 8px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         z-index: 1000;
@@ -80,9 +77,10 @@ export const GlobalStyle = createGlobalStyle`
     }
 
     .wallet-adapter-dropdown-list-item {
-        padding: 10px !important;
+        padding: 0.8rem !important;
         cursor: pointer;
-        border-bottom: 1px solid #f0f0f0;
+        color: ${({ theme }) => theme.colors.text};
+        /* border-bottom: 1px solid #f0f0f0; */
     }
 
     .wallet-adapter-dropdown-list-item:last-child {
