@@ -29,11 +29,10 @@ import {
   BuyCardControlButton,
   DontHaveWallet,
   BuyCardControlInputIcon,
+  ErrorMessage,
 } from "./BuyCard.styled";
 import { ProgressBar } from "../PogressBar";
 import { CountdownTimer } from "../CountdownTimer";
-import { FlexBox } from "../common/Common";
-import { Dot, FlexItem } from "../common/Common.styled";
 import { CreditCardIcon } from "lucide-react";
 import { formatNumber } from "@/utils/common";
 
@@ -77,8 +76,6 @@ export const BuyCard: React.FC<BuyCardProps> = ({
   mininumAmount,
   maximumAmount,
 }) => {
-  console.log("App Log....", isConnected);
-
   useEffect(() => {}, [
     setAmountInUsd,
     isConnected,
@@ -151,7 +148,7 @@ export const BuyCard: React.FC<BuyCardProps> = ({
                   Max
                 </BuyCardControlInputLabelRight>
               </BuyCardControlInputLabelGroup>
-              <BuyCardControlInputControl error={isInValid}>
+              <BuyCardControlInputControl error={isInValid ? "red" : ""}>
                 <BuyCardControlInput
                   value={amountInUsd}
                   onChange={(e) => setAmountInUsd(e.target.value)}
@@ -174,6 +171,13 @@ export const BuyCard: React.FC<BuyCardProps> = ({
               </BuyCardControlInputControl>
             </BuyCardControlInputGroup>
           </BuyCardInputs>
+
+          {isInValid && (
+            <ErrorMessage>
+              Min: ${formatNumber(Number(mininumAmount))} & Max: $
+              {formatNumber(Number(maximumAmount))}
+            </ErrorMessage>
+          )}
 
           <BuyCardControlButton
             onClick={() => {

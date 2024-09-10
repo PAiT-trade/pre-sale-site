@@ -24,6 +24,9 @@ export default function Home() {
   const [isMoonPayEnabled, setIsMoonPayEnabled] = useState<boolean>(false);
   const [isTransakEnabled, setIsTransakEnabled] = useState<boolean>(false);
   const [paymentModal, setPaymentModal] = useState<boolean>(false);
+  const [data, setData] = useState<
+    Array<{ wallet: string; amountPait: number; amountUSD: number }>
+  >([]);
 
   const [balances, setBalances] = useState<{ sol: string; usdt: string }>({
     sol: "0",
@@ -45,7 +48,7 @@ export default function Home() {
     bought: number;
     total: number;
   }>({
-    bought: 150000,
+    bought: 0,
     total: 4000000,
   });
   const [amountInUsd, setAmountInUsd] = useState("20");
@@ -62,15 +65,13 @@ export default function Home() {
    */
   useEffect(() => {
     if (
-      Number(amountInUsd) <= Number(mininumAmount) &&
+      Number(amountInUsd) < Number(mininumAmount) ||
       Number(amountInUsd) > Number(maximumAmount)
     ) {
-      console.log("Invalid Amount");
       setInValid(true);
     } else {
       setInValid(false);
     }
-    console.log("is-inValid: ", isInValid);
 
     const paits = Number(amountInUsd) / Number(priceOfPait);
 
@@ -80,11 +81,11 @@ export default function Home() {
   }, [
     amountInUsd,
     amountInPait,
-    endDateTime,
     priceOfPait,
-    paymentMethod,
     mininumAmount,
     maximumAmount,
+    data,
+    setData,
   ]);
 
   useEffect(() => {
@@ -101,6 +102,48 @@ export default function Home() {
     //   );
     // }
   };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const response = await fetch("/api/google-save-data", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const result = await response.json();
+      console.log("Fetched data: ", result);
+      if (result.status === "success") {
+        const data = result.data.map((item: any) => {
+          return {
+            wallet: item[0],
+            amountPait: Number(item[1]?.replaceAll(",", "")),
+            amountUSD: Number(item[2]?.replaceAll(",", "")),
+          };
+        });
+        console.log("Data: ", data);
+        setData(data);
+        const totalAmountPaid = data.reduce(
+          (sum: number, item: any) => sum + Number(item.amountPait),
+          0
+        );
+        console.log("Total amount paid: ", totalAmountPaid);
+        setAllocations({
+          bought: totalAmountPaid,
+          total: allocations.total,
+        });
+      } else {
+        console.log("Error fetching data.");
+      }
+    } catch (error) {
+      console.error("Fetch error: ", error);
+    }
+  };
+
   const content = [
     {
       title: "Huge Discounts",
@@ -162,6 +205,7 @@ export default function Home() {
       const result = await response.json();
 
       if (result.status === "success") {
+        await fetchData();
         console.log("Data saved successfully!");
       } else {
         console.log("Error saving data.");
@@ -222,6 +266,7 @@ export default function Home() {
       // const signature = await sendTransaction(transaction, connection);
       // await connection.confirmTransaction(signature, "processed");
       // toast.error(`Transaction confirmed: ${signature}`);
+      await fetchData();
     } catch (error) {
       console.error("Error sending USDT:", error);
       toast.error(`Error sending USDT`);

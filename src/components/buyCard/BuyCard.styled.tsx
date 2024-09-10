@@ -183,7 +183,7 @@ export const BuyCardControlInputLabelRight = styled.span`
 `;
 
 interface BuyCardControlInputControlProps {
-  error?: boolean;
+  error?: string;
 }
 export const BuyCardControlInputControl = styled.div<BuyCardControlInputControlProps>`
   display: flex;
@@ -239,4 +239,11 @@ export const DontHaveWallet = styled.a`
   @media ${devices.tablet} {
     font-size: 1.5rem;
   }
+`;
+
+export const ErrorMessage = styled.p`
+  color: red;
+  font-size: 12px;
+  margin: 0;
+  padding: 0;
 `;
