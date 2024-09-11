@@ -142,7 +142,7 @@ export default function Home() {
 
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+  }, []);
 
   const content = [
     {
@@ -290,7 +290,6 @@ export default function Home() {
     paymentMethod,
     setPaymentMethod,
     USDTAddress,
-    fetchData,
     recipientAddress,
     saveRecord,
     wallet,
