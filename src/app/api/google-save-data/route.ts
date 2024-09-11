@@ -29,8 +29,8 @@ export async function POST(req: Request) {
         values: [
           [
             data.user,
+            Math.round(Number(data.pait.replace(",", "")) * 100) / 100,
             data.usd,
-            Math.round(Number(data.pait) * 100) / 100,
             formatDate(new Date()),
           ],
         ],

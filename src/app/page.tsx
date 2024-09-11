@@ -177,6 +177,7 @@ export default function Home() {
   };
 
   const saveRecord = async () => {
+    console.log("Amount InUsd", amountInUsd);
     setAmountInPait((Number(amountInUsd) / Number(priceOfPait)).toString());
     try {
       const response = await fetch("/api/google-save-data", {
@@ -186,7 +187,7 @@ export default function Home() {
         },
         body: JSON.stringify({
           data: {
-            user: recipientAddress,
+            user: publicKey?.toBase58(),
             usd: amountInUsd,
             pait: amountInPait,
           },
@@ -280,7 +281,15 @@ export default function Home() {
       console.error("Error sending USDT:", error);
       toast.error(`Error sending USDT`);
     }
-  }, [amountInPait, setAmountInPait, amountInUsd, connected, publicKey]);
+  }, [
+    amountInPait,
+    setAmountInPait,
+    amountInUsd,
+    connected,
+    publicKey,
+    paymentMethod,
+    setPaymentMethod,
+  ]);
 
   const sendUsdt = async () => {
     if (!connected || !wallet || !publicKey) {
