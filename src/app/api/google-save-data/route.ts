@@ -1,8 +1,8 @@
 // app/api/save-data/route.ts
 import { NextResponse } from "next/server";
 import { google } from "googleapis";
-import { GOOGLE_JSON_API_KEY } from "@/GOOGLE_SHEET_API_KEY";
-import { formatDate } from "@/utils/common";
+import { GOOGLE_JSON_API_KEY } from "./../../../GOOGLE_SHEET_API_KEY";
+import { formatDate } from "./../../../utils/common";
 
 const SHEET_NAME = "Sheet1";
 
