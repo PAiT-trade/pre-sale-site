@@ -35,5 +35,4 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-
-GOOGLE_SHEET_API_KEY.ts
+.env
