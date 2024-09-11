@@ -191,11 +191,11 @@ export const BuyCard: React.FC<BuyCardProps> = ({
 
       {!isConnected ? (
         <>
-          <DontHaveWallet href="/">Don't have wallet?</DontHaveWallet>
+          <DontHaveWallet href="/">Don\'t have wallet?</DontHaveWallet>
         </>
       ) : (
         <>
-          <DontHaveWallet href="/">Don't have wallet?</DontHaveWallet>
+          <DontHaveWallet href="/">Don\'t have wallet?</DontHaveWallet>
         </>
       )}
     </BuyCardContainer>

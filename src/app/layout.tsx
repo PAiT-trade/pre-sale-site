@@ -76,7 +76,6 @@ export default function RootLayout({
           name="viewport"
           content="width=device-width,initial-scale=1"
         ></meta>
-        <link rel="stylesheet" href="/" />
       </head>
       <body className={inter.className}>
         <ClusterProvider>

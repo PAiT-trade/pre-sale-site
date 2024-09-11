@@ -103,10 +103,6 @@ export default function Home() {
     // }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
   const fetchData = async () => {
     try {
       const response = await fetch("/api/google-save-data", {
@@ -143,6 +139,10 @@ export default function Home() {
       console.error("Fetch error: ", error);
     }
   };
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const content = [
     {
@@ -289,6 +289,11 @@ export default function Home() {
     publicKey,
     paymentMethod,
     setPaymentMethod,
+    USDTAddress,
+    fetchData,
+    recipientAddress,
+    saveRecord,
+    wallet,
   ]);
 
   const sendUsdt = async () => {

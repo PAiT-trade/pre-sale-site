@@ -39,7 +39,7 @@ export const CountdownTimer: React.FC<{ targetDate: string }> = ({
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [timeLeft]);
+  }, [timeLeft, calculateTimeLeft]);
 
   return (
     <CountdownTimerContainer>
