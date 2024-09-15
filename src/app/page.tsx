@@ -18,6 +18,7 @@ import {
 import * as Veriff from "@veriff/js-sdk";
 import { createVeriffFrame, MESSAGES } from "@veriff/incontext-sdk";
 import { CONFIGS } from "@/config";
+import { VerifyKYC } from "@/components/kyc/VerifyKYC";
 
 export default function Home() {
   const { connected, wallet, publicKey, sendTransaction } = useWallet();
@@ -366,6 +367,8 @@ export default function Home() {
           </Content>
         </FlexItem>
       </FlexBox>
+
+      <VerifyKYC />
 
       <ModalSection
         isOpen={paymentModal}

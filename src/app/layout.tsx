@@ -5,6 +5,7 @@ import { Providers } from "@/providers";
 import { BaseLayout } from "@/components/wraps/base/BaseLayout";
 import { ClusterProvider } from "./solana/cluster/cluster-data-access";
 import { SolanaProvider } from "./solana/solana-provider";
+import { WalletProvider } from "@/context/WalletContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -80,9 +81,11 @@ export default function RootLayout({
       <body className={inter.className}>
         <ClusterProvider>
           <SolanaProvider>
-            <Providers>
-              <BaseLayout>{children}</BaseLayout>
-            </Providers>
+            <WalletProvider>
+              <Providers>
+                <BaseLayout>{children}</BaseLayout>
+              </Providers>
+            </WalletProvider>
           </SolanaProvider>
         </ClusterProvider>
       </body>

@@ -86,4 +86,39 @@ export const GlobalStyle = createGlobalStyle`
     .wallet-adapter-dropdown-list-item:last-child {
         border-bottom: none;
     }
+
+    .veriff-submit {
+        width: 100%;
+        background-color:#242d44 !important;
+        color: white;
+        box-sizing: border-box;
+        text-transform: capitalize;
+        font-weight: 500;
+        font-size: 14px;
+        line-height: 20px;
+        letter-spacing: -0.005em;
+        display: inline-block;
+        text-align: center;
+        user-select: none;
+        border: 1px solid transparent;
+        position: relative;
+        height: 40px;
+        padding: 0 16px;
+        border-radius: 4px;
+        transition-property: color, background-color, box-shadow;
+        transition-duration: 0.15s;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        text-decoration: none;
+        user-select: none;
+        box-shadow: inset 0px 0px 0px 1px rgba(255, 255, 255, 0);
+    }
+
+
+    .veriff-description {
+        color: #dce1ed !important;
+        font-size: 12px;
+        line-height: 16px;
+        margin: 16px 0;
+        text-align: center;
+    }
 `;
