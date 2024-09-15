@@ -9,5 +9,3 @@ export const CONFIGS = {
   GOOGLE_SHEET_ID: process.env.GOOGLE_SHEET_ID!,
   VERIFF_API_KEY: process.env.VERIFF_API_KEY!,
 };
-
-console.log("CONFIGS", CONFIGS);
