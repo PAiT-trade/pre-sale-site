@@ -2746,6 +2746,19 @@
   resolved "https://registry.npmjs.org/@vanilla-extract/sprinkles/-/sprinkles-1.6.1.tgz"
   integrity sha512-N/RGKwGAAidBupZ436RpuweRQHEFGU+mvAqBo8PRMAjJEmHoPDttV8RObaMLrJHWLqvX+XUMinHUnD0hFRQISw==
 
+"@veriff/incontext-sdk@^2.2.1":
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/@veriff/incontext-sdk/-/incontext-sdk-2.2.1.tgz#0eb7de649fbdfda5c259b21307a4af1dcf8c6a1f"
+  integrity sha512-8LYjzF58W1+63FtdJXJUcmSEh3fejSxV69uEudwWFWEALygOUxNLJ/6UyvzDdyYCCa3BjJkkVk6PgsahWlxOMg==
+  dependencies:
+    dom-focus-lock "1.0.4"
+    tua-body-scroll-lock "1.2.1"
+
+"@veriff/js-sdk@^1.5.1":
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/@veriff/js-sdk/-/js-sdk-1.5.1.tgz#f8580aa51b0404e58c66bf82a5cc22bc11aafc1b"
+  integrity sha512-THHcyRTctdtXUpKAEGnddTkwgFdRi2taAigtnhOfGmoCp23m+9vlZp5GnT7qmswfyZk48BCZ4Uc2gT7AUIhqTA==
+
 "@wagmi/connectors@5.1.8":
   version "5.1.8"
   resolved "https://registry.npmjs.org/@wagmi/connectors/-/connectors-5.1.8.tgz"
@@ -4399,6 +4412,13 @@ doctrine@^3.0.0:
   dependencies:
     esutils "^2.0.2"
 
+dom-focus-lock@1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/dom-focus-lock/-/dom-focus-lock-1.0.4.tgz#1a6f900399efa4e8cc9d7078ba40acf080fc10d8"
+  integrity sha512-Tiz2EYedB14UW0/lY5PEzFAie66e9itoEVKhz0M9xz1cHqP4Jd0XUg/AT2m6DtbhCFa9DHo6nQyePuLH7Mx9+A==
+  dependencies:
+    focus-lock "^0.6.2"
+
 draggabilly@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/draggabilly/-/draggabilly-3.0.0.tgz#48defe10a67f346a0338caaa40c0765c4d3912d6"
@@ -5135,6 +5155,11 @@ flatted@^3.2.9:
   version "3.3.1"
   resolved "https://registry.npmjs.org/flatted/-/flatted-3.3.1.tgz"
   integrity sha512-X8cqMLLie7KsNUDSdzeN8FYK9rEt4Dt67OsG/DNGnYTSDBG4uFAJFBnUeiV+zCVAvwFy56IjM9sH51jVaEhNxw==
+
+focus-lock@^0.6.2:
+  version "0.6.8"
+  resolved "https://registry.yarnpkg.com/focus-lock/-/focus-lock-0.6.8.tgz#61985fadfa92f02f2ee1d90bc738efaf7f3c9f46"
+  integrity sha512-vkHTluRCoq9FcsrldC0ulQHiyBYgVJB2CX53I8r0nTC6KnEij7Of0jpBspjt3/CuNb6fyoj3aOh9J2HgQUM0og==
 
 follow-redirects@^1.15.6:
   version "1.15.9"
@@ -8118,6 +8143,11 @@ tslib@^2.0.0, tslib@^2.1.0, tslib@^2.3.0, tslib@^2.3.1, tslib@^2.4.0:
   version "2.7.0"
   resolved "https://registry.npmjs.org/tslib/-/tslib-2.7.0.tgz"
   integrity sha512-gLXCKdN1/j47AiHiOkJN69hJmcbGTHI0ImLmbYLHykhgeN0jVGola9yVjFgzCUklsZQMW55o+dW7IXv3RCXDzA==
+
+tua-body-scroll-lock@1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/tua-body-scroll-lock/-/tua-body-scroll-lock-1.2.1.tgz#a45b428a61ff41e7cccded11c2095d44ac02536e"
+  integrity sha512-DuGbQxIBSbz7/aAwh0oMThOwCwDdYzsU8nF5XQPAvoeOBWp/qhjrZfOtc84gj6CQLZu5L1+TgMNX6fW3OuafHA==
 
 type-check@^0.4.0, type-check@~0.4.0:
   version "0.4.0"

@@ -15,7 +15,9 @@ import {
   getOrCreateAssociatedTokenAccount,
   createTransferInstruction,
 } from "@solana/spl-token";
-import axios from "axios";
+import * as Veriff from "@veriff/js-sdk";
+import { createVeriffFrame, MESSAGES } from "@veriff/incontext-sdk";
+import { CONFIGS } from "@/config";
 
 export default function Home() {
   const { connected, wallet, publicKey, sendTransaction } = useWallet();
@@ -276,6 +278,7 @@ export default function Home() {
       // const signature = await sendTransaction(transaction, connection);
       // await connection.confirmTransaction(signature, "processed");
       // toast.error(`Transaction confirmed: ${signature}`);
+      toast.success(`Successfully participated in the Pre-Sale`);
       await fetchData();
     } catch (error) {
       console.error("Error sending USDT:", error);
@@ -359,7 +362,6 @@ export default function Home() {
                 <PageDescription>{item.description}</PageDescription>
               </PageContent>
             ))}
-
             <TermsAndConditions>Terms and conditions apply </TermsAndConditions>
           </Content>
         </FlexItem>
@@ -453,7 +455,7 @@ const TermsAndConditions = styled.a`
   cursor: pointer;
   margin-top: 1rem;
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
   font-weight: 600;
   line-height: 1.1rem;
 `;

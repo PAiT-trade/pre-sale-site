@@ -191,13 +191,11 @@ export const BuyCard: React.FC<BuyCardProps> = ({
 
       {!isConnected ? (
         <>
-          <DontHaveWallet href="/">Don\'t have wallet?</DontHaveWallet>
+          <DontHaveWallet href="/https://phantom.app" target="_blank">
+            Don&#92;'t have wallet?
+          </DontHaveWallet>
         </>
-      ) : (
-        <>
-          <DontHaveWallet href="/">Don\'t have wallet?</DontHaveWallet>
-        </>
-      )}
+      ) : null}
     </BuyCardContainer>
   );
 };
