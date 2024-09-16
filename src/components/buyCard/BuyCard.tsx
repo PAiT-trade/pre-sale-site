@@ -199,6 +199,12 @@ export const BuyCard: React.FC<BuyCardProps> = ({
           </DontHaveWallet>
         </Link>
       ) : null}
+
+      <Link href={"/wallet"}>
+        <DontHaveWallet href="#" target="_blank">
+          Don&#92;'t have wallet?
+        </DontHaveWallet>
+      </Link>
     </BuyCardContainer>
   );
 };

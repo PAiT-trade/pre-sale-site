@@ -6,7 +6,7 @@ import { VerifyKYC } from "@/components/kyc/VerifyKYC";
 export default function KYC() {
   return (
     <PagesWrapper>
-      <PageTitle>Pait KYC & AML Verification</PageTitle>
+      <PageTitle>Let’s get you verified</PageTitle>
       <VerifyKYC />
     </PagesWrapper>
   );
