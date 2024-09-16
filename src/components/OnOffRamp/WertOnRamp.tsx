@@ -29,7 +29,22 @@ export const WertOnRamp: React.FC<WertOnRampProps> = ({
   tokenSymbol,
 }) => {
   const options: GeneralOptions = {
-    partner_id: "YOUR_PARTNER_ID",
+    partner_id: "01J7WRJB0GN4V22GMTEP1RDGYX",
+    origin: "https://sandbox.wert.io",
+    extra: {
+      wallets: [
+        {
+          name: "TT",
+          network: "amoy",
+          address: "0x0118E8e2FCb391bCeb110F62b5B7B963477C1E0d",
+        },
+        {
+          name: "ETH",
+          network: "sepolia",
+          address: "0x0118E8e2FCb391bCeb110F62b5B7B963477C1E0d",
+        },
+      ],
+    },
   };
   const [reactiveOptions, setReactiveOptions] = useState<ReactiveOptions>({
     theme: "dark",

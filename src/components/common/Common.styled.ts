@@ -90,7 +90,7 @@ export const PagesWrapper = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  height: 70vh;
   background-color: #151720 !important;
   margin: 2rem;
   border-radius: 0.4rem;

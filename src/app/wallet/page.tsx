@@ -8,6 +8,7 @@ import {
 import { useWallet } from "@/context/WalletContext";
 import { useWallet as useConnectWallet } from "@solana/wallet-adapter-react";
 import { CheckCircleIcon, CopyIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import styled from "styled-components";
@@ -21,6 +22,8 @@ export default function KYC() {
     seedPhrase,
   } = useWallet();
   const { connected, publicKey: phantomPublicKey } = useConnectWallet();
+
+  const router = useRouter();
 
   const [isCopied, setIsCopied] = useState(false);
   const [isBackedUp, setIsBackedUp] = useState(false);
@@ -38,6 +41,11 @@ export default function KYC() {
 
   const handleBackup = () => {
     setIsBackedUp(true);
+    if (seedPhrase === null) return;
+    // save seed phrase to local storage
+
+    // redirect to kyc processing
+    router.push("/kyc");
   };
 
   useEffect(() => {

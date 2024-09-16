@@ -183,8 +183,8 @@ export const BuyCard: React.FC<BuyCardProps> = ({
 
           <BuyCardControlButton
             onClick={() => {
-              // router.push("/kyc");
-              buyPait();
+              router.push("/kyc");
+              // buyPait();
             }}
           >
             {isConnected ? "Buy PAiT" : "Connect Wallet"}
