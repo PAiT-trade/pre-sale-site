@@ -20,6 +20,7 @@ import { createVeriffFrame, MESSAGES } from "@veriff/incontext-sdk";
 import { CONFIGS } from "@/config";
 import { VerifyKYC } from "@/components/kyc/VerifyKYC";
 import { useRouter } from "next/navigation";
+import WertOnRamp from "@/components/OnOffRamp/WertOnRamp";
 
 export default function Home() {
   const { connected, wallet, publicKey, sendTransaction } = useWallet();
@@ -378,21 +379,12 @@ export default function Home() {
         setIsOpen={setPaymentModal}
         title="Pay With Card"
       >
-        {/* <MoonPayOnRamp
+        <WertOnRamp
           inputValue={inputValue}
           setIsDrawerOpen={setIsMoonPayEnabled}
           setVisible={setIsMoonPayEnabled}
           visible={isMoonPayEnabled}
           tokenSymbol={symbol}
-        /> */}
-
-        <TransakOnOffRamp
-          apiKey="e6e15239-cae2-4d5d-bb8d-8f98346c576c"
-          setIsDrawerOpen={setIsMoonPayEnabled}
-          environment="staging"
-          setVisible={setIsTransakEnabled}
-          visible={isTransakEnabled}
-          amount={Number(inputValue ? inputValue : "0")}
         />
       </ModalSection>
     </>
