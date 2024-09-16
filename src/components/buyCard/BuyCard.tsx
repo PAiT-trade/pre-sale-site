@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import {
   BuyCardContainer,
   BuyCardHeader,
@@ -25,7 +25,6 @@ import {
   BuyCardControlInputLabelLeft,
   BuyCardControlInputLabelRight,
   BuyCardInputs,
-  BuyCardActions,
   BuyCardControlButton,
   DontHaveWallet,
   BuyCardControlInputIcon,
@@ -35,6 +34,8 @@ import { ProgressBar } from "../PogressBar";
 import { CountdownTimer } from "../CountdownTimer";
 import { CreditCardIcon } from "lucide-react";
 import { formatNumber } from "@/utils/common";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface BuyCardProps {
   amountInUsd: string;
@@ -83,6 +84,7 @@ export const BuyCard: React.FC<BuyCardProps> = ({
     mininumAmount,
     maximumAmount,
   ]);
+  const router = useRouter();
 
   return (
     <BuyCardContainer>
@@ -123,7 +125,7 @@ export const BuyCard: React.FC<BuyCardProps> = ({
               <BuyCardControlInputIcon src="/usdt_icon.svg" />
             </BuyCardActionButtonIcon>
 
-            <BuyCardActionButtonText>USDT</BuyCardActionButtonText>
+            <BuyCardActionButtonText>Wallet</BuyCardActionButtonText>
           </BuyCardActionButton>
 
           <BuyCardActionButton
@@ -181,7 +183,8 @@ export const BuyCard: React.FC<BuyCardProps> = ({
 
           <BuyCardControlButton
             onClick={() => {
-              buyPait();
+              router.push("/kyc");
+              // buyPait();
             }}
           >
             {isConnected ? "Buy PAiT" : "Connect Wallet"}
@@ -190,11 +193,11 @@ export const BuyCard: React.FC<BuyCardProps> = ({
       </BuyCardActionWrapper>
 
       {!isConnected ? (
-        <>
-          <DontHaveWallet href="/https://phantom.app" target="_blank">
+        <Link href={"/wallet"}>
+          <DontHaveWallet href="#" target="_blank">
             Don&#92;'t have wallet?
           </DontHaveWallet>
-        </>
+        </Link>
       ) : null}
     </BuyCardContainer>
   );

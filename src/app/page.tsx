@@ -19,6 +19,7 @@ import * as Veriff from "@veriff/js-sdk";
 import { createVeriffFrame, MESSAGES } from "@veriff/incontext-sdk";
 import { CONFIGS } from "@/config";
 import { VerifyKYC } from "@/components/kyc/VerifyKYC";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const { connected, wallet, publicKey, sendTransaction } = useWallet();
@@ -62,6 +63,8 @@ export default function Home() {
   const [endDateTime, setEndDateTime] = useState<string>("2024-10-24T00:00:00");
   const [priceOfPait, setPriceOfPait] = useState("0.3");
   const [paymentMethod, setPaymentMethod] = useState<string>("usdt");
+
+  const router = useRouter();
 
   /**
    * Get the current price of PAiT token
@@ -215,6 +218,8 @@ export default function Home() {
   };
 
   const peformTrade = useCallback(async () => {
+    // show KYC verification
+
     reset();
     console.log("Connected Wallet: ", connected);
     console.log("Public Key: ", publicKey);
@@ -367,8 +372,6 @@ export default function Home() {
           </Content>
         </FlexItem>
       </FlexBox>
-
-      <VerifyKYC />
 
       <ModalSection
         isOpen={paymentModal}

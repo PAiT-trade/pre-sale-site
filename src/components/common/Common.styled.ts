@@ -84,3 +84,22 @@ export const Dot = styled.div<DotProps>`
   height: 17px;
   border-radius: 50%;
 `;
+
+export const PagesWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #151720 !important;
+  margin: 2rem;
+  border-radius: 0.4rem;
+  gap: 1rem;
+
+  #veriff-root {
+    width: 100%;
+  }
+`;
+
+export const PageWrap = styled.div``;
+export const PageTitle = styled.h1``;

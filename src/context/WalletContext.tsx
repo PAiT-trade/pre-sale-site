@@ -9,17 +9,15 @@ import {
   useEffect,
 } from "react";
 import { Keypair } from "@solana/web3.js";
-import {
-  createWallet,
-  getWalletPublicKey,
-  getWalletPrivateKey,
-} from "./../utils/wallet";
+import { createWallet } from "./../utils/wallet";
 import { useWallet as useConnectedWallet } from "@solana/wallet-adapter-react";
 
 interface WalletContextType {
   keypair: Keypair | null;
   publicKey: string | null;
   privateKey: string | null;
+  seedPhrase: string | null;
+  setSeedPhrase: (seedPhrase: string) => void;
   createNewWallet: () => void;
   connectWallet: () => void;
   isWalletConnected: boolean;
@@ -30,6 +28,7 @@ const WalletContext = createContext<WalletContextType | undefined>(undefined);
 export const WalletProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [keypair, setKeypair] = useState<Keypair | null>(null);
   const [publicKey, setPublicKey] = useState<string | null>(null);
+  const [seedPhrase, setSeedPhrase] = useState<string | null>(null);
   const [privateKey, setPrivateKey] = useState<string | null>(null);
 
   const {
@@ -39,11 +38,12 @@ export const WalletProvider: FC<{ children: ReactNode }> = ({ children }) => {
     wallet,
   } = useConnectedWallet();
 
-  const createNewWallet = () => {
-    const newKeypair = createWallet();
-    setKeypair(newKeypair);
-    setPublicKey(getWalletPublicKey(newKeypair));
-    setPrivateKey(getWalletPrivateKey(newKeypair));
+  const createNewWallet = async () => {
+    const wallet = await createWallet();
+    setKeypair(wallet.keypair);
+    setPublicKey(wallet.publicKey);
+    setPrivateKey(wallet.privateKey);
+    setSeedPhrase(wallet.mnemonic);
   };
 
   useEffect(() => {
@@ -58,6 +58,8 @@ export const WalletProvider: FC<{ children: ReactNode }> = ({ children }) => {
       value={{
         keypair,
         publicKey,
+        seedPhrase,
+        setSeedPhrase,
         privateKey,
         createNewWallet,
         connectWallet,
