@@ -420,6 +420,19 @@ const PageContent = styled.div`
   justify-content: flex-start;
   align-items: flex-start;
   margin-bottom: 1rem;
+
+  @media ${devices.mobile} {
+    padding: 1rem;
+    gap: 0.5rem;
+  }
+
+  @media ${devices.tablet} {
+    padding: 1rem;
+    gap: 0.5rem;
+  }
+
+  @media ${devices.desktop} {
+  }
 `;
 
 const PageSubTitle = styled.h5`

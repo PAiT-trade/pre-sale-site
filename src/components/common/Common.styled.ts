@@ -73,6 +73,20 @@ export const FlexItem = styled.div`
   &:not(:last-child) {
     padding-bottom: 2rem;
   }
+
+  @media ${devices.mobile} {
+    &:last-child {
+      padding-top: 2rem;
+    }
+  }
+  @media ${devices.tablet} {
+    &:last-child {
+      padding-top: 2rem;
+    }
+  }
+
+  @media ${devices.desktop} {
+  }
 `;
 
 interface DotProps {
