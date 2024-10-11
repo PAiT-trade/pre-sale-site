@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   BuyCardContainer,
   BuyCardHeader,
@@ -60,6 +60,8 @@ interface BuyCardProps {
   setAmountInUsd: (amount: string) => void;
   paymentMethod: string;
   setPaymentMethod: (method: string) => void;
+  referralCode: string;
+  setReferralCode: (value: string) => void;
 }
 
 export const BuyCard: React.FC<BuyCardProps> = ({
@@ -76,6 +78,8 @@ export const BuyCard: React.FC<BuyCardProps> = ({
   setAmountInUsd,
   mininumAmount,
   maximumAmount,
+  referralCode,
+  setReferralCode,
 }) => {
   useEffect(() => {}, [
     setAmountInUsd,
@@ -114,6 +118,21 @@ export const BuyCard: React.FC<BuyCardProps> = ({
         </BuyCardHeaderAllocationWrapper>
       </BuyCardHeader>
       <CountdownTimer targetDate={endDateTime} />
+      <div style={{ padding: "1.2rem 1.6rem 0" }}>
+        <BuyCardControlInputLabelGroup>
+          <BuyCardControlInputLabelLeft>
+            Referral Code
+          </BuyCardControlInputLabelLeft>
+        </BuyCardControlInputLabelGroup>
+        <BuyCardControlInputControl>
+          <BuyCardControlInput
+            type="text"
+            placeholder="Referral Code"
+            value={referralCode}
+            onChange={(e) => setReferralCode(e.target.value)}
+          />
+        </BuyCardControlInputControl>
+      </div>
       <BuyCardActionWrapper>
         {/* <BuyCardsText>Choose payment method</BuyCardsText> */}
         <BuyCardActionButtonWrapper>

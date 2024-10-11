@@ -32,6 +32,7 @@ export async function POST(req: Request) {
             Math.round(Number(data.pait.replace(",", "")) * 100) / 100,
             data.usd,
             formatDate(new Date()),
+            data.referral,
           ],
         ],
       },
