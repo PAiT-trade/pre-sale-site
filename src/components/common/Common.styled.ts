@@ -116,4 +116,11 @@ export const PagesWrapper = styled.div`
 `;
 
 export const PageWrap = styled.div``;
-export const PageTitle = styled.h1``;
+export const PageTitle = styled.h1`
+  font-weight: 500;
+  font-size: 32px;
+  color: #fff;
+  margin-bottom: 1rem;
+  line-height: 48px;
+  font-family: "Poppins", sans-serif;
+`;

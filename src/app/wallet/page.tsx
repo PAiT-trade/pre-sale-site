@@ -6,6 +6,7 @@ import {
   PageWrap,
 } from "@/components/common/Common.styled";
 import { useWallet } from "@/context/WalletContext";
+import { devices } from "@/utils/common";
 import { useWallet as useConnectWallet } from "@solana/wallet-adapter-react";
 import { CheckCircleIcon, CopyIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -57,12 +58,15 @@ export default function KYC() {
   return (
     <PagesWrapper>
       <PageWrap>
-        <PageTitle>Pait Wallet</PageTitle>
-        <p> The following are your Mnemonic Words, keep the well. </p>
-        <p>
+        <PageTitle>Your PAiT Wallet</PageTitle>
+        <PageSubTitleDescription>
+          {" "}
+          The following are your Mnemonic Words, keep the well.{" "}
+        </PageSubTitleDescription>
+        <PageSubTitleDescription color="#ed7d7d">
           Copy them and safe them securely, if you loss them you have lost your
           account
-        </p>
+        </PageSubTitleDescription>
         {publicKey && (
           <SeedContainer>
             <SeedList>
@@ -97,7 +101,6 @@ const SeedContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px;
   border-radius: 10px;
   width: 100%;
   margin: auto;
@@ -110,10 +113,19 @@ const SeedList = styled.ol`
   background: #1c2130;
   border-radius: 5px;
   padding: 10px;
-  width: 100%;
-
   display: flex;
   flex-wrap: wrap;
+  @media ${devices.mobile} {
+    width: 100% !important;
+  }
+
+  @media ${devices.tablet} {
+    width: 100% !important;
+  }
+
+  @media ${devices.desktop} {
+    width: 100% !important;
+  }
 `;
 
 const SeedItem = styled.li`
@@ -155,5 +167,14 @@ const BackupButton = styled.button`
 const BackupMessage = styled.p`
   font-size: 14px;
   color: green;
+  margin-top: 10px;
+`;
+interface PageSubTitleDescriptionProps {
+  color?: string;
+}
+
+const PageSubTitleDescription = styled.p<PageSubTitleDescriptionProps>`
+  font-size: 16px;
+  color: ${({ color }) => (color ? color : "#c0c4d1")};
   margin-top: 10px;
 `;

@@ -21,6 +21,7 @@ import { CONFIGS } from "@/config";
 import { VerifyKYC } from "@/components/kyc/VerifyKYC";
 import { useRouter } from "next/navigation";
 import WertOnRamp from "@/components/OnOffRamp/WertOnRamp";
+import SignaturePad from "@/components/SaftDocument";
 
 export default function Home() {
   const { connected, wallet, publicKey, sendTransaction } = useWallet();
@@ -32,6 +33,8 @@ export default function Home() {
   const [data, setData] = useState<
     Array<{ wallet: string; amountPait: number; amountUSD: number }>
   >([]);
+
+  const [openModal, setOpenModal] = useState<boolean>(false);
 
   const [balances, setBalances] = useState<{ sol: string; usdt: string }>({
     sol: "0",
@@ -54,16 +57,16 @@ export default function Home() {
     total: number;
   }>({
     bought: 0,
-    total: 4000000,
+    total: 2000000,
   });
-  const [amountInUsd, setAmountInUsd] = useState("20");
-  const [mininumAmount, setMinimumAmount] = useState("20");
+  const [amountInUsd, setAmountInUsd] = useState("200");
+  const [mininumAmount, setMinimumAmount] = useState("200");
   const [isInValid, setInValid] = useState(false);
-  const [maximumAmount, setMaximumAmount] = useState("10000");
+  const [maximumAmount, setMaximumAmount] = useState("20000");
   const [amountInPait, setAmountInPait] = useState("1");
-  const [endDateTime, setEndDateTime] = useState<string>("2024-10-24T00:00:00");
-  const [priceOfPait, setPriceOfPait] = useState("0.3");
-  const [paymentMethod, setPaymentMethod] = useState<string>("usdt");
+  const [endDateTime, setEndDateTime] = useState<string>("2024-12-10T00:00:00");
+  const [priceOfPait, setPriceOfPait] = useState("0.16");
+  const [paymentMethod, setPaymentMethod] = useState<string>("usdc");
 
   const router = useRouter();
 
@@ -136,7 +139,7 @@ export default function Home() {
         );
         console.log("Total amount paid: ", totalAmountPaid);
         setAllocations({
-          bought: totalAmountPaid,
+          bought: 0,
           total: allocations.total,
         });
       } else {
@@ -153,27 +156,17 @@ export default function Home() {
 
   const content = [
     {
-      title: "Huge Discounts",
-      description:
-        "Start with 40% off in the first round. The earlier, the better!",
-    },
-    {
-      title: "Limited Supply",
-      description:
-        "Only 8 million tokens available. Check the updated allocation every 24 hours.",
-    },
-    {
-      title: "TGE on October 24, 2024",
-      description: "Be ready when we go live!",
-    },
-    {
       title: "Unlock Schedule",
       description:
         "10% at TGE, 1-month cliff, and the rest vests over 5 months.",
     },
     {
-      title: "Daily Token Access",
-      description: "TBD",
+      title: "Limited Supply",
+      description: "2,000,000 PAiT Tokens available in the Private Round",
+    },
+    {
+      title: "TGE",
+      description: "Token Generation Event (TGE) on December 10th, 2024",
     },
   ];
 
@@ -361,7 +354,58 @@ export default function Home() {
               <PageAdvertisementIcon src="/hamster.svg" />
             </PageAdvertisement>
 
-            <PageTitle>PAiT Token Pre-Sale - Don’t Miss Out!</PageTitle>
+            <PageTitle>PAiT PRIVATE ROUND</PageTitle>
+
+            <PageContent>
+              <PageSubTitle>Steps to Acquire PAiT Tokens</PageSubTitle>
+              <PageDescription>
+                1. Connect your Phantom Wallet on the Solana(
+                <a href="https://phantom.app" target="_blank">
+                  Phantom Wallet
+                </a>
+                )
+              </PageDescription>
+              <PageDescription>
+                {" "}
+                2. Complete KYC (Know Your Customer) verification
+              </PageDescription>
+              <PageDescription onClick={() => setOpenModal(!openModal)}>
+                3.
+                <span
+                  style={{
+                    color: "#4e2286",
+                    marginRight: "4px",
+                    marginLeft: "4px",
+                    cursor: "pointer",
+                  }}
+                >
+                  {"  "}
+                  Read the SAFT Agreement
+                </span>{" "}
+                before making a purchase
+              </PageDescription>
+              <ModalSection
+                title="Read the SAFT Agreement"
+                setIsOpen={setOpenModal}
+                isOpen={openModal}
+              >
+                <ReadAgreement>
+                  <SignaturePad showSignature={false} />
+                </ReadAgreement>
+              </ModalSection>
+              <PageDescription>
+                4. Enter the USDCvalue you wish to use for the purchase, then
+                press the "Buy PAiT" button
+              </PageDescription>
+              <PageDescription>
+                5. Sign the SAFT Agreement and provide your email address to
+                receive a copy
+              </PageDescription>
+              <PageDescription>
+                {" "}
+                6. Get your referral code, share it, and earn extra PAiT tokens
+              </PageDescription>
+            </PageContent>
 
             {content.map((item, index) => (
               <PageContent key={index}>
@@ -469,4 +513,9 @@ const TermsAndConditions = styled.a`
   justify-content: center;
   font-weight: 600;
   line-height: 1.1rem;
+`;
+
+const ReadAgreement = styled.div`
+  height: 500px;
+  overflow-y: auto;
 `;
