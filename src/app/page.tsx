@@ -24,6 +24,7 @@ import WertOnRamp from "@/components/OnOffRamp/WertOnRamp";
 import SignaturePad from "@/components/SaftDocument";
 import { db } from "@/lib/database";
 import { ReferralCodeShare } from "@/components/ReferralCodeShare";
+import TermsAndConditions from "@/components/TermsAndConditions";
 
 export default function Home() {
   const { connected, wallet, publicKey, sendTransaction } = useWallet();
@@ -37,6 +38,7 @@ export default function Home() {
   >([]);
 
   const [openModal, setOpenModal] = useState<boolean>(false);
+  const [isTermsModal, setIsTermsModal] = useState<boolean>(false);
 
   const [balances, setBalances] = useState<{ sol: string; usdt: string }>({
     sol: "0",
@@ -429,7 +431,20 @@ export default function Home() {
                 <PageDescription>{item.description}</PageDescription>
               </PageContent>
             ))}
-            <TermsAndConditions>Terms and conditions apply </TermsAndConditions>
+
+            <TermsAndCondition onClick={() => setIsTermsModal(!isTermsModal)}>
+              Terms and conditions apply
+            </TermsAndCondition>
+
+            <ModalSection
+              title="Terms and Conditions"
+              setIsOpen={setIsTermsModal}
+              isOpen={isTermsModal}
+            >
+              <ReadAgreement>
+                <TermsAndConditions />
+              </ReadAgreement>
+            </ModalSection>
           </Content>
         </FlexItem>
       </FlexBox>
@@ -520,7 +535,7 @@ const Content = styled.div`
   }
 `;
 
-const TermsAndConditions = styled.a`
+const TermsAndCondition = styled.div`
   font-size: 14px;
   color: #7c8cae;
   cursor: pointer;
