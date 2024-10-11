@@ -46,20 +46,13 @@ export const Navbar: React.FC<NavbarProps> = () => {
       <NavbarSocialsWraper>
         <NavbarSocialsItem>
           <NavbarSocialsItemWallet suppressHydrationWarning>
-            {publicKey && (
-              <div>
-                {<>{publicKey?.slice(0, 6) + "..." + publicKey?.slice(-6)}</>}
-              </div>
-            )}
-            {!publicKey && (
-              <WalletButton>
-                {connected && phantomPublicKey && !isWalletConnected
-                  ? phantomPublicKey?.toBase58().slice(0, 6) +
-                    "..." +
-                    phantomPublicKey?.toBase58().slice(-6)
-                  : "Connect Wallet"}
-              </WalletButton>
-            )}
+            <WalletButton>
+              {connected && phantomPublicKey
+                ? phantomPublicKey?.toBase58().slice(0, 6) +
+                  "..." +
+                  phantomPublicKey?.toBase58().slice(-6)
+                : "Connect Wallet"}
+            </WalletButton>
           </NavbarSocialsItemWallet>
         </NavbarSocialsItem>
       </NavbarSocialsWraper>
