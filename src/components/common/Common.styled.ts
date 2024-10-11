@@ -73,6 +73,20 @@ export const FlexItem = styled.div`
   &:not(:last-child) {
     padding-bottom: 2rem;
   }
+
+  @media ${devices.mobile} {
+    &:last-child {
+      padding-top: 2rem;
+    }
+  }
+  @media ${devices.tablet} {
+    &:last-child {
+      padding-top: 2rem;
+    }
+  }
+
+  @media ${devices.desktop} {
+  }
 `;
 
 interface DotProps {
@@ -83,4 +97,30 @@ export const Dot = styled.div<DotProps>`
   background-color: ${({ bgcolor }) => bgcolor || "#4daa90"};
   height: 17px;
   border-radius: 50%;
+`;
+
+export const PagesWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 70vh;
+  background-color: #151720 !important;
+  margin: 2rem;
+  border-radius: 0.4rem;
+  gap: 1rem;
+
+  #veriff-root {
+    width: 100%;
+  }
+`;
+
+export const PageWrap = styled.div``;
+export const PageTitle = styled.h1`
+  font-weight: 500;
+  font-size: 32px;
+  color: #fff;
+  margin-bottom: 1rem;
+  line-height: 48px;
+  font-family: "Poppins", sans-serif;
 `;

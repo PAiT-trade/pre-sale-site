@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import {
   BuyCardContainer,
   BuyCardHeader,
@@ -25,7 +25,6 @@ import {
   BuyCardControlInputLabelLeft,
   BuyCardControlInputLabelRight,
   BuyCardInputs,
-  BuyCardActions,
   BuyCardControlButton,
   DontHaveWallet,
   BuyCardControlInputIcon,
@@ -35,6 +34,8 @@ import { ProgressBar } from "../PogressBar";
 import { CountdownTimer } from "../CountdownTimer";
 import { CreditCardIcon } from "lucide-react";
 import { formatNumber } from "@/utils/common";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface BuyCardProps {
   amountInUsd: string;
@@ -83,12 +84,13 @@ export const BuyCard: React.FC<BuyCardProps> = ({
     mininumAmount,
     maximumAmount,
   ]);
+  const router = useRouter();
 
   return (
     <BuyCardContainer>
       <BuyCardHeader>
         <BuyCardHeaderTitle>Buy $PAiT Token</BuyCardHeaderTitle>
-        <BuyCardHeaderSubTitle>Pre-sale round 1</BuyCardHeaderSubTitle>
+        <BuyCardHeaderSubTitle>Private round</BuyCardHeaderSubTitle>
         <BuyCardHeaderAllocationWrapper>
           <BuyCardHeaderAllocationHeader>
             <BuyCardHeaderAllocationLabel>
@@ -107,13 +109,13 @@ export const BuyCard: React.FC<BuyCardProps> = ({
           />
 
           <BText color="#4daa90">
-            1 $PAiT = {formatNumber(Number(priceOfPait))} USDT
+            1 $PAiT = {formatNumber(Number(priceOfPait))} USDC
           </BText>
         </BuyCardHeaderAllocationWrapper>
       </BuyCardHeader>
       <CountdownTimer targetDate={endDateTime} />
       <BuyCardActionWrapper>
-        <BuyCardsText>Choose payment method</BuyCardsText>
+        {/* <BuyCardsText>Choose payment method</BuyCardsText> */}
         <BuyCardActionButtonWrapper>
           <BuyCardActionButton
             bgcolor={paymentMethod == "usdt" ? "#131928" : ""}
@@ -123,17 +125,17 @@ export const BuyCard: React.FC<BuyCardProps> = ({
               <BuyCardControlInputIcon src="/usdt_icon.svg" />
             </BuyCardActionButtonIcon>
 
-            <BuyCardActionButtonText>USDT</BuyCardActionButtonText>
+            <BuyCardActionButtonText>USDC</BuyCardActionButtonText>
           </BuyCardActionButton>
 
           <BuyCardActionButton
-            bgcolor={paymentMethod == "card" ? "#131928" : ""}
+            bgcolor="#3a4662"
             onClick={() => setPaymentMethod("card")}
           >
-            <BuyCardActionButtonIcon>
+            {/* <BuyCardActionButtonIcon>
               <CreditCardIcon size={16} />
             </BuyCardActionButtonIcon>
-            <BuyCardActionButtonText>Credit Card</BuyCardActionButtonText>
+            <BuyCardActionButtonText>Credit Card</BuyCardActionButtonText> */}
           </BuyCardActionButton>
         </BuyCardActionButtonWrapper>
 
@@ -181,6 +183,7 @@ export const BuyCard: React.FC<BuyCardProps> = ({
 
           <BuyCardControlButton
             onClick={() => {
+              // router.push("/kyc");
               buyPait();
             }}
           >
@@ -189,15 +192,13 @@ export const BuyCard: React.FC<BuyCardProps> = ({
         </BuyCardControlGroup>
       </BuyCardActionWrapper>
 
-      {!isConnected ? (
-        <>
-          <DontHaveWallet href="/">Don\'t have wallet?</DontHaveWallet>
-        </>
-      ) : (
-        <>
-          <DontHaveWallet href="/">Don\'t have wallet?</DontHaveWallet>
-        </>
-      )}
+      {/* {!isConnected ? (
+        <Link href={"/wallet"}>
+          <DontHaveWallet href="#" target="_blank">
+            Do not have wallet?
+          </DontHaveWallet>
+        </Link>
+      ) : null} */}
     </BuyCardContainer>
   );
 };

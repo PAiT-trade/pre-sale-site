@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+import React, { useEffect } from "react";
 import {
   NavbarWrapper,
   NavbarLogoWrapper,
@@ -11,13 +12,23 @@ import {
   NavbarSocialsWraper,
   NavbarSocialsItemWallet,
 } from "./Navbar.styled";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { WalletButton } from "@/app/solana/solana-provider";
-import { useWallet } from "@solana/wallet-adapter-react";
+import { useWallet } from "@/context/WalletContext";
+import { useWallet as useConnectWallet } from "@solana/wallet-adapter-react";
 
 interface NavbarProps {}
 export const Navbar: React.FC<NavbarProps> = () => {
-  const { connected, publicKey } = useWallet();
+  // wallet created by user
+  const { publicKey, connectWallet, isWalletConnected } = useWallet();
+  // connected to phatom wallet
+  const { connected, publicKey: phantomPublicKey } = useConnectWallet();
+
+  useEffect(() => {
+    if (connected && phantomPublicKey) {
+      connectWallet();
+    }
+  }, [connected, phantomPublicKey, connectWallet]);
+
   return (
     <NavbarWrapper>
       <NavbarLogoWrapper href="/">
@@ -35,14 +46,20 @@ export const Navbar: React.FC<NavbarProps> = () => {
       <NavbarSocialsWraper>
         <NavbarSocialsItem>
           <NavbarSocialsItemWallet suppressHydrationWarning>
-            <WalletButton>
-              {" "}
-              {connected
-                ? publicKey?.toBase58().slice(0, 6) +
-                  "..." +
-                  publicKey?.toBase58().slice(-6)
-                : "Connect Wallet"}
-            </WalletButton>
+            {publicKey && (
+              <div>
+                {<>{publicKey?.slice(0, 6) + "..." + publicKey?.slice(-6)}</>}
+              </div>
+            )}
+            {!publicKey && (
+              <WalletButton>
+                {connected && phantomPublicKey && !isWalletConnected
+                  ? phantomPublicKey?.toBase58().slice(0, 6) +
+                    "..." +
+                    phantomPublicKey?.toBase58().slice(-6)
+                  : "Connect Wallet"}
+              </WalletButton>
+            )}
           </NavbarSocialsItemWallet>
         </NavbarSocialsItem>
       </NavbarSocialsWraper>
