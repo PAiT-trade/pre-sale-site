@@ -36,6 +36,7 @@ import { CreditCardIcon } from "lucide-react";
 import { formatNumber } from "@/utils/common";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { WalletButton } from "@/app/solana/solana-provider";
 
 interface BuyCardProps {
   amountInUsd: string;
@@ -203,10 +204,16 @@ export const BuyCard: React.FC<BuyCardProps> = ({
           <BuyCardControlButton
             onClick={() => {
               // router.push("/kyc");
-              buyPait();
+              if (isConnected) {
+                buyPait();
+              }
             }}
           >
-            {isConnected ? "Buy PAiT" : "Connect Wallet"}
+            {isConnected ? (
+              "Buy PAiT"
+            ) : (
+              <WalletButton> Connect Wallet </WalletButton>
+            )}
           </BuyCardControlButton>
         </BuyCardControlGroup>
       </BuyCardActionWrapper>

@@ -11,6 +11,8 @@ interface SignaturePadProps {
   setName?: (name: string) => void;
   setEmail?: (email: string) => void;
   showSignature: boolean;
+  address?: string;
+  tokens?: number;
 }
 
 const SignaturePad: React.FC<SignaturePadProps> = ({
@@ -20,6 +22,8 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
   setName,
   setEmail,
   showSignature,
+  tokens,
+  address,
 }) => {
   const canvasRef = useRef(null);
   const isDrawing = useRef(false);
@@ -259,13 +263,12 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
             on the Site.
           </Paragraph>
           <Paragraph>
-            3.2. The USDC or USDT amount transferred by the token’s acquirer to
-            the PAiT wallet, as specified in SAFT Appendix No. 1, will
-            automatically calculate the number of Tokens based on the Token
-            price outlined in the same appendix. The investor's Tokens will be
-            credited through the escrow account, following the vesting
-            conditions described in the Appendix No.1. Access to the escrow
-            account will be granted no later than the TGE
+            3.2. Aquared PAiT tokens{" "}
+            <b>{tokens ? tokens : " ............. "}</b>
+            will be credited to your wallet{" "}
+            <b>{address ? address : " ............. "}</b> through the escrow
+            account no later than the TGE. 5% unlock on TGE, 1 month cliff, 4
+            months linear vesting.
           </Paragraph>
 
           <Paragraph>
