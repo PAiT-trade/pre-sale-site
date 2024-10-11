@@ -75,6 +75,7 @@ export default function Home() {
 
   // Read referral code from URL
   useEffect(() => {
+    console.log("URL: ", window.location.search);
     const urlParams = new URLSearchParams(window.location.search);
     const myParam = urlParams.get("referral");
     if (myParam) {
