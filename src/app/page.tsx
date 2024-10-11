@@ -22,6 +22,8 @@ import { VerifyKYC } from "@/components/kyc/VerifyKYC";
 import { useRouter } from "next/navigation";
 import WertOnRamp from "@/components/OnOffRamp/WertOnRamp";
 import SignaturePad from "@/components/SaftDocument";
+import { db } from "@/lib/database";
+import { ReferralCodeShare } from "@/components/ReferralCodeShare";
 
 export default function Home() {
   const { connected, wallet, publicKey, sendTransaction } = useWallet();
@@ -67,8 +69,18 @@ export default function Home() {
   const [endDateTime, setEndDateTime] = useState<string>("2024-12-10T00:00:00");
   const [priceOfPait, setPriceOfPait] = useState("0.16");
   const [paymentMethod, setPaymentMethod] = useState<string>("usdc");
+  const [referralCode, setReferralCode] = useState("");
 
   const router = useRouter();
+
+  // Read referral code from URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const myParam = urlParams.get("referral");
+    if (myParam) {
+      setReferralCode(myParam);
+    }
+  }, []);
 
   /**
    * Get the current price of PAiT token
@@ -190,6 +202,7 @@ export default function Home() {
             user: publicKey?.toBase58(),
             usd: amountInUsd,
             pait: amountInPait,
+            referral: referralCode,
           },
         }),
       });
@@ -346,6 +359,8 @@ export default function Home() {
             priceOfPait={priceOfPait}
             paymentMethod={paymentMethod}
             setPaymentMethod={setPaymentMethod}
+            referralCode={referralCode}
+            setReferralCode={setReferralCode}
           />
         </FlexItem>
         <FlexItem>

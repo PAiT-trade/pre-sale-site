@@ -1,4 +1,5 @@
 import { apiSign, getBaseUrl } from "@/lib/alchemy-pay";
+import { db, ReferralTable } from "@/lib/database";
 import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 
