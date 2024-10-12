@@ -25,6 +25,7 @@ import SignaturePad from "@/components/SaftDocument";
 import { db } from "@/lib/database";
 import { ReferralCodeShare } from "@/components/ReferralCodeShare";
 import TermsAndConditions from "@/components/TermsAndConditions";
+import { User } from "@/lib/database";
 
 export default function Home() {
   const { connected, wallet, publicKey, sendTransaction } = useWallet();
@@ -39,6 +40,8 @@ export default function Home() {
 
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [isTermsModal, setIsTermsModal] = useState<boolean>(false);
+  // used to get the user code from the URL
+  const [user, setUser] = useState<User | null>(null);
 
   const [balances, setBalances] = useState<{ sol: string; usdt: string }>({
     sol: "0",
@@ -377,11 +380,11 @@ export default function Home() {
             <PageContent>
               <PageSubTitle>Steps to Acquire PAiT Tokens</PageSubTitle>
               <PageDescription>
-                1. Connect your Phantom Wallet on the Solana(
+                1. Connect your Phantom Wallet on the Solana
                 <a href="https://phantom.app" target="_blank">
-                  Phantom Wallet
+                  <span style={{ marginRight: "0.3rem" }}></span>{" "}
+                  {"  Phantom Wallet "}
                 </a>
-                )
               </PageDescription>
               <PageDescription>
                 {" "}
@@ -391,7 +394,7 @@ export default function Home() {
                 3.
                 <span
                   style={{
-                    color: "#4e2286",
+                    color: "#2b5dfb",
                     marginRight: "4px",
                     marginLeft: "4px",
                     cursor: "pointer",
@@ -424,7 +427,7 @@ export default function Home() {
                 6. Get your referral code, share it, and earn extra PAiT tokens
               </PageDescription>
             </PageContent>
-
+            <ReferralCodeShare referralCode="somesess" />
             {content.map((item, index) => (
               <PageContent key={index}>
                 <PageSubTitle>{item.title}</PageSubTitle>

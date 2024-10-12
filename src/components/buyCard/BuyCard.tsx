@@ -120,19 +120,23 @@ export const BuyCard: React.FC<BuyCardProps> = ({
       </BuyCardHeader>
       <CountdownTimer targetDate={endDateTime} />
       <div style={{ padding: "1.2rem 1.6rem 0" }}>
-        <BuyCardControlInputLabelGroup>
-          <BuyCardControlInputLabelLeft>
-            Referral Code
-          </BuyCardControlInputLabelLeft>
-        </BuyCardControlInputLabelGroup>
-        <BuyCardControlInputControl>
-          <BuyCardControlInput
-            type="text"
-            placeholder="Referral Code"
-            value={referralCode}
-            onChange={(e) => setReferralCode(e.target.value)}
-          />
-        </BuyCardControlInputControl>
+        {referralCode && (
+          <>
+            <BuyCardControlInputLabelGroup>
+              <BuyCardControlInputLabelLeft>
+                Referral Code
+              </BuyCardControlInputLabelLeft>
+            </BuyCardControlInputLabelGroup>
+            <BuyCardControlInputControl>
+              <BuyCardControlInput
+                type="text"
+                placeholder="Referral Code"
+                value={referralCode}
+                onChange={(e) => setReferralCode(e.target.value)}
+              />
+            </BuyCardControlInputControl>
+          </>
+        )}
       </div>
       <BuyCardActionWrapper>
         {/* <BuyCardsText>Choose payment method</BuyCardsText> */}

@@ -8,16 +8,28 @@ export async function POST(req: Request) {
 
     const referralCode = randomUUID();
 
-    await db.insert(ReferralTable).values({
+    const dbData = {
       wallet: data.wallet,
+      name: data.wallet,
+      email: data.wallet,
       referral: referralCode,
-    });
+    };
+
+    // Create a new user account with the referral code or update the existing one
+    const result = await db
+      .insert(ReferralTable)
+      .values(dbData)
+      .onConflictDoUpdate({
+        target: ReferralTable.wallet,
+        set: {
+          name: dbData.email,
+          email: dbData.email,
+        },
+      });
 
     return NextResponse.json({
       status: "success",
-      data: {
-        referral: referralCode,
-      },
+      data: result,
     });
   } catch (error) {
     return NextResponse.json(

@@ -8,6 +8,11 @@ export const GlobalStyle = createGlobalStyle`
         box-sizing: border-box;
         text-decoration: none;
     }
+
+    a  {
+        text-decoration: none;
+        color:  #2b5dfb;
+    }
     :root {
         font-size: ${pixelToViewPortWidth(24)};
 
@@ -120,5 +125,25 @@ export const GlobalStyle = createGlobalStyle`
         line-height: 16px;
         margin: 16px 0;
         text-align: center;
+    }
+
+    /* share component */
+    .makeStyles-container-1 {
+        background-color: #333e59 !important;
+        padding: 0.3rem !important;
+        border-radius: 1.5rem !important;
+    }
+
+    .makeStyles-copyContainer-5  {
+        border: none !important;
+        border-radius: 1.5rem !important;
+        margin: 0.5rem 0!important;
+    }
+    .makeStyles-iconContainer-3 {
+        display: flex !important;
+        justify-content: space-around !important;
+        gap: 0.5rem !important;
+        cursor: pointer;
+        padding: 0.4rem 0.3rem !important;
     }
 `;
