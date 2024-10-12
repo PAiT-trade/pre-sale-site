@@ -7,13 +7,19 @@ import { FlexBox } from "@/components/common/Common";
 import { FlexItem } from "@/components/common/Common.styled";
 import { BuyCard } from "@/components/buyCard/BuyCard";
 import { devices, formatNumber } from "@/utils/common";
-import { useWallet, useConnection } from "@solana/wallet-adapter-react";
-import { PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { useWallet, useConnection, Wallet } from "@solana/wallet-adapter-react";
+import {
+  PublicKey,
+  LAMPORTS_PER_SOL,
+  Transaction,
+  sendAndConfirmTransaction,
+} from "@solana/web3.js";
 import toast from "react-hot-toast";
 import {
   getAssociatedTokenAddress,
   getOrCreateAssociatedTokenAccount,
   createTransferInstruction,
+  transfer,
 } from "@solana/spl-token";
 import * as Veriff from "@veriff/js-sdk";
 import { createVeriffFrame, MESSAGES } from "@veriff/incontext-sdk";
@@ -28,9 +34,12 @@ import TermsAndConditions from "@/components/TermsAndConditions";
 import { User } from "@/lib/database";
 import { create } from "domain";
 import { createUser } from "@/lib/user";
+import { createPurchase } from "@/lib/purchase";
 
 export default function Home() {
-  const { connected, wallet, publicKey, sendTransaction } = useWallet();
+  const { connected, publicKey, sendTransaction } = useWallet();
+
+  const wallet = useWallet();
 
   const { connection } = useConnection();
   const [isMoonPayEnabled, setIsMoonPayEnabled] = useState<boolean>(false);
@@ -214,27 +223,33 @@ export default function Home() {
     console.log("Amount InUsd", amountInUsd);
     setAmountInPait((Number(amountInUsd) / Number(priceOfPait)).toString());
     try {
-      const response = await fetch("/api/google-save-data", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          data: {
-            user: publicKey?.toBase58(),
-            usd: amountInUsd,
-            pait: amountInPait,
-            referral: referralCode,
-          },
-        }),
+      const response = await createPurchase({
+        user_wallet: publicKey?.toBase58()!,
+        user_name: publicKey?.toBase58()!,
+        pait_tokens: Number(amountInPait),
+        usdc_amount: Number(amountInUsd),
+        referral: referralCode,
       });
+      // const response = await fetch("/api/google-save-data", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify({
+      //     data: {
+      //       user: publicKey?.toBase58(),
+      //       usd: amountInUsd,
+      //       pait: amountInPait,
+      //       referral: referralCode,
+      //     },
+      //   }),
+      // });
 
-      const result = await response.json();
-
-      if (result.status === "success") {
+      if (response.status === "success") {
+        toast.success(response.message);
         await fetchData();
       } else {
-        console.log("Error saving data.");
+        toast.error(response.message);
       }
     } catch (error) {
       console.log("Error saving data.");
