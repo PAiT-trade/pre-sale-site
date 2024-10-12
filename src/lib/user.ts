@@ -2,7 +2,39 @@ import { randomUUID } from "crypto";
 import { db, ReferralTable } from "./database";
 import { eq } from "drizzle-orm";
 
-export const createOrUpdateUser = async (opts: {
+export const createUser = async (opts: { wallet: string }) => {
+  try {
+    // First, check if the user already exists
+    const existingUser = await db
+      .select()
+      .from(ReferralTable)
+      .where(eq(ReferralTable.wallet, opts.wallet))
+      .execute();
+
+    // If the user already exists, return the existing record
+    if (existingUser.length > 0) {
+      return existingUser[0];
+    }
+
+    // If the user does not exist, create a new one
+    const referralCode = randomUUID();
+
+    const dbData = {
+      wallet: opts.wallet,
+      referral: referralCode,
+    };
+
+    // Insert the new user
+    const result = await db.insert(ReferralTable).values(dbData).execute();
+
+    return result;
+  } catch (error) {
+    console.error("Error creating user:", error);
+    return { status: "error", message: "Failed to create or retrieve user" };
+  }
+};
+
+export const updateUser = async (opts: {
   wallet: string;
   name?: string;
   email?: string;

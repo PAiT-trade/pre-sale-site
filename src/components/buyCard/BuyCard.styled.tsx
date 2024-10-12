@@ -225,12 +225,6 @@ export const BuyCardControlButton = styled.button`
   &:active {
     background-color: #27334e;
   }
-
-  & > div {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
 `;
 
 export const DontHaveWallet = styled.a`

@@ -26,6 +26,8 @@ import { db } from "@/lib/database";
 import { ReferralCodeShare } from "@/components/ReferralCodeShare";
 import TermsAndConditions from "@/components/TermsAndConditions";
 import { User } from "@/lib/database";
+import { create } from "domain";
+import { createUser } from "@/lib/user";
 
 export default function Home() {
   const { connected, wallet, publicKey, sendTransaction } = useWallet();
@@ -118,6 +120,20 @@ export default function Home() {
 
   useEffect(() => {
     getBalances();
+
+    if (publicKey) {
+      // make sure to save the user's wallet to the database
+      createUser({
+        wallet: publicKey?.toBase58()!,
+      })
+        .then((result) => {
+          console.log("APP Result: ", result);
+        })
+        .catch((error) => {
+          console.log("Error: ", error);
+        });
+      // retrieve the saved user
+    }
   }, [connected, wallet, publicKey]);
 
   const getBalances = async () => {
