@@ -16,11 +16,6 @@ export async function POST(req: Request) {
     approved = data.verification.status;
   }
 
-  console.log("First Name:", firstName);
-  console.log("Last Name:", lastName);
-  console.log("Is Approved:", approved);
-  console.log("Wallet:", walletData);
-
   try {
     if (approved === "approved" && walletData && firstName && lastName) {
       const user = await prisma.user.update({
@@ -43,7 +38,6 @@ export async function POST(req: Request) {
       message: "User not approved or missing information",
     });
   } catch (error) {
-    console.error("Update Error: ", error);
     return NextResponse.json({
       status: "error",
       user: null,

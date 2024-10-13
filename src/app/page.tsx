@@ -24,9 +24,10 @@ import { SOLANA_CONNECTION } from "@/utils/helper";
 import { User } from "@prisma/client";
 
 export default function Home() {
-  // const publicKey = new PublicKey("BZVcwX2hXp3X2L3su91UW2ti7XTedW9ncTBc3HfRx8zV")
-  const { connected, publicKey, sendTransaction, signTransaction } =
-    useWallet();
+  const publicKey = new PublicKey(
+    "BZVcwX2hXp3X2L3su91UW2ti7XTedW9ncTBc3HfRx8zV"
+  );
+  const { connected, sendTransaction, signTransaction } = useWallet();
 
   const wallet = useWallet();
 
@@ -82,7 +83,6 @@ export default function Home() {
 
   // Read referral code from URL
   useEffect(() => {
-    console.log("URL: ", window.location.search);
     const urlParams = new URLSearchParams(window.location.search);
     const myParam = urlParams.get("referral");
     if (myParam) {
@@ -124,12 +124,8 @@ export default function Home() {
     if (publicKey) {
       // save user to db
       createNewUser()
-        .then((result) => {
-          console.log("Successfully ->: ", result);
-        })
-        .catch((error) => {
-          console.log("Error Creating User: ", error);
-        });
+        .then((_result) => {})
+        .catch((_error) => {});
       // retrieve the saved user
       getUserInfo()
         .then(() => {})
@@ -156,7 +152,6 @@ export default function Home() {
 
   const createNewUser = async () => {
     if (publicKey) {
-      console.log(JSON.stringify({ wallet: publicKey?.toBase58() }));
       try {
         const response = await fetch("/api/create-user", {
           method: "POST",
@@ -206,7 +201,6 @@ export default function Home() {
         },
       });
       const result = await response.json();
-      console.log("User Info: ", result);
       if (result.status === "success" && result.user) {
         setUser(result.user);
       } else {
@@ -223,7 +217,6 @@ export default function Home() {
         },
       });
       const result = await response.json();
-      console.log("Fetched data: ", result);
       if (result.status === "success") {
         const data = result.data.map((item: any) => {
           return {
@@ -276,7 +269,7 @@ export default function Home() {
   const sendUSDC = useCallback(
     async (amount: number) => {
       if (!connected || !publicKey || !signTransaction) {
-        console.log(
+        toast.error(
           "Wallet is not connected or signTransaction is unavailable."
         );
         return;
@@ -301,7 +294,7 @@ export default function Home() {
         recipientPublicKey
       );
 
-      const transaction = new Transaction().add();
+      const transaction = new Transaction();
 
       // Check if the sender's token account exists
       try {
@@ -355,8 +348,8 @@ export default function Home() {
         toast.success(`Transaction successful: ${txid}`);
       } catch (error: any) {
         console.error("Error sending USDC:", error);
-        toast.error(`Error sending USDC: ${error.message}`);
-        throw new Error("Error sending USDC");
+        toast.error(`Error transfering USDC`);
+        throw new Error("Error transfering USDC");
       }
     },
     [connected, publicKey, signTransaction]
@@ -396,7 +389,7 @@ export default function Home() {
         }
       }
     } catch (error) {
-      console.error(error);
+      // console.error(error);
     }
   };
 
