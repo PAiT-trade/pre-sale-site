@@ -219,8 +219,10 @@ export const BuyCard: React.FC<BuyCardProps> = ({
               onClick={() => {
                 if (isConnected) {
                   if (user) {
-                    if (user.is_approved == 0 || !user) {
+                    if (user.is_approved == 0) {
                       router.push("/kyc");
+                    } else {
+                      buyPait();
                     }
                   } else {
                     buyPait();
