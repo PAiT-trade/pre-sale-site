@@ -61,7 +61,7 @@ export const CountdownTimer: React.FC<{ targetDate: string }> = ({
           <TimeValue>{timeLeft.seconds || "0"}</TimeValue>
         </TimeBox>
       </TimerContainer>
-      <LabelUntilTGE>Until TGE</LabelUntilTGE>
+      {/* <LabelUntilTGE>Until TGE</LabelUntilTGE> */}
     </CountdownTimerContainer>
   );
 };
