@@ -24,6 +24,7 @@ import { User } from "@prisma/client";
 import { size } from "viem";
 
 export default function Home() {
+  // const publicKey = new PublicKey("BZVcwX2hXp3X2L3su91UW2ti7XTedW9ncTBc3HfRx8zV")
   const { connected, publicKey, sendTransaction, signTransaction } =
     useWallet();
 
@@ -136,7 +137,7 @@ export default function Home() {
 
       if (user) {
         if (!user.is_approved) {
-          // router.push("/kyc");
+          router.push("/kyc");
         }
       }
     }
