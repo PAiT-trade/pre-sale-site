@@ -24,7 +24,14 @@ export const ReferralCodeShare: React.FC<{
       <h3>Share Your referral Code</h3>
       <ShareSocial
         url={shareUrl}
-        socialTypes={["facebook", "twitter", "reddit", "email", "whatsapp"]}
+        socialTypes={[
+          "facebook",
+          "twitter",
+          "reddit",
+          "email",
+          "whatsapp",
+          "telegram",
+        ]}
       />
     </Wrapper>
   );

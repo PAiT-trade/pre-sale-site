@@ -37,6 +37,8 @@ import { formatNumber } from "@/utils/common";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { WalletButton } from "@/app/solana/solana-provider";
+import { Loader } from "../Loader";
+import { User } from "@/lib/database";
 
 interface BuyCardProps {
   amountInUsd: string;
@@ -54,6 +56,8 @@ interface BuyCardProps {
     bought: number;
     total: number;
   };
+  user: User | null;
+  isLoading: boolean;
   setIsTransakEnabled: (value: boolean) => void;
   setIsMoonPayEnabled: (value: boolean) => void;
   setPaymentModal: (value: boolean) => void;
@@ -73,6 +77,7 @@ export const BuyCard: React.FC<BuyCardProps> = ({
   isConnected,
   priceOfPait,
   buyPait,
+  isLoading,
   setPaymentMethod,
   paymentMethod,
   isInValid,
@@ -80,6 +85,7 @@ export const BuyCard: React.FC<BuyCardProps> = ({
   mininumAmount,
   maximumAmount,
   referralCode,
+  user,
   setReferralCode,
 }) => {
   useEffect(() => {}, [
@@ -204,21 +210,31 @@ export const BuyCard: React.FC<BuyCardProps> = ({
               {formatNumber(Number(maximumAmount))}
             </ErrorMessage>
           )}
-
-          <BuyCardControlButton
-            onClick={() => {
-              // router.push("/kyc");
-              if (isConnected) {
-                buyPait();
-              }
-            }}
-          >
-            {isConnected ? (
-              "Buy PAiT"
-            ) : (
-              <WalletButton> Connect Wallet </WalletButton>
-            )}
-          </BuyCardControlButton>
+          {isLoading ? (
+            <>
+              <Loader />
+            </>
+          ) : (
+            <BuyCardControlButton
+              onClick={() => {
+                if (isConnected) {
+                  if (user) {
+                    if (user.is_approved == 0 || !user) {
+                      router.push("/kyc");
+                    }
+                  } else {
+                    buyPait();
+                  }
+                }
+              }}
+            >
+              {isConnected ? (
+                "Buy PAiT"
+              ) : (
+                <WalletButton> Connect Wallet </WalletButton>
+              )}
+            </BuyCardControlButton>
+          )}
         </BuyCardControlGroup>
       </BuyCardActionWrapper>
 
