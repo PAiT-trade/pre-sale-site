@@ -233,10 +233,10 @@ export const BuyCard: React.FC<BuyCardProps> = ({
                       buyPait();
                     }
                   } else {
-                    console.log("No user found.");
+                    console.log("USER.");
                   }
                 } else {
-                  console.log("Wallet not connected.");
+                  console.log("Wallet NOT CONNECTED.");
                 }
               }}
             >
