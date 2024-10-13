@@ -7,13 +7,25 @@ import { FlexBox } from "@/components/common/Common";
 import { FlexItem } from "@/components/common/Common.styled";
 import { BuyCard } from "@/components/buyCard/BuyCard";
 import { devices, formatNumber } from "@/utils/common";
-import { useWallet, useConnection } from "@solana/wallet-adapter-react";
-import { PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { useWallet, useConnection, Wallet } from "@solana/wallet-adapter-react";
+import * as splToken from "@solana/spl-token";
+import {
+  PublicKey,
+  LAMPORTS_PER_SOL,
+  Transaction,
+  sendAndConfirmTransaction,
+  TransactionInstruction,
+  Connection,
+} from "@solana/web3.js";
 import toast from "react-hot-toast";
+import { transferSPL } from "@/lib/transfer";
 import {
   getAssociatedTokenAddress,
   getOrCreateAssociatedTokenAccount,
   createTransferInstruction,
+  transfer,
+  getAccount,
+  createAssociatedTokenAccountInstruction,
 } from "@solana/spl-token";
 import * as Veriff from "@veriff/js-sdk";
 import { createVeriffFrame, MESSAGES } from "@veriff/incontext-sdk";
@@ -25,9 +37,21 @@ import SignaturePad from "@/components/SaftDocument";
 import { db } from "@/lib/database";
 import { ReferralCodeShare } from "@/components/ReferralCodeShare";
 import TermsAndConditions from "@/components/TermsAndConditions";
+import { User } from "@/lib/database";
+import { create } from "domain";
+import { createUser, getUser } from "@/lib/user";
+import { createPurchase } from "@/lib/purchase";
+import {
+  WalletNotConnectedError,
+  SignerWalletAdapterProps,
+} from "@solana/wallet-adapter-base";
+import { SOLANA_CONNECTION } from "@/utils/helper";
 
 export default function Home() {
-  const { connected, wallet, publicKey, sendTransaction } = useWallet();
+  const { connected, publicKey, sendTransaction, signTransaction } =
+    useWallet();
+
+  const wallet = useWallet();
 
   const { connection } = useConnection();
   const [isMoonPayEnabled, setIsMoonPayEnabled] = useState<boolean>(false);
@@ -39,6 +63,8 @@ export default function Home() {
 
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [isTermsModal, setIsTermsModal] = useState<boolean>(false);
+  // used to get the user code from the URL
+  const [user, setUser] = useState<User | null>(null);
 
   const [balances, setBalances] = useState<{ sol: string; usdt: string }>({
     sol: "0",
@@ -73,6 +99,8 @@ export default function Home() {
   const [paymentMethod, setPaymentMethod] = useState<string>("usdc");
   const [referralCode, setReferralCode] = useState("");
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const router = useRouter();
 
   // Read referral code from URL
@@ -83,7 +111,7 @@ export default function Home() {
     if (myParam) {
       setReferralCode(myParam);
     }
-  }, []);
+  }, [router]);
 
   /**
    * Get the current price of PAiT token
@@ -115,7 +143,39 @@ export default function Home() {
 
   useEffect(() => {
     getBalances();
-  }, [connected, wallet, publicKey]);
+
+    if (publicKey) {
+      // make sure to save the user's wallet to the database
+      createUser({
+        wallet: publicKey?.toBase58()!,
+      })
+        .then((result) => {
+          console.log("APP Result: ", result);
+        })
+        .catch((error) => {
+          console.log("Error: ", error);
+        });
+
+      // save user to db
+      createUser({ wallet: publicKey?.toBase58()! })
+        .then((result) => {
+          console.log("Successfully: ", result);
+        })
+        .catch((error) => {
+          console.log("Error Creating User: ", error);
+        });
+      // retrieve the saved user
+
+      getUser(publicKey?.toBase58()!)
+        .then((result) => {
+          console.log("User: ", result);
+          setUser(result);
+        })
+        .catch((error) => {
+          console.log("Error:  ", error);
+        });
+    }
+  }, [connected, wallet, publicKey, user]);
 
   const getBalances = async () => {
     // if (publicKey) {
@@ -173,7 +233,7 @@ export default function Home() {
     {
       title: "Unlock Schedule",
       description:
-        "10% at TGE, 1-month cliff, and the rest vests over 5 months.",
+        "5% at TGE, 3-month cliff, and the rest vests over 9 months.",
     },
     {
       title: "Limited Supply",
@@ -181,7 +241,8 @@ export default function Home() {
     },
     {
       title: "TGE",
-      description: "Token Generation Event (TGE) on December 10th, 2024",
+      description:
+        "Token Generation Event (TGE) Planned on December 10th, 2024",
     },
   ];
 
@@ -191,31 +252,123 @@ export default function Home() {
     setPaymentModal(false);
   };
 
+  const sendUSDC = useCallback(
+    async (amount: number) => {
+      if (!connected || !publicKey || !signTransaction) {
+        console.log(
+          "Wallet is not connected or signTransaction is unavailable."
+        );
+        return;
+      }
+
+      const recipientPublicKey = new PublicKey(process.env.PAIT_ADDRESS!);
+      // USDC address
+      const mintPublicKey = new PublicKey(
+        "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+      );
+
+      console.log("Recipient Address: ", recipientPublicKey.toBase58());
+      console.log("Sender Address: ", publicKey.toBase58());
+      console.log("Amount: ", amount);
+
+      const { blockhash } = await SOLANA_CONNECTION.getLatestBlockhash();
+
+      // Get the sender's associated token address for USDC
+      const senderTokenAddress = await getAssociatedTokenAddress(
+        mintPublicKey,
+        publicKey
+      );
+
+      console.log("Sender Token Address: ", senderTokenAddress.toBase58());
+
+      // Get the recipient's associated token address for USDC
+      const recipientTokenAddress = await getAssociatedTokenAddress(
+        mintPublicKey,
+        recipientPublicKey
+      );
+
+      // Create transfer instruction
+      const transferInstruction = createTransferInstruction(
+        senderTokenAddress,
+        recipientTokenAddress,
+        publicKey,
+        amount * 10 ** 6 // USDC has 6 decimal places, so convert the amount accordingly
+      );
+
+      const transaction = new Transaction().add(transferInstruction);
+      transaction.recentBlockhash = blockhash;
+      transaction.feePayer = publicKey;
+
+      try {
+        // Sign and send the transaction
+        const signedTransaction = await signTransaction(transaction);
+        const txid = await connection.sendRawTransaction(
+          signedTransaction.serialize()
+        );
+        console.log("USDC transaction sent:", txid);
+        toast.success(`Transaction successful: ${txid}`);
+      } catch (error) {
+        console.error("Error sending USDC:", error);
+        toast.error(`Error sending USDC: ${error}`);
+        throw Error("Error sending USDC");
+      }
+    },
+    [
+      connected,
+      publicKey,
+      signTransaction,
+      connection,
+      recipientAddress,
+      Number(amountInUsd) * 10 ** 6,
+    ]
+  );
+
+  const handlePayment = async (amount: number) => {
+    try {
+      await sendUSDC(200);
+      return {
+        status: "success",
+        mesasge: "Transaction successful",
+      };
+    } catch (error: any) {
+      console.error("Error sending USDC:", error);
+      return {
+        status: "error",
+        mesasge: `Error sending USDC: ${error.message}`,
+      };
+    }
+  };
   const saveRecord = async () => {
     console.log("Amount InUsd", amountInUsd);
     setAmountInPait((Number(amountInUsd) / Number(priceOfPait)).toString());
     try {
-      const response = await fetch("/api/google-save-data", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          data: {
-            user: publicKey?.toBase58(),
-            usd: amountInUsd,
-            pait: amountInPait,
-            referral: referralCode,
-          },
-        }),
+      const response = await createPurchase({
+        user_wallet: publicKey?.toBase58()!,
+        user_name: publicKey?.toBase58()!,
+        pait_tokens: Number(amountInPait),
+        usdc_amount: Number(amountInUsd),
+        referral: referralCode,
       });
+      // const response = await fetch("/api/google-save-data", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify({
+      //     data: {
+      //       user: publicKey?.toBase58(),
+      //       usd: amountInUsd,
+      //       pait: amountInPait,
+      //       referral: referralCode,
+      //     },
+      //   }),
+      // });
 
-      const result = await response.json();
-
-      if (result.status === "success") {
+      if (response.status === "success") {
+        toast.success(response.message);
         await fetchData();
       } else {
-        console.log("Error saving data.");
+        toast.error(response.message);
       }
     } catch (error) {
       console.log("Error saving data.");
@@ -230,11 +383,8 @@ export default function Home() {
   const peformTrade = useCallback(async () => {
     // show KYC verification
 
+    setIsLoading(true);
     reset();
-    console.log("Connected Wallet: ", connected);
-    console.log("Public Key: ", publicKey);
-    console.log("Wallet: ", wallet);
-
     if (amountInUsd === "0") {
       toast.error("Please enter a valid amount");
       return;
@@ -246,60 +396,17 @@ export default function Home() {
     }
 
     try {
-      const mintPublicKey = new PublicKey(USDTAddress);
-      const recipientPublicKey = new PublicKey(recipientAddress);
-
-      // Get the sender's associated token account for USDT
-      const senderTokenAccount = await getAssociatedTokenAddress(
-        mintPublicKey,
-        publicKey
-      );
-
-      console.log("senderTokenAccount", senderTokenAccount);
-      console.log("Recipient", recipientPublicKey);
-      console.log("Mint", mintPublicKey);
-      console.log("Payment Method: ", paymentMethod);
-
-      if (paymentMethod == "card") {
-        setIsMoonPayEnabled(false);
-        setIsTransakEnabled(false);
-        setPaymentModal(true);
-      } else {
-        reset();
+      const isSent = await handlePayment(Number(amountInUsd));
+      if (isSent.status === "success") {
+        // saveRecord();
       }
-
-      saveRecord();
-
-      // // Ensure the recipient has a token account; if not, create it
-      // const recipientTokenAccount = await getOrCreateAssociatedTokenAccount(
-      //   connection, // Solana connection
-      //   publicKey?.toBase58(), // Payer (publicKey of the sender)
-      //   mintPublicKey, // USDT Mint Address
-      //   recipientPublicKey, // Recipient Address
-      //   false, // allowOwnerOffCurve
-      //   "processed", // Commitment level
-      //   { preflightCommitment: "processed" } // Confirm options
-      // );
-
-      // // Create the transfer instruction
-      // const transaction = new Transaction().add(
-      //   createTransferInstruction(
-      //     senderTokenAccount, // Sender's token account
-      //     recipientTokenAccount.address, // Recipient's token account
-      //     publicKey, // Owner of the sender's account
-      //     parseFloat(amountInPait.toString()) * 1e18
-      //   )
-      // );
-
-      // const signature = await sendTransaction(transaction, connection);
-      // await connection.confirmTransaction(signature, "processed");
-      // toast.error(`Transaction confirmed: ${signature}`);
-      toast.success(`Successfully participated in the Pre-Sale`);
       await fetchData();
     } catch (error) {
       console.error("Error sending USDT:", error);
       toast.error(`Error sending USDT`);
     }
+
+    setIsLoading(false);
   }, [
     amountInPait,
     setAmountInPait,
@@ -348,7 +455,9 @@ export default function Home() {
             isConnected={connected}
             mininumAmount={mininumAmount}
             maximumAmount={maximumAmount}
+            isLoading={isLoading}
             amountInPait={amountInPait}
+            user={user}
             setIsMoonPayEnabled={setIsMoonPayEnabled}
             setPaymentModal={setPaymentModal}
             setIsTransakEnabled={setIsTransakEnabled}
@@ -377,11 +486,19 @@ export default function Home() {
             <PageContent>
               <PageSubTitle>Steps to Acquire PAiT Tokens</PageSubTitle>
               <PageDescription>
-                1. Connect your Phantom Wallet on the Solana(
-                <a href="https://phantom.app" target="_blank">
-                  Phantom Wallet
+                1. Connect your Phantom Wallet on the Solana
+                <a
+                  href="https://phantom.app"
+                  target="_blank"
+                  style={{
+                    color: "#fff",
+                    fontWeight: "bold",
+                    borderBottom: "2px solid #fff",
+                  }}
+                >
+                  <span style={{ marginRight: "0.3rem" }}></span>{" "}
+                  {"  Phantom Wallet "}
                 </a>
-                )
               </PageDescription>
               <PageDescription>
                 {" "}
@@ -391,7 +508,9 @@ export default function Home() {
                 3.
                 <span
                   style={{
-                    color: "#4e2286",
+                    color: "#fff",
+                    fontWeight: "bold",
+                    borderBottom: "2px solid #fff",
                     marginRight: "4px",
                     marginLeft: "4px",
                     cursor: "pointer",
@@ -424,6 +543,10 @@ export default function Home() {
                 6. Get your referral code, share it, and earn extra PAiT tokens
               </PageDescription>
             </PageContent>
+
+            {user?.referral && (
+              <ReferralCodeShare referralCode={user?.referral} />
+            )}
 
             {content.map((item, index) => (
               <PageContent key={index}>

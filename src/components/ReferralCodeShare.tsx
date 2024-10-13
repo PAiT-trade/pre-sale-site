@@ -1,28 +1,38 @@
 "use client";
 import styled from "styled-components";
+import { ShareSocial } from "react-share-social";
+import { useState, useEffect } from "react";
 
 export const ReferralCodeShare: React.FC<{
   referralCode: string;
 }> = ({ referralCode }) => {
+  const [shareUrl, setShareUrl] = useState("");
+
+  useEffect(() => {
+    // Ensure this runs only on the client side
+    if (typeof window !== "undefined") {
+      setShareUrl(
+        `${window.location.protocol}//${
+          window.location.hostname
+        }/?referral=${encodeURIComponent(referralCode)}`
+      );
+    }
+  }, [referralCode]);
+
   return (
     <Wrapper>
-      <h3>Your Referral Code</h3>
-      <RawReferralCode>{referralCode}</RawReferralCode>
-      <ReferralCodeBox>
-        {window.location.protocol}//{window.location.hostname}/?referral=
-        {encodeURIComponent(referralCode)}
-      </ReferralCodeBox>
-      <SocialLinks>
-        <a href="">
-          <img height={24} src="/x-logo.svg" alt="X" />
-        </a>
-        <a href="">
-          <img height={24} src="/telegram-logo.svg" alt="X" />
-        </a>
-        <a href="">
-          <img height={24} src="/facebook-logo.svg" alt="X" />
-        </a>
-      </SocialLinks>
+      <h3>Share Your referral Code</h3>
+      <ShareSocial
+        url={shareUrl}
+        socialTypes={[
+          "facebook",
+          "twitter",
+          "reddit",
+          "email",
+          "whatsapp",
+          "telegram",
+        ]}
+      />
     </Wrapper>
   );
 };
@@ -31,7 +41,11 @@ const Wrapper = styled.div`
   background: #141824;
   padding: 1rem;
   border-radius: 1rem;
-  width: 32rem;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-direction: column;
 `;
 
 const RawReferralCode = styled.code`
@@ -47,7 +61,6 @@ const ReferralCodeBox = styled.div`
   margin-top: 0.25rem;
   margin-bottom: 0.75rem;
 `;
-
 const SocialLinks = styled.div`
   display: flex;
   gap: 0.8rem;
