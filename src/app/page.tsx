@@ -21,6 +21,7 @@ import { ReferralCodeShare } from "@/components/ReferralCodeShare";
 import TermsAndConditions from "@/components/TermsAndConditions";
 import { SOLANA_CONNECTION } from "@/utils/helper";
 import { User } from "@prisma/client";
+import { size } from "viem";
 
 export default function Home() {
   const { connected, publicKey, sendTransaction, signTransaction } =
@@ -135,7 +136,7 @@ export default function Home() {
 
       if (user) {
         if (!user.is_approved) {
-          router.push("/kyc");
+          // router.push("/kyc");
         }
       }
     }
@@ -265,13 +266,13 @@ export default function Home() {
 
   const content = [
     {
+      title: "Limited Supply",
+      description: "2,000,000 PAiT Tokens available in the Private Round",
+    },
+    {
       title: "Unlock Schedule",
       description:
         "5% at TGE, 3-month cliff, and the rest vests over 9 months.",
-    },
-    {
-      title: "Limited Supply",
-      description: "2,000,000 PAiT Tokens available in the Private Round",
     },
     {
       title: "TGE",
@@ -511,6 +512,8 @@ export default function Home() {
                     color: "#fff",
                     fontWeight: "bold",
                     borderBottom: "2px solid #fff",
+                    display: "inline-block",
+                    fontSize: "1rem",
                   }}
                 >
                   <span style={{ marginRight: "0.3rem" }}></span>{" "}
@@ -528,9 +531,10 @@ export default function Home() {
                     color: "#fff",
                     fontWeight: "bold",
                     borderBottom: "2px solid #fff",
-                    marginRight: "4px",
-                    marginLeft: "4px",
+                    margin: "0 4px", // Simplify margin
                     cursor: "pointer",
+                    fontSize: "1rem",
+                    display: "inline-block", // Ensure it stays inline but block for better spacing
                   }}
                 >
                   {"  "}
@@ -557,7 +561,8 @@ export default function Home() {
               </PageDescription>
               <PageDescription>
                 {" "}
-                6. Get your referral code, share it, and earn extra PAiT tokens
+                6. Share your referral code and earn 7.5% extra from purchases.
+                Referral pool 150,000 PAiT tokens, fully unlocked at TGE
               </PageDescription>
             </PageContent>
 
