@@ -263,12 +263,12 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
             on the Site.
           </Paragraph>
           <Paragraph>
-            3.2. Aquared PAiT tokens{" "}
-            <b>{tokens ? tokens : " ............. "}</b>
+            3.2. Aquared PAiT tokens {tokens ? tokens : " ............. "}
             will be credited to your wallet{" "}
             <b>{address ? address : " ............. "}</b> through the escrow
-            account no later than the TGE. 5% unlock on TGE, 1 month cliff, 4
-            months linear vesting.
+            account no later than the TGE. 5% unlock on TGE, 3 month cliff, 9
+            months linear vesting. Token Generation Event (TGE) Planned on
+            December 10th, 2024
           </Paragraph>
 
           <Paragraph>
