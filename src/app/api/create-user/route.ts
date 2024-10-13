@@ -37,7 +37,6 @@ export async function POST(req: Request) {
       message: "User created successfully",
     });
   } catch (error) {
-    console.log("error", error);
     return NextResponse.json({
       status: "error",
       message: "Failed to generate referral",
