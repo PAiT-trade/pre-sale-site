@@ -339,7 +339,7 @@ export default function Home() {
       try {
         // Sign and send the transaction
         const signedTransaction = await signTransaction(transaction);
-        const txid = await connection.sendRawTransaction(
+        const txid = await SOLANA_CONNECTION.sendRawTransaction(
           signedTransaction.serialize()
         );
         console.log("USDC transaction sent:", txid);
@@ -362,7 +362,7 @@ export default function Home() {
 
   const handlePayment = async (amount: number) => {
     try {
-      await sendUSDC(2);
+      await sendUSDC(amount);
       return {
         status: "success",
         mesasge: "Transaction successful",
