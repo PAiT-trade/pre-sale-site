@@ -12,8 +12,9 @@ import toast from "react-hot-toast";
 import {
   getAssociatedTokenAddress,
   createTransferInstruction,
+  getAccount,
+  createAssociatedTokenAccountInstruction,
 } from "@solana/spl-token";
-import { CONFIGS } from "@/config";
 import { useRouter } from "next/navigation";
 import WertOnRamp from "@/components/OnOffRamp/WertOnRamp";
 import SignaturePad from "@/components/SaftDocument";
@@ -21,7 +22,6 @@ import { ReferralCodeShare } from "@/components/ReferralCodeShare";
 import TermsAndConditions from "@/components/TermsAndConditions";
 import { SOLANA_CONNECTION } from "@/utils/helper";
 import { User } from "@prisma/client";
-import { size } from "viem";
 
 export default function Home() {
   // const publicKey = new PublicKey("BZVcwX2hXp3X2L3su91UW2ti7XTedW9ncTBc3HfRx8zV")
@@ -166,16 +166,11 @@ export default function Home() {
           body: JSON.stringify({ wallet: publicKey?.toBase58() }),
         });
         const result = await response.json();
-        console.log("Create User: ", result);
         if (result.status === "success") {
           setUser(result.user);
-          console.log("User created successfully.");
         } else {
-          console.log("Error creating user.");
         }
-      } catch (error) {
-        console.error("Fetch error: ", error);
-      }
+      } catch (error) {}
     }
   };
 
@@ -194,10 +189,8 @@ export default function Home() {
         body: JSON.stringify(data),
       });
       const result = await response.json();
-      console.log("Create Purchase: ", result);
       return result;
     } catch (error) {
-      console.error("Fetch error: ", error);
       return {
         status: "error",
         message: "Failed to create purchase",
@@ -217,11 +210,8 @@ export default function Home() {
       if (result.status === "success" && result.user) {
         setUser(result.user);
       } else {
-        console.log("Error fetching user info.");
       }
-    } catch (error) {
-      console.error("Fetch error: ", error);
-    }
+    } catch (error) {}
   };
 
   const fetchData = async () => {
@@ -242,23 +232,18 @@ export default function Home() {
             amountUSD: Number(item[2]?.replaceAll(",", "")),
           };
         });
-        console.log("Data: ", data);
         setData(data);
         const totalAmountPaid = data.reduce(
           (sum: number, item: any) => sum + Number(item.amountPait),
           0
         );
-        console.log("Total amount paid: ", totalAmountPaid);
         setAllocations({
           bought: 0,
           total: allocations.total,
         });
       } else {
-        console.log("Error fetching data.");
       }
-    } catch (error) {
-      console.error("Fetch error: ", error);
-    }
+    } catch (error) {}
   };
 
   useEffect(() => {
@@ -303,10 +288,6 @@ export default function Home() {
         "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
       );
 
-      console.log("Recipient Address: ", recipientPublicKey.toBase58());
-      console.log("Sender Address: ", publicKey.toBase58());
-      console.log("Amount: ", amount);
-
       const { blockhash } = await SOLANA_CONNECTION.getLatestBlockhash();
 
       // Get the sender's associated token address for USDC
@@ -314,25 +295,53 @@ export default function Home() {
         mintPublicKey,
         publicKey
       );
-
-      console.log("Sender Token Address: ", senderTokenAddress.toBase58());
-
       // Get the recipient's associated token address for USDC
       const recipientTokenAddress = await getAssociatedTokenAddress(
         mintPublicKey,
         recipientPublicKey
       );
 
+      const transaction = new Transaction().add();
+
+      // Check if the sender's token account exists
+      try {
+        await getAccount(SOLANA_CONNECTION, senderTokenAddress);
+      } catch (error) {
+        console.log("Sender's token account does not exist. Creating...");
+        const createAccountInstruction =
+          createAssociatedTokenAccountInstruction(
+            publicKey, // payer
+            senderTokenAddress,
+            publicKey, // owner
+            mintPublicKey
+          );
+        transaction.add(createAccountInstruction);
+      }
+
+      // Check if the recipient's token account exists
+      try {
+        await getAccount(SOLANA_CONNECTION, recipientTokenAddress);
+      } catch (error) {
+        console.log("Recipient's token account does not exist. Creating...");
+        const createRecipientAccountInstruction =
+          createAssociatedTokenAccountInstruction(
+            publicKey, // payer
+            recipientTokenAddress,
+            recipientPublicKey, // owner
+            mintPublicKey
+          );
+        transaction.add(createRecipientAccountInstruction);
+      }
+
       // Create transfer instruction
-      // TODO: 2 * 10 ** 6 is the amount in USDC, this should be dynamic
       const transferInstruction = createTransferInstruction(
         senderTokenAddress,
         recipientTokenAddress,
         publicKey,
-        2 * 10 ** 6 // USDC has 6 decimal places, so convert the amount accordingly
+        amount * 10 ** 6 // USDC has 6 decimal places
       );
 
-      const transaction = new Transaction().add(transferInstruction);
+      transaction.add(transferInstruction);
       transaction.recentBlockhash = blockhash;
       transaction.feePayer = publicKey;
 
@@ -344,20 +353,13 @@ export default function Home() {
         );
         console.log("USDC transaction sent:", txid);
         toast.success(`Transaction successful: ${txid}`);
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error sending USDC:", error);
-        toast.error(`Error sending USDC: ${error}`);
-        throw Error("Error sending USDC");
+        toast.error(`Error sending USDC: ${error.message}`);
+        throw new Error("Error sending USDC");
       }
     },
-    [
-      connected,
-      publicKey,
-      signTransaction,
-      connection,
-      recipientAddress,
-      Number(amountInUsd) * 10 ** 6,
-    ]
+    [connected, publicKey, signTransaction]
   );
 
   const handlePayment = async (amount: number) => {
@@ -394,7 +396,6 @@ export default function Home() {
         }
       }
     } catch (error) {
-      console.log("Error saving data.");
       console.error(error);
     }
   };
@@ -421,7 +422,6 @@ export default function Home() {
       }
       await fetchData();
     } catch (error) {
-      console.error("Error sending USDT:", error);
       toast.error(`Error sending USDT`);
     }
 
