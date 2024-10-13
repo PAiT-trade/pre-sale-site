@@ -18,7 +18,6 @@ import {
   Connection,
 } from "@solana/web3.js";
 import toast from "react-hot-toast";
-import { transferSPL } from "@/lib/transfer";
 import {
   getAssociatedTokenAddress,
   getOrCreateAssociatedTokenAccount,
