@@ -24,17 +24,22 @@ function loadCredentials(): OAuth2Client {
 }
 
 // Send email using Gmail API
-async function sendEmail() {
+async function sendEmail(opts: {
+  to: string;
+  subject: string;
+  message: string;
+}) {
   const auth = loadCredentials();
   const gmail = google.gmail({ version: "v1", auth });
 
   const email = `
-    From: "Sender Name" <your-email@example.com>
-    To: recipient@example.com
-    Subject: Test Email
+    From: "PAiT Sales" <presale@pait.fi>
+    To: ${opts.to}
+    Subject: ${opts.subject}
     Content-Type: text/plain; charset="UTF-8"
-    
-    This is a test email sent from TypeScript using Gmail API.
+    MIME-Version: 1.0
+    Content-Transfer-Encoding: 7bit
+    ${opts.message}
   `;
 
   const base64EncodedEmail = Buffer.from(email)
@@ -55,4 +60,65 @@ async function sendEmail() {
   }
 }
 
-sendEmail();
+import nodemailer from "nodemailer";
+
+const OAuth2 = google.auth.OAuth2;
+
+// const createTransporter = async () => {
+//   try {
+//     const oauth2Client = new OAuth2(
+//       process.env.CLIENT_ID,
+//       process.env.CLIENT_SECRET,
+//       "https://developers.google.com/oauthplayground"
+//     );
+
+//     oauth2Client.setCredentials({
+//       refresh_token: process.env.REFRESH_TOKEN,
+//     });
+
+//     const accessToken = await new Promise((resolve, reject) => {
+//       oauth2Client.getAccessToken((err, token) => {
+//         if (err) {
+//           console.log("*ERR: ", err);
+//           reject();
+//         }
+//         resolve(token);
+//       });
+//     });
+
+//     const transporter = nodemailer.createTransport({
+//       service: "gmail",
+//       auth: {
+//         type: "OAuth2",
+//         user: process.env.USER_EMAIL,
+//         accessToken,
+//         clientId: process.env.CLIENT_ID,
+//         clientSecret: process.env.CLIENT_SECRET,
+//         refreshToken: process.env.REFRESH_TOKEN,
+//       },
+//     });
+//     return transporter;
+//   } catch (err) {
+//     return err;
+//   }
+// };
+
+// const sendMail = async (opts: {
+//   mail: string;
+//   subject: string;
+//   text: string;
+// }) => {
+//   try {
+//     const mailOptions = {
+//       from: process.env.USER_EMAIL,
+//       to: opts.mail,
+//       subject: opts.subject,
+//       text: opts.text,
+//     };
+
+//     let emailTransporter: any = await createTransporter();
+//     await emailTransporter.sendMail(mailOptions);
+//   } catch (err) {
+//     console.log("ERROR: ", err);
+//   }
+// };

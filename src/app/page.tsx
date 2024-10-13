@@ -32,7 +32,6 @@ export default function Home() {
 
   const wallet = useWallet();
 
-  const { connection } = useConnection();
   const [isMoonPayEnabled, setIsMoonPayEnabled] = useState<boolean>(false);
   const [isTransakEnabled, setIsTransakEnabled] = useState<boolean>(false);
   const [paymentModal, setPaymentModal] = useState<boolean>(false);
@@ -185,11 +184,16 @@ export default function Home() {
         body: JSON.stringify(data),
       });
       const result = await response.json();
-      return result;
+      return {
+        status: "success",
+        message: "Purchase created successfully",
+        purchase: result?.status === "success" ? result.purchase : null,
+      };
     } catch (error) {
       return {
         status: "error",
         message: "Failed to create purchase",
+        purchase: null,
       };
     }
   };
@@ -253,11 +257,6 @@ export default function Home() {
       title: "Unlock Schedule",
       description:
         "5% at TGE, 3-month cliff, and the rest vests over 9 months.",
-    },
-    {
-      title: "TGE",
-      description:
-        "Token Generation Event (TGE) Planned on December 10th, 2024",
     },
   ];
 
@@ -373,6 +372,7 @@ export default function Home() {
   };
   const saveRecord = async () => {
     setAmountInPait((Number(amountInUsd) / Number(priceOfPait)).toString());
+
     try {
       if (user) {
         const response = await createNewPurchase({
@@ -384,7 +384,7 @@ export default function Home() {
 
         if (response.status === "success") {
           toast.success(response.message);
-          await fetchData();
+          router.push(`/sign/${response.purchase?.id}`);
         } else {
           toast.error(response.message);
         }
@@ -412,7 +412,9 @@ export default function Home() {
     try {
       const isSent = await handlePayment(Number(amountInUsd));
       if (isSent.status === "success") {
-        // saveRecord();
+        saveRecord();
+
+        router.push("/success");
       }
       await fetchData();
     } catch (error) {
@@ -547,7 +549,7 @@ export default function Home() {
                 </ReadAgreement>
               </ModalSection>
               <PageDescription>
-                4. Enter the USDCvalue you wish to use for the purchase, then
+                4. Enter the USDC value you wish to use for the purchase, then
                 press the "Buy PAiT" button
               </PageDescription>
               <PageDescription>
