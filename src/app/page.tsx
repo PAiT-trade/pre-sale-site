@@ -1,45 +1,24 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import styled from "styled-components";
-import TransakOnOffRamp from "@/components/OnOffRamp/TransakOnOffRamp";
 import { ModalSection } from "@/components/modal/Modal";
 import { FlexBox } from "@/components/common/Common";
 import { FlexItem } from "@/components/common/Common.styled";
 import { BuyCard } from "@/components/buyCard/BuyCard";
 import { devices, formatNumber } from "@/utils/common";
 import { useWallet, useConnection, Wallet } from "@solana/wallet-adapter-react";
-import * as splToken from "@solana/spl-token";
-import {
-  PublicKey,
-  LAMPORTS_PER_SOL,
-  Transaction,
-  sendAndConfirmTransaction,
-  TransactionInstruction,
-  Connection,
-} from "@solana/web3.js";
+import { PublicKey, Transaction } from "@solana/web3.js";
 import toast from "react-hot-toast";
 import {
   getAssociatedTokenAddress,
-  getOrCreateAssociatedTokenAccount,
   createTransferInstruction,
-  transfer,
-  getAccount,
-  createAssociatedTokenAccountInstruction,
 } from "@solana/spl-token";
-import * as Veriff from "@veriff/js-sdk";
 import { CONFIGS } from "@/config";
-import { VerifyKYC } from "@/components/kyc/VerifyKYC";
 import { useRouter } from "next/navigation";
 import WertOnRamp from "@/components/OnOffRamp/WertOnRamp";
 import SignaturePad from "@/components/SaftDocument";
-import { db } from "@/lib/database";
 import { ReferralCodeShare } from "@/components/ReferralCodeShare";
 import TermsAndConditions from "@/components/TermsAndConditions";
-import { createUser, getUser, createPurchase } from "@/db/prisma";
-import {
-  WalletNotConnectedError,
-  SignerWalletAdapterProps,
-} from "@solana/wallet-adapter-base";
 import { SOLANA_CONNECTION } from "@/utils/helper";
 import { User } from "@prisma/client";
 
@@ -142,7 +121,7 @@ export default function Home() {
 
     if (publicKey) {
       // save user to db
-      createUser({ wallet: publicKey?.toBase58()! })
+      createNewUser()
         .then((result) => {
           console.log("Successfully ->: ", result);
         })
@@ -150,17 +129,9 @@ export default function Home() {
           console.log("Error Creating User: ", error);
         });
       // retrieve the saved user
-
-      getUser(publicKey?.toBase58()!)
-        .then((result) => {
-          console.log("User: ", result);
-          if (result?.user) {
-            setUser(result?.user);
-          }
-        })
-        .catch((error) => {
-          console.log("Error:  ", error);
-        });
+      getUserInfo()
+        .then(() => {})
+        .catch(() => {});
     }
   }, [connected, wallet, publicKey, user]);
 
@@ -173,6 +144,76 @@ export default function Home() {
     //     new PublicKey(USDTAddress)
     //   );
     // }
+  };
+
+  const createNewUser = async () => {
+    if (publicKey) {
+      console.log(JSON.stringify({ wallet: publicKey?.toBase58() }));
+      try {
+        const response = await fetch("/api/create-user", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ wallet: publicKey?.toBase58() }),
+        });
+        const result = await response.json();
+        console.log("Create User: ", result);
+        if (result.status === "success") {
+          setUser(result.user);
+          console.log("User created successfully.");
+        } else {
+          console.log("Error creating user.");
+        }
+      } catch (error) {
+        console.error("Fetch error: ", error);
+      }
+    }
+  };
+
+  const createNewPurchase = async (data: {
+    user_id: number;
+    pait_tokens: number;
+    usdc_amount: number;
+    usedReferral: string;
+  }) => {
+    try {
+      const response = await fetch("/api/create-purchase", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      const result = await response.json();
+      console.log("Create Purchase: ", result);
+      return result;
+    } catch (error) {
+      console.error("Fetch error: ", error);
+      return {
+        status: "error",
+        message: "Failed to create purchase",
+      };
+    }
+  };
+  const getUserInfo = async () => {
+    try {
+      const response = await fetch(`/api/get-user/${publicKey?.toBase58()}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const result = await response.json();
+      console.log("User Info: ", result);
+      if (result.status === "success" && result.user) {
+        setUser(result.user);
+      } else {
+        console.log("Error fetching user info.");
+      }
+    } catch (error) {
+      console.error("Fetch error: ", error);
+    }
   };
 
   const fetchData = async () => {
@@ -330,7 +371,7 @@ export default function Home() {
     setAmountInPait((Number(amountInUsd) / Number(priceOfPait)).toString());
     try {
       if (user) {
-        const response = await createPurchase({
+        const response = await createNewPurchase({
           user_id: user.id,
           pait_tokens: Number(amountInPait),
           usdc_amount: Number(amountInUsd),
