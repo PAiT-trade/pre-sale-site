@@ -1,21 +1,26 @@
 import { PrismaClient } from "@prisma/client";
 import { randomUUID } from "crypto";
+import { NextResponse } from "next/server";
 
 export const prisma = new PrismaClient();
 
 export const getUser = async (wallet: string) => {
+  console.log("Getting user with wallet:", wallet);
   try {
-    const user = await prisma.user.findFirst({
+    const user = await prisma.user.findUnique({
       where: { wallet: wallet },
     });
 
-    return {
+    return NextResponse.json({
       status: "success",
       user: user,
       message: "User retrieved successfully",
-    };
+    });
   } catch (error) {
-    return { status: "error", message: "Failed to retrieve user" };
+    return NextResponse.json({
+      status: "error",
+      message: "Failed to retrieve user",
+    });
   }
 };
 
@@ -32,7 +37,7 @@ export const createUser = async (opts: { wallet: string }) => {
 
     const referralCode = randomUUID();
 
-    const user = prisma.user.create({
+    const user = await prisma.user.create({
       data: {
         wallet: opts.wallet,
         referral: referralCode,
@@ -45,7 +50,7 @@ export const createUser = async (opts: { wallet: string }) => {
       message: "User created successfully",
     };
   } catch (error) {
-    console.log(error);
+    console.log("error", error);
     return { status: "error", user: null, message: "Failed to create user" };
   }
 };
@@ -61,10 +66,13 @@ export const updateUser = async (opts: {
     });
 
     if (!exist) {
-      return { status: "error", message: "User does not exist" };
+      return NextResponse.json({
+        status: "error",
+        message: "User does not exist",
+      });
     }
 
-    const user = prisma.user.update({
+    const user = await prisma.user.update({
       where: { wallet: opts.wallet },
       data: {
         name: opts.name,
@@ -78,7 +86,11 @@ export const updateUser = async (opts: {
       message: "User updated successfully",
     };
   } catch (error) {
-    return { status: "error", user: null, message: "Failed to update user" };
+    return NextResponse.json({
+      status: "error",
+      user: null,
+      message: "Failed to update user",
+    });
   }
 };
 
