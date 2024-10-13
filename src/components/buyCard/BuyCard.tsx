@@ -217,14 +217,26 @@ export const BuyCard: React.FC<BuyCardProps> = ({
           ) : (
             <BuyCardControlButton
               onClick={() => {
+                console.log("isConnected:", isConnected);
+                console.log("user:", user);
+                console.log(
+                  "user.is_approved:",
+                  user ? user.is_approved : "No user"
+                );
+
                 if (isConnected) {
                   if (user) {
                     if (!user.is_approved) {
                       router.push("/kyc");
                     } else {
+                      console.log("Calling buyPait...");
                       buyPait();
                     }
+                  } else {
+                    console.log("No user found.");
                   }
+                } else {
+                  console.log("Wallet not connected.");
                 }
               }}
             >
