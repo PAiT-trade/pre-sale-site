@@ -1,11 +1,10 @@
-import { getUser, prisma } from "@/db/prisma";
-import { NextApiRequest } from "next";
+import { prisma } from "@/db/prisma";
 import { NextResponse } from "next/server";
 
-export async function GET(req: NextApiRequest) {
+export async function GET(req: any) {
   try {
     const user = await prisma.user.findUnique({
-      where: { wallet: "ERgpvPPvSYnqTNay5uFRvcCiHYF48g9VkqXw8NroFepx" },
+      where: { wallet: req.query.wallet as string },
     });
 
     return NextResponse.json({
