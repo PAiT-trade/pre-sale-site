@@ -288,11 +288,12 @@ export default function Home() {
       );
 
       // Create transfer instruction
+      // TODO: 2 * 10 ** 6 is the amount in USDC, this should be dynamic
       const transferInstruction = createTransferInstruction(
         senderTokenAddress,
         recipientTokenAddress,
         publicKey,
-        amount * 10 ** 6 // USDC has 6 decimal places, so convert the amount accordingly
+        2 * 10 ** 6 // USDC has 6 decimal places, so convert the amount accordingly
       );
 
       const transaction = new Transaction().add(transferInstruction);
@@ -325,7 +326,7 @@ export default function Home() {
 
   const handlePayment = async (amount: number) => {
     try {
-      await sendUSDC(200);
+      await sendUSDC(2);
       return {
         status: "success",
         mesasge: "Transaction successful",
