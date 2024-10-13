@@ -1,0 +1,33 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+model User {
+  id          Int        @id @default(autoincrement())
+  wallet      String     @unique
+  referral    String     @default("")
+  is_approved Boolean    @default(false)
+  name        String?    @default("")
+  email       String?    @default("")
+  purchases   Purchase[]
+
+  @@map("users")
+}
+
+model Purchase {
+  id            Int      @id @default(autoincrement())
+  user_id       Int
+  pait_tokens   Int      @default(0)
+  usdc_amount   Int      @default(0)
+  used_referral String?  @default("")
+  created_at    DateTime @default(now())
+  user          User?    @relation(fields: [user_id], references: [id])
+
+  @@map("purchases")
+}
