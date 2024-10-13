@@ -132,6 +132,12 @@ export default function Home() {
       getUserInfo()
         .then(() => {})
         .catch(() => {});
+
+      if (user) {
+        if (!user.is_approved) {
+          router.push("/kyc");
+        }
+      }
     }
   }, [connected, wallet, publicKey, user]);
 
