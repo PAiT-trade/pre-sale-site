@@ -28,7 +28,6 @@ import {
   createAssociatedTokenAccountInstruction,
 } from "@solana/spl-token";
 import * as Veriff from "@veriff/js-sdk";
-import { createVeriffFrame, MESSAGES } from "@veriff/incontext-sdk";
 import { CONFIGS } from "@/config";
 import { VerifyKYC } from "@/components/kyc/VerifyKYC";
 import { useRouter } from "next/navigation";
@@ -37,15 +36,13 @@ import SignaturePad from "@/components/SaftDocument";
 import { db } from "@/lib/database";
 import { ReferralCodeShare } from "@/components/ReferralCodeShare";
 import TermsAndConditions from "@/components/TermsAndConditions";
-import { User } from "@/lib/database";
-import { create } from "domain";
-import { createUser, getUser } from "@/lib/user";
-import { createPurchase } from "@/lib/purchase";
+import { createUser, getUser, createPurchase } from "@/db/prisma";
 import {
   WalletNotConnectedError,
   SignerWalletAdapterProps,
 } from "@solana/wallet-adapter-base";
 import { SOLANA_CONNECTION } from "@/utils/helper";
+import { User } from "@prisma/client";
 
 export default function Home() {
   const { connected, publicKey, sendTransaction, signTransaction } =
@@ -89,8 +86,8 @@ export default function Home() {
     bought: 0,
     total: 2000000,
   });
-  const [amountInUsd, setAmountInUsd] = useState("200");
-  const [mininumAmount, setMinimumAmount] = useState("200");
+  const [amountInUsd, setAmountInUsd] = useState("2");
+  const [mininumAmount, setMinimumAmount] = useState("2");
   const [isInValid, setInValid] = useState(false);
   const [maximumAmount, setMaximumAmount] = useState("20000");
   const [amountInPait, setAmountInPait] = useState("1");
@@ -145,21 +142,10 @@ export default function Home() {
     getBalances();
 
     if (publicKey) {
-      // make sure to save the user's wallet to the database
-      createUser({
-        wallet: publicKey?.toBase58()!,
-      })
-        .then((result) => {
-          console.log("APP Result: ", result);
-        })
-        .catch((error) => {
-          console.log("Error: ", error);
-        });
-
       // save user to db
       createUser({ wallet: publicKey?.toBase58()! })
         .then((result) => {
-          console.log("Successfully: ", result);
+          console.log("Successfully ->: ", result);
         })
         .catch((error) => {
           console.log("Error Creating User: ", error);
@@ -169,7 +155,9 @@ export default function Home() {
       getUser(publicKey?.toBase58()!)
         .then((result) => {
           console.log("User: ", result);
-          setUser(result);
+          if (result?.user) {
+            setUser(result?.user);
+          }
         })
         .catch((error) => {
           console.log("Error:  ", error);
@@ -340,44 +328,26 @@ export default function Home() {
     }
   };
   const saveRecord = async () => {
-    console.log("Amount InUsd", amountInUsd);
     setAmountInPait((Number(amountInUsd) / Number(priceOfPait)).toString());
     try {
-      const response = await createPurchase({
-        user_wallet: publicKey?.toBase58()!,
-        user_name: publicKey?.toBase58()!,
-        pait_tokens: Number(amountInPait),
-        usdc_amount: Number(amountInUsd),
-        referral: referralCode,
-      });
-      // const response = await fetch("/api/google-save-data", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify({
-      //     data: {
-      //       user: publicKey?.toBase58(),
-      //       usd: amountInUsd,
-      //       pait: amountInPait,
-      //       referral: referralCode,
-      //     },
-      //   }),
-      // });
+      if (user) {
+        const response = await createPurchase({
+          user_id: user.id,
+          pait_tokens: Number(amountInPait),
+          usdc_amount: Number(amountInUsd),
+          usedReferral: referralCode,
+        });
 
-      if (response.status === "success") {
-        toast.success(response.message);
-        await fetchData();
-      } else {
-        toast.error(response.message);
+        if (response.status === "success") {
+          toast.success(response.message);
+          await fetchData();
+        } else {
+          toast.error(response.message);
+        }
       }
     } catch (error) {
       console.log("Error saving data.");
       console.error(error);
-    }
-    if (!connected || !wallet || !publicKey) {
-      toast.error("Please connect your wallet first");
-      return;
     }
   };
 

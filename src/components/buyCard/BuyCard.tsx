@@ -38,7 +38,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { WalletButton } from "@/app/solana/solana-provider";
 import { Loader } from "../Loader";
-import { User } from "@/lib/database";
+import { User } from "@prisma/client";
 
 interface BuyCardProps {
   amountInUsd: string;
@@ -219,7 +219,7 @@ export const BuyCard: React.FC<BuyCardProps> = ({
               onClick={() => {
                 if (isConnected) {
                   if (user) {
-                    if (user.is_approved == 0) {
+                    if (!user.is_approved) {
                       router.push("/kyc");
                     } else {
                       buyPait();
