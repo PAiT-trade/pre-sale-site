@@ -2,8 +2,10 @@ import { useEffect } from "react";
 import { CONFIGS } from "@/config";
 import { createVeriffFrame, MESSAGES } from "@veriff/incontext-sdk";
 import toast from "react-hot-toast";
-
-export const VerifyKYC = () => {
+interface VerifyKYCProps {
+  wallet: string;
+}
+export const VerifyKYC: React.FC<VerifyKYCProps> = ({ wallet }) => {
   useEffect(() => {
     if (typeof window !== "undefined") {
       const { Veriff } = require("@veriff/js-sdk");
@@ -12,6 +14,7 @@ export const VerifyKYC = () => {
         return;
       }
       const veriff = Veriff({
+        host: "https://stationapi.veriff.com",
         apiKey: CONFIGS.VERIFF_API_KEY,
         parentId: "veriff-root",
         onSession: function (err: any, response: any) {
@@ -48,10 +51,21 @@ export const VerifyKYC = () => {
         formLabel: {
           firstName: "First Name",
           lastName: "Last Name",
-          vendorData: "Other Names",
+          vendorData: "Wallet",
         },
         submitBtnText: "Get verified",
         loadingText: "Please wait...",
+      });
+
+      veriff.setParams({
+        person: {
+          firstName: "",
+          lastName: "",
+        },
+        vendorData: wallet,
+      });
+      veriff.mount({
+        submitBtnText: "Get verified",
       });
     }
   }, [CONFIGS.VERIFF_API_KEY]);
