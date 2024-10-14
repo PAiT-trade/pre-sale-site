@@ -4,13 +4,15 @@ import { NextResponse } from "next/server";
 export async function POST(req: Request) {
   const data = await req.json();
 
+  console.log("Request Data: ", data);
+
   try {
-    const purchase = prisma.purchase.create({
+    const purchase = await prisma.purchase.create({
       data: {
-        user_id: data.user_id,
-        pait_tokens: data.pait_tokens,
-        usdc_amount: data.usdc_amount,
-        used_referral: data.usedReferral,
+        user_id: Number(data.user_id),
+        pait_tokens: Number(data.pait_tokens),
+        usdc_amount: Number(data.usdc_amount),
+        used_referral: data.usedReferral || "",
       },
     });
 
@@ -20,7 +22,7 @@ export async function POST(req: Request) {
       message: "Purchase created successfully",
     });
   } catch (error) {
-    console.log("Create Purchase: ", error);
+    console.log("Create Purchase Error: ", error);
     return NextResponse.json({
       status: "error",
       purchase: null,
