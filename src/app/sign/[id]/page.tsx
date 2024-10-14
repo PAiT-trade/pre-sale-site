@@ -3,23 +3,23 @@ import SignaturePad from "@/components/SaftDocument";
 import { useEffect, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletButton } from "@/app/solana/solana-provider";
-import toast from "react-hot-toast";
 
-export default function Home() {
-  const [signature, setSignature] = useState(null);
+interface QueryParams {
+  params: {
+    id: string; // The dynamic route parameter
+  };
+}
 
+const Home: React.FC<QueryParams> = ({ params }) => {
   const [email, setEmail] = useState("");
+  const [tokens, setTokens] = useState("");
   const [name, setName] = useState("");
   const { connected, publicKey } = useWallet();
 
+  const { id } = params;
+
   const submitDocument = (dataURL: any) => {
-    if (!name || !email) {
-      toast.error("Please enter your name and email");
-      return;
-    }
-    setSignature(dataURL);
-    console.log("Signature saved:", dataURL);
-    //TODO: send and email with Gsuite
+    window.location.href = "/";
   };
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export default function Home() {
   }, []);
   const getData = async () => {
     try {
-      const response = await fetch("/api/user", {
+      const response = await fetch(`/api/get-purchase/${id}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -38,11 +38,13 @@ export default function Home() {
 
       const data = await response.json();
 
-      if (data.status === "success") {
-        setName(data.user.name);
-        setEmail(data.user.email);
-      }
       console.log("User data:", data);
+
+      if (data?.purchase) {
+        setName(data.purchase?.user?.name);
+        setEmail(data.purchase?.user?.email);
+        setTokens(data.purchase?.pait_tokens);
+      }
     } catch (error) {}
   };
 
@@ -53,6 +55,8 @@ export default function Home() {
           onSave={submitDocument}
           name={name}
           email={email}
+          purchaseId={Number(id)}
+          tokens={Number(tokens)}
           setName={setName}
           setEmail={setEmail}
           address={publicKey?.toBase58()}
@@ -72,4 +76,6 @@ export default function Home() {
       )}
     </div>
   );
-}
+};
+
+export default Home;
