@@ -422,15 +422,27 @@ export default function Home() {
           usedReferral: referralCode,
         });
 
-        if (response.status === "success") {
-          toast.success(response.message);
-          router.push(`/sign/${response.purchase?.id}`);
-        } else {
-          toast.error(response.message);
-        }
+        return response;
+
+        // if (response.status === "success") {
+        // toast.success(response.message);
+        // router.push(`/sign/${response.purchase?.id}`);
+        // } else {
+        //   toast.error(response.message);
+        // }
       }
+
+      return {
+        status: "failed",
+        message: "Failed, Not connected wallet",
+        purchase: null,
+      };
     } catch (error) {
-      // console.error(error);
+      return {
+        status: "error",
+        message: "failed",
+        purchase: null,
+      };
     }
   };
 
@@ -452,9 +464,11 @@ export default function Home() {
     try {
       const isSent = await handlePayment(Number(amountInUsd));
       if (isSent.status === "success") {
-        saveRecord();
+        const resp = await saveRecord();
+        if (resp.purchase) {
+          router.push(`/sign/${resp?.purchase?.id}`);
+        }
       }
-      await fetchData();
     } catch (error) {
       toast.error(`Error sending USDT`);
     }
