@@ -18,3 +18,13 @@ export const getNumberDecimals = async (
     .decimals as number;
   return result;
 };
+
+const getCurrentSlot = async () => {
+  try {
+    const currentSlot = await SOLANA_CONNECTION.getSlot();
+    console.log("Current Slot (Block Number):", currentSlot);
+    return currentSlot;
+  } catch (error) {
+    console.error("Error fetching current slot:", error);
+  }
+};
