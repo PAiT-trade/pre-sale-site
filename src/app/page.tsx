@@ -308,20 +308,20 @@ export default function Home() {
         "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
       );
 
-      let currentSlot = 0;
+      // let currentSlot = 0;
 
-      try {
-        currentSlot = await SOLANA_CONNECTION.getSlot();
-        console.log("Current Slot (Block Number):", currentSlot);
-        return currentSlot;
-      } catch (error) {
-        console.error("Error fetching current slot:", error);
-      }
+      // try {
+      //   currentSlot = await SOLANA_CONNECTION.getSlot();
+      //   console.log("Current Slot (Block Number):", currentSlot);
+      //   return currentSlot;
+      // } catch (error) {
+      //   console.error("Error fetching current slot:", error);
+      // }
       const { blockhash } = await SOLANA_CONNECTION.getLatestBlockhash();
 
-      console.log(`
-        Slot: ${currentSlot},
-        Block Hash: ${blockhash}`);
+      // console.log(`
+      //   Slot: ${currentSlot},
+      //   Block Hash: ${blockhash}`);
 
       // Get the sender's associated token address for USDC
       const senderTokenAddress = await getAssociatedTokenAddress(
@@ -379,14 +379,17 @@ export default function Home() {
       transaction.feePayer = publicKey;
 
       try {
-        // retry 3 times
-        const txid = sendTransactionWithRetry(transaction);
+        // Sign and send the transaction
+        const signedTransaction = await signTransaction(transaction);
+        const txid = await SOLANA_CONNECTION.sendRawTransaction(
+          signedTransaction.serialize()
+        );
         console.log("USDC transaction sent:", txid);
         toast.success(`Transaction successful: ${txid}`);
-      } catch (error: any) {
+      } catch (error) {
         console.error("Error sending USDC:", error);
-        toast.error(`Error transfering USDC`);
-        throw new Error("Error transfering USDC");
+        toast.error("Error transferring USDC");
+        throw new Error("Error transferring USDC");
       }
     },
     [connected, publicKey, signTransaction]
@@ -419,15 +422,27 @@ export default function Home() {
           usedReferral: referralCode,
         });
 
-        if (response.status === "success") {
-          toast.success(response.message);
-          router.push(`/sign/${response.purchase?.id}`);
-        } else {
-          toast.error(response.message);
-        }
+        return response;
+
+        // if (response.status === "success") {
+        // toast.success(response.message);
+        // router.push(`/sign/${response.purchase?.id}`);
+        // } else {
+        //   toast.error(response.message);
+        // }
       }
+
+      return {
+        status: "failed",
+        message: "Failed, Not connected wallet",
+        purchase: null,
+      };
     } catch (error) {
-      // console.error(error);
+      return {
+        status: "error",
+        message: "failed",
+        purchase: null,
+      };
     }
   };
 
@@ -449,9 +464,11 @@ export default function Home() {
     try {
       const isSent = await handlePayment(Number(amountInUsd));
       if (isSent.status === "success") {
-        saveRecord();
+        const resp = await saveRecord();
+        if (resp.purchase) {
+          router.push(`/sign/${resp?.purchase?.id}`);
+        }
       }
-      await fetchData();
     } catch (error) {
       toast.error(`Error sending USDT`);
     }
