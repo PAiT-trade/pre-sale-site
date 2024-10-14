@@ -440,8 +440,6 @@ export default function Home() {
       const isSent = await handlePayment(Number(amountInUsd));
       if (isSent.status === "success") {
         saveRecord();
-
-        router.push("/success");
       }
       await fetchData();
     } catch (error) {
