@@ -174,7 +174,7 @@ export const BuyCard: React.FC<BuyCardProps> = ({
             <BuyCardControlInputGroup>
               <BuyCardControlInputLabelGroup>
                 <BuyCardControlInputLabelLeft>
-                  Pay with $USDT
+                  Pay with $USDC
                 </BuyCardControlInputLabelLeft>
                 <BuyCardControlInputLabelRight>
                   Max

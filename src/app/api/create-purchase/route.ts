@@ -20,6 +20,7 @@ export async function POST(req: Request) {
       message: "Purchase created successfully",
     });
   } catch (error) {
+    console.log("Create Purchase: ", error);
     return NextResponse.json({
       status: "error",
       purchase: null,
