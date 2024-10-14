@@ -34,12 +34,13 @@ export const CountdownTimer: React.FC<{ targetDate: string }> = ({
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const timer = setInterval(() => {
       setTimeLeft(calculateTimeLeft());
     }, 1000);
 
-    return () => clearTimeout(timer);
-  }, [timeLeft, calculateTimeLeft]);
+    // Cleanup function to clear the interval
+    return () => clearInterval(timer);
+  }, [targetDate]); // Only run this effect when targetDate changes
 
   return (
     <CountdownTimerContainer>

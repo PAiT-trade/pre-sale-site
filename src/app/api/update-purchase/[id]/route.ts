@@ -1,8 +1,7 @@
-// app/api/purchase/[id]/route.ts
-import { prisma } from "@/db/prisma"; // Adjust the import according to your project structure
+import { prisma } from "@/db/prisma";
 import { NextResponse } from "next/server";
 
-export async function GET(
+export async function POST(
   req: Request,
   { params }: { params: { id: string } }
 ) {
@@ -18,11 +17,15 @@ export async function GET(
       );
     }
 
+    const data = await req.json();
+
     const purchaseId = parseInt(id, 10);
 
-    const purchase = await prisma.purchase.findFirst({
+    const purchase = await prisma.purchase.update({
       where: { id: purchaseId },
-      include: { user: true },
+      data: {
+        uploud_id: Number(data.upload_id),
+      },
     });
 
     if (!purchase) {
@@ -38,14 +41,14 @@ export async function GET(
     return NextResponse.json({
       status: "success",
       purchase: purchase,
-      message: "Purchase retrieved successfully",
+      message: "Purchase updated successfully",
     });
   } catch (error) {
-    console.error("Error retrieving purchase:", error);
+    console.error("Error udpating purchase:", error);
     return NextResponse.json(
       {
         status: "error",
-        message: "Failed to retrieve purchase",
+        message: "Failed to update purchase",
       },
       { status: 500 }
     );

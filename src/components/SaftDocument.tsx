@@ -3,11 +3,14 @@ import styled from "styled-components";
 import moment from "moment";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import toast from "react-hot-toast";
+import { useWallet } from "@solana/wallet-adapter-react";
 
 interface SignaturePadProps {
   onSave?: (url: string) => void;
   name?: string;
   email?: string;
+  purchaseId?: number;
   setName?: (name: string) => void;
   setEmail?: (email: string) => void;
   showSignature: boolean;
@@ -20,6 +23,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
   email,
   name,
   setName,
+  purchaseId,
   setEmail,
   showSignature,
   tokens,
@@ -27,6 +31,10 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
 }) => {
   const canvasRef = useRef(null);
   const isDrawing = useRef(false);
+
+  const { publicKey } = useWallet();
+
+  const [file, setFile] = useState("");
   const [currentDate, setCurrentDate] = useState<{
     human: string;
     decimal: string;
@@ -76,17 +84,60 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
     }
   };
 
-  const saveSignature = () => {
+  const saveSignature = async () => {
     const canvas: any = canvasRef.current;
     if (canvas) {
       const dataURL = canvas.toDataURL("image/png");
 
+      if (!dataURL) {
+        toast.error("Please sign to proceed");
+        return;
+      }
+
       if (onSave) {
+        if (!name || !email) {
+          toast.error("Please enter your name or email");
+          return;
+        }
         onSave(dataURL);
-        // download the document locally on the user's device
-        downloadDocument();
+        await downloadDocument();
       }
     }
+  };
+
+  const uploadDocument = async (formData: FormData) => {
+    if (formData) {
+      try {
+        const response = await fetch("/api/upload-file", {
+          method: "POST",
+          body: formData,
+        });
+        const result = await response.json();
+
+        console.log("UPLOADED: ", result);
+        if (result.status === "success") {
+          await updatePurchase(result?.upload?.id!);
+        } else {
+        }
+      } catch (error) {}
+    }
+  };
+
+  const updatePurchase = async (fileData: string) => {
+    try {
+      const response = await fetch(`/api/update-purchase/${purchaseId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        body: JSON.stringify({ base64Data: fileData }),
+      });
+      const result = await response.json();
+      console.log("UPDATE PURCHASE: ", result);
+      if (result.status === "success") {
+      } else {
+      }
+    } catch (error) {}
   };
 
   useEffect(() => {
@@ -99,37 +150,58 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
     }
   }, []);
 
-  const downloadDocument = () => {
+  const downloadDocument = async (): Promise<FormData | null> => {
     const input = document.getElementById("document-section");
-    if (input) {
-      html2canvas(input).then((canvas) => {
-        const imgData = canvas.toDataURL("image/png");
-        const pdf = new jsPDF("p", "pt", "a4");
 
-        const pageWidth = pdf.internal.pageSize.getWidth(); // Get A4 page width
-        const imgWidth = pageWidth - 20; // Set image width to page width minus margins (10 points each side)
-        const imgHeight = (canvas.height * imgWidth) / canvas.width; // Maintain aspect ratio
+    if (!input) return null; // Return null if the input element is not found
 
-        let heightLeft = imgHeight;
+    const canvas = await html2canvas(input); // Await the canvas creation
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "pt", "a4");
 
-        let position = 0;
+    const pageWidth = pdf.internal.pageSize.getWidth(); // Get A4 page width
+    const imgWidth = pageWidth - 20; // Set image width to page width minus margins (10 points each side)
+    const imgHeight = (canvas.height * imgWidth) / canvas.width; // Maintain aspect ratio
 
-        // Add the first page with the image
-        pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
-        heightLeft -= pdf.internal.pageSize.height; // Subtract the page height
+    const topMargin = 20; // Define the top margin
+    const bottomMargin = 20; // Define the bottom margin
+    const availableHeight =
+      pdf.internal.pageSize.getHeight() - topMargin - bottomMargin; // Calculate available height for the image
 
-        // Add additional pages as needed
-        while (heightLeft >= 0) {
-          position = heightLeft - imgHeight;
-          pdf.addPage();
-          pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
-          heightLeft -= pdf.internal.pageSize.height;
-        }
+    let heightLeft = imgHeight;
+    let position = topMargin; // Start position for the first page
 
-        // Save the PDF
-        pdf.save("legal_agreement.pdf");
-      });
+    // Add the first page with the image
+    pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+    heightLeft -= availableHeight; // Subtract the available height from height left
+
+    // Add additional pages as needed
+    while (heightLeft >= 0) {
+      position = heightLeft - imgHeight + topMargin; // Adjust position to account for the top margin
+      pdf.addPage();
+      pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+      heightLeft -= availableHeight; // Subtract the available height from height left
     }
+
+    const fileName = `PAiT_SAFT_AGGREEMENT_DOCUMENT-${name}-${publicKey?.toBase58()}.pdf`;
+    // Save the PDF
+    pdf.save(fileName);
+
+    // Get the PDF as a Blob
+    const pdfBlob = pdf.output("blob");
+
+    // Create FormData to send the PDF
+    const formData = new FormData();
+    formData.append("file", pdfBlob, fileName);
+
+    // Optionally log the FormData entries for debugging
+    for (const [key, value] of formData.entries()) {
+      console.log(key, value);
+    }
+
+    uploadDocument(formData);
+
+    return formData;
   };
 
   return (
@@ -265,12 +337,17 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
             on the Site.
           </Paragraph>
           <Paragraph>
-            3.2. Aquared PAiT tokens {tokens ? tokens : " ............. "}
+            3.2. Aquared PAiT tokens{" "}
+            <b style={{ borderBottom: "2px solid #000" }}>
+              {tokens ? `${" " + tokens + " "}` : " ............. "}
+            </b>
             will be credited to your wallet{" "}
-            <b>{address ? address : " ............. "}</b> through the escrow
-            account no later than the TGE. 5% unlock on TGE, 3 month cliff, 9
-            months linear vesting. Token Generation Event (TGE) Planned on
-            December 10th, 2024
+            <b style={{ borderBottom: "2px solid #000" }}>
+              {address ? address : " ............. "}
+            </b>{" "}
+            through the escrow account no later than the TGE. 5% unlock on TGE,
+            3 month cliff, 9 months linear vesting. Token Generation Event (TGE)
+            Planned on December 10th, 2024
           </Paragraph>
 
           <Paragraph>
@@ -476,6 +553,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
                   <UserInputLabel>Name: </UserInputLabel>
                   <UserInput
                     value={name}
+                    border="red"
                     onChange={(e) => {
                       if (setName) {
                         setName(e.target.value);
@@ -489,6 +567,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
                   <UserInputLabel>Email: </UserInputLabel>
                   <UserInput
                     value={email}
+                    border="red"
                     onChange={(e) => {
                       if (setEmail) {
                         setEmail(e.target.value);
@@ -500,7 +579,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
 
                 <UserInputGroup>
                   <UserInputLabel>Date: </UserInputLabel>
-                  <UserInput value={currentDate.decimal} />
+                  <UserInput value={currentDate.decimal} disabled={true} />
                 </UserInputGroup>
 
                 <UserInputGroup>
@@ -529,8 +608,10 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
       </div>
       {showSignature && (
         <Container>
-          <Button onClick={clearCanvas}>Clear</Button>
-          <Button onClick={saveSignature}>Save Signature</Button>
+          <Button onClick={clearCanvas} style={{ border: "2px solid red" }}>
+            CLEAR
+          </Button>
+          <Button onClick={saveSignature}>COMPLETE</Button>
         </Container>
       )}
     </>
@@ -598,12 +679,17 @@ const UserInputGroup = styled.div`
   gap: 10px;
 `;
 const UserInputLabel = styled.div``;
-const UserInput = styled.input`
+
+interface UserInputProps {
+  border?: string;
+}
+
+const UserInput = styled.input<UserInputProps>`
   outline-width: 0;
   padding: 0.3rem;
   border: 0;
-  overflow: 0;
-  border-bottom: 3px dotted #000;
+  overflow: hidden;
+  border-bottom: 3px dotted ${({ border }) => border || "#000"};
   width: 100%;
 `;
 

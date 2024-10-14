@@ -41,6 +41,8 @@ export default function Home() {
 
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [isTermsModal, setIsTermsModal] = useState<boolean>(false);
+
+  const [allowReferral, setAllowReferral] = useState(false);
   // used to get the user code from the URL
   const [user, setUser] = useState<User | null>(null);
 
@@ -215,7 +217,7 @@ export default function Home() {
 
   const fetchData = async () => {
     try {
-      const response = await fetch("/api/google-save-data", {
+      const response = await fetch("/api/purchases", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -223,20 +225,26 @@ export default function Home() {
       });
       const result = await response.json();
       if (result.status === "success") {
-        const data = result.data.map((item: any) => {
-          return {
-            wallet: item[0],
-            amountPait: Number(item[1]?.replaceAll(",", "")),
-            amountUSD: Number(item[2]?.replaceAll(",", "")),
-          };
-        });
-        setData(data);
-        const totalAmountPaid = data.reduce(
-          (sum: number, item: any) => sum + Number(item.amountPait),
+        const totalAmountPaid = result?.purchases?.reduce(
+          (sum: number, item: any) => sum + Number(item.pait_tokens),
           0
         );
+
+        const isUserPaid = result?.purchases?.filter((item: any) => {
+          if (item.user.wallet === publicKey?.toBase58()) {
+            return true;
+          }
+          return false;
+        });
+
+        if (isUserPaid) {
+          setAllowReferral(true);
+        }
+
+        console.log("Purchases: ", result);
+        console.log("totalAmountPaid: ", totalAmountPaid);
         setAllocations({
-          bought: 0,
+          bought: totalAmountPaid,
           total: allocations.total,
         });
       } else {
@@ -615,7 +623,7 @@ export default function Home() {
               </PageDescription>
             </PageContent>
 
-            {user?.referral && (
+            {user?.referral && allowReferral && (
               <ReferralCodeShare referralCode={user?.referral} />
             )}
 

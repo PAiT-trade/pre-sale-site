@@ -1,124 +1,97 @@
 import { google } from "googleapis";
-import { OAuth2Client } from "google-auth-library";
-import * as fs from "fs";
+// CREDENTIALS
 
-const CREDENTIALS_PATH = "path/to/credentials.json";
-const TOKEN_PATH = "path/to/token.json";
-const SCOPES = ["https://www.googleapis.com/auth/gmail.send"];
+const CLIENT_ID = process.env.GOOGLE_CLIENT_ID!;
+const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET!;
+const REDIRECT_URI = "https://presale.pait.fi";
+const AUTHORIZATION_CODE = "";
 
-// Load OAuth2 client credentials
-function loadCredentials(): OAuth2Client {
-  const credentials = JSON.parse(fs.readFileSync(CREDENTIALS_PATH, "utf-8"));
-  const { client_id, client_secret, redirect_uris } = credentials.installed;
-  const oAuth2Client = new google.auth.OAuth2(
-    client_id,
-    client_secret,
-    redirect_uris[0]
-  );
+console.log("CLIENT_ID: ", process.env);
 
-  // Load token
-  const token = fs.readFileSync(TOKEN_PATH, "utf-8");
-  oAuth2Client.setCredentials(JSON.parse(token));
+// create and OAuth2 client instance
+const oAuth2Client = new google.auth.OAuth2(
+  CLIENT_ID,
+  CLIENT_SECRET,
+  REDIRECT_URI
+);
 
-  return oAuth2Client;
-}
+export const getRefreshToken = async (): Promise<string | null | undefined> => {
+  const authUrl = oAuth2Client.generateAuthUrl({
+    access_type: "offline",
+    scope: ["https://www.googleapis.com/auth/gmail.send"],
+  });
 
-// Send email using Gmail API
-async function sendEmail(opts: {
+  console.log("Authorize this app by visiting this url:", authUrl);
+
+  // const { tokens } = await oAuth2Client.getToken(AUTHORIZATION_CODE);
+  // oAuth2Client.setCredentials(tokens);
+  // console.log("Tokens:", tokens);
+  // console.log("Refresh Token:", tokens.refresh_token);
+
+  return "tokens.refresh_token";
+};
+
+// send an email
+export const sendMail = async (options: {
   to: string;
   subject: string;
-  message: string;
-}) {
-  const auth = loadCredentials();
-  const gmail = google.gmail({ version: "v1", auth });
-
-  const email = `
-    From: "PAiT Sales" <presale@pait.fi>
-    To: ${opts.to}
-    Subject: ${opts.subject}
-    Content-Type: text/plain; charset="UTF-8"
-    MIME-Version: 1.0
-    Content-Transfer-Encoding: 7bit
-    ${opts.message}
-  `;
-
-  const base64EncodedEmail = Buffer.from(email)
-    .toString("base64")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_");
-
+  text: string;
+  base64EncodedFile: string;
+}) => {
+  const refresh_token = await getRefreshToken();
+  // Set the  refresh token
+  oAuth2Client.setCredentials({ refresh_token: refresh_token });
   try {
-    const res = await gmail.users.messages.send({
+    // const accessToken = oAuth2Client.getAccessToken();
+    const fileName = `PAIT - PRESALE ROUND SAFT AGREEMENT DOCUMENT`;
+
+    const email = [
+      `From: YOUR_EMAIL@gmail.com`,
+      `To: ${options.to}`,
+      `Subject: ${options.subject}`,
+      `MIME-Version: 1.0`,
+      `Content-Type: multipart/mixed; boundary="boundary"`,
+      ``,
+      `--boundary`,
+      `Content-Type: text/plain; charset="UTF-8"`,
+      `Content-Transfer-Encoding: 7bit`,
+      ``,
+      options.text,
+      ``,
+      `--boundary`,
+      `Content-Type: application/pdf; name="${fileName}"`,
+      `Content-Transfer-Encoding: base64`,
+      `Content-Disposition: attachment; filename="${fileName}"`,
+      ``,
+      options.base64EncodedFile,
+      ``,
+      `--boundary--`,
+    ].join("\n");
+
+    const gmail = google.gmail({ version: "v1", auth: oAuth2Client });
+    const encodedEmail = Buffer.from(email)
+      .toString("base64")
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=+$/, "");
+
+    const result = await gmail.users.messages.send({
       userId: "me",
       requestBody: {
-        raw: base64EncodedEmail,
+        raw: encodedEmail,
       },
     });
-    console.log("Email sent:", res.data);
+
+    console.log("Email sent...", result.data);
+
+    return {
+      status: "success",
+      message: `Successfully sent an email to ${options.to}`,
+    };
   } catch (error) {
-    console.error("Error sending email:", error);
+    return {
+      status: "error",
+      message: "Failed to send an email",
+    };
   }
-}
-
-import nodemailer from "nodemailer";
-
-const OAuth2 = google.auth.OAuth2;
-
-// const createTransporter = async () => {
-//   try {
-//     const oauth2Client = new OAuth2(
-//       process.env.CLIENT_ID,
-//       process.env.CLIENT_SECRET,
-//       "https://developers.google.com/oauthplayground"
-//     );
-
-//     oauth2Client.setCredentials({
-//       refresh_token: process.env.REFRESH_TOKEN,
-//     });
-
-//     const accessToken = await new Promise((resolve, reject) => {
-//       oauth2Client.getAccessToken((err, token) => {
-//         if (err) {
-//           console.log("*ERR: ", err);
-//           reject();
-//         }
-//         resolve(token);
-//       });
-//     });
-
-//     const transporter = nodemailer.createTransport({
-//       service: "gmail",
-//       auth: {
-//         type: "OAuth2",
-//         user: process.env.USER_EMAIL,
-//         accessToken,
-//         clientId: process.env.CLIENT_ID,
-//         clientSecret: process.env.CLIENT_SECRET,
-//         refreshToken: process.env.REFRESH_TOKEN,
-//       },
-//     });
-//     return transporter;
-//   } catch (err) {
-//     return err;
-//   }
-// };
-
-// const sendMail = async (opts: {
-//   mail: string;
-//   subject: string;
-//   text: string;
-// }) => {
-//   try {
-//     const mailOptions = {
-//       from: process.env.USER_EMAIL,
-//       to: opts.mail,
-//       subject: opts.subject,
-//       text: opts.text,
-//     };
-
-//     let emailTransporter: any = await createTransporter();
-//     await emailTransporter.sendMail(mailOptions);
-//   } catch (err) {
-//     console.log("ERROR: ", err);
-//   }
-// };
+};
