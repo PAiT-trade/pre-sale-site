@@ -83,6 +83,8 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
 
       if (onSave) {
         onSave(dataURL);
+        // download the document locally on the user's device
+        downloadDocument();
       }
     }
   };
@@ -100,33 +102,33 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
   const downloadDocument = () => {
     const input = document.getElementById("document-section");
     if (input) {
-      html2canvas(input).then(
-        (canvas: {
-          toDataURL: (arg0: string) => any;
-          height: number;
-          width: number;
-        }) => {
-          const imgData = canvas.toDataURL("image/png");
-          const pdf = new jsPDF("p", "pt", "a4");
-          const imgWidth = 190; // Adjust as needed
-          const pageHeight = pdf.internal.pageSize.height;
-          const imgHeight = (canvas.height * imgWidth) / canvas.width;
-          let heightLeft = imgHeight;
+      html2canvas(input).then((canvas) => {
+        const imgData = canvas.toDataURL("image/png");
+        const pdf = new jsPDF("p", "pt", "a4");
 
-          let position = 0;
+        const pageWidth = pdf.internal.pageSize.getWidth(); // Get A4 page width
+        const imgWidth = pageWidth - 20; // Set image width to page width minus margins (10 points each side)
+        const imgHeight = (canvas.height * imgWidth) / canvas.width; // Maintain aspect ratio
 
+        let heightLeft = imgHeight;
+
+        let position = 0;
+
+        // Add the first page with the image
+        pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+        heightLeft -= pdf.internal.pageSize.height; // Subtract the page height
+
+        // Add additional pages as needed
+        while (heightLeft >= 0) {
+          position = heightLeft - imgHeight;
+          pdf.addPage();
           pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
-
-          while (heightLeft >= 0) {
-            position = heightLeft - imgHeight;
-            pdf.addPage();
-            pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
-            heightLeft -= pageHeight;
-          }
-          pdf.save("legal_agreement.pdf");
+          heightLeft -= pdf.internal.pageSize.height;
         }
-      );
+
+        // Save the PDF
+        pdf.save("legal_agreement.pdf");
+      });
     }
   };
 

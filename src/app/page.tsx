@@ -362,7 +362,10 @@ export default function Home() {
       transaction.feePayer = publicKey;
 
       try {
-        await sendTransactionWithRetry(transaction);
+        // Sign and send the transaction
+        const txid = await sendTransactionWithRetry(transaction);
+        console.log("USDC transaction sent:", txid);
+        toast.success(`ransaction successful: ${txid}`);
       } catch (error: any) {
         console.error("Error sending USDC:", error);
         toast.error(`Error transfering USDC`);
