@@ -1,7 +1,8 @@
 import { Connection, ParsedAccountData, PublicKey } from "@solana/web3.js";
 
 export const SOLANA_CONNECTION = new Connection(
-  "https://silent-necessary-meadow.solana-mainnet.quiknode.pro/6d359cf87da0762cbc7f5ce441fcd881fd74c108/"
+  "https://silent-necessary-meadow.solana-mainnet.quiknode.pro/6d359cf87da0762cbc7f5ce441fcd881fd74c108/",
+  "confirmed"
 );
 
 // export const SOLANA_CONNECTION = new Connection(
