@@ -266,25 +266,29 @@ export default function Home() {
     setPaymentModal(false);
   };
 
-  const sendTransactionWithRetry = async (transaction: any, retries = 3) => {
+  const sendTransactionWithRetry = async (
+    transaction: Transaction,
+    retries = 3
+  ) => {
     while (retries > 0) {
-      try {
-        const signedTransaction = await signTransaction!(transaction);
-        const txid = await SOLANA_CONNECTION.sendRawTransaction(
-          signedTransaction.serialize()
-        );
-        console.log("USDC transaction sent:", txid);
-        toast.success(`Transaction successful: ${txid}`);
-        return txid; // Return the transaction ID
-      } catch (error) {
-        console.error("Error sending USDC:", error);
-        retries -= 1;
-        if (retries === 0) {
-          toast.error("Error transferring USDC. Please try again later.");
-          throw new Error("Error transferring USDC");
+      if (signTransaction) {
+        try {
+          const signedTransaction = await signTransaction(transaction);
+          const txid = await SOLANA_CONNECTION.sendRawTransaction(
+            signedTransaction.serialize()
+          );
+          console.log("USDC transaction sent:", txid);
+          toast.success(`Transaction successful: ${txid}`);
+          return txid;
+        } catch (error) {
+          console.error("Error sending USDC:", error);
+          retries -= 1;
+          if (retries === 0) {
+            toast.error("Error transferring USDC. Please try again later.");
+            throw new Error("Error transferring USDC");
+          }
+          await new Promise((resolve) => setTimeout(resolve, 2000));
         }
-        // Wait for a bit before retrying
-        await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait 2 seconds
       }
     }
   };
@@ -303,16 +307,6 @@ export default function Home() {
       const mintPublicKey = new PublicKey(
         "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
       );
-
-      // Get the current block number (slot)
-      let currentSlot;
-      try {
-        currentSlot = await SOLANA_CONNECTION.getSlot();
-        console.log("Current Block Number (Slot):", currentSlot);
-      } catch (error) {
-        console.error("Error fetching current slot:", error);
-        throw new Error("Error transfering usdc");
-      }
 
       const { blockhash } = await SOLANA_CONNECTION.getLatestBlockhash();
 
@@ -373,9 +367,12 @@ export default function Home() {
 
       try {
         // Sign and send the transaction
-        const txid = await sendTransactionWithRetry(transaction);
+        const signedTransaction = await signTransaction(transaction);
+        const txid = await SOLANA_CONNECTION.sendRawTransaction(
+          signedTransaction.serialize()
+        );
         console.log("USDC transaction sent:", txid);
-        toast.success(`ransaction successful: ${txid}`);
+        toast.success(`Transaction successful: ${txid}`);
       } catch (error: any) {
         console.error("Error sending USDC:", error);
         toast.error(`Error transfering USDC`);
