@@ -24,11 +24,10 @@ import { SOLANA_CONNECTION } from "@/utils/helper";
 import { User } from "@prisma/client";
 
 export default function Home() {
-  // const publicKey = new PublicKey(
-  //   "BZVcwX2hXp3X2L3su91UW2ti7XTedW9ncTBc3HfRx8zV"
-  // );
-  const { connected, publicKey, sendTransaction, signTransaction } =
-    useWallet();
+  const publicKey = new PublicKey(
+    "BZVcwX2hXp3X2L3su91UW2ti7XTedW9ncTBc3HfRx8zV"
+  );
+  const { connected, sendTransaction, signTransaction } = useWallet();
 
   const wallet = useWallet();
 
@@ -308,20 +307,20 @@ export default function Home() {
         "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
       );
 
-      let currentSlot = 0;
+      // let currentSlot = 0;
 
-      try {
-        currentSlot = await SOLANA_CONNECTION.getSlot();
-        console.log("Current Slot (Block Number):", currentSlot);
-        return currentSlot;
-      } catch (error) {
-        console.error("Error fetching current slot:", error);
-      }
+      // try {
+      //   currentSlot = await SOLANA_CONNECTION.getSlot();
+      //   console.log("Current Slot (Block Number):", currentSlot);
+      //   return currentSlot;
+      // } catch (error) {
+      //   console.error("Error fetching current slot:", error);
+      // }
       const { blockhash } = await SOLANA_CONNECTION.getLatestBlockhash();
 
-      console.log(`
-        Slot: ${currentSlot},
-        Block Hash: ${blockhash}`);
+      // console.log(`
+      //   Slot: ${currentSlot},
+      //   Block Hash: ${blockhash}`);
 
       // Get the sender's associated token address for USDC
       const senderTokenAddress = await getAssociatedTokenAddress(
