@@ -308,7 +308,20 @@ export default function Home() {
         "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
       );
 
+      let currentSlot = 0;
+
+      try {
+        currentSlot = await SOLANA_CONNECTION.getSlot();
+        console.log("Current Slot (Block Number):", currentSlot);
+        return currentSlot;
+      } catch (error) {
+        console.error("Error fetching current slot:", error);
+      }
       const { blockhash } = await SOLANA_CONNECTION.getLatestBlockhash();
+
+      console.log(`
+        Slot: ${currentSlot},
+        Block Hash: ${blockhash}`);
 
       // Get the sender's associated token address for USDC
       const senderTokenAddress = await getAssociatedTokenAddress(
@@ -366,11 +379,8 @@ export default function Home() {
       transaction.feePayer = publicKey;
 
       try {
-        // Sign and send the transaction
-        const signedTransaction = await signTransaction(transaction);
-        const txid = await SOLANA_CONNECTION.sendRawTransaction(
-          signedTransaction.serialize()
-        );
+        // retry 3 times
+        const txid = sendTransactionWithRetry(transaction);
         console.log("USDC transaction sent:", txid);
         toast.success(`Transaction successful: ${txid}`);
       } catch (error: any) {
