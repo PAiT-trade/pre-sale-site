@@ -304,6 +304,16 @@ export default function Home() {
         "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
       );
 
+      // Get the current block number (slot)
+      let currentSlot;
+      try {
+        currentSlot = await SOLANA_CONNECTION.getSlot();
+        console.log("Current Block Number (Slot):", currentSlot);
+      } catch (error) {
+        console.error("Error fetching current slot:", error);
+        throw new Error("Error transfering usdc");
+      }
+
       const { blockhash } = await SOLANA_CONNECTION.getLatestBlockhash();
 
       // Get the sender's associated token address for USDC
