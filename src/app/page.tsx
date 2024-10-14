@@ -379,14 +379,17 @@ export default function Home() {
       transaction.feePayer = publicKey;
 
       try {
-        // retry 3 times
-        const txid = sendTransactionWithRetry(transaction);
+        // Sign and send the transaction
+        const signedTransaction = await signTransaction(transaction);
+        const txid = await SOLANA_CONNECTION.sendRawTransaction(
+          signedTransaction.serialize()
+        );
         console.log("USDC transaction sent:", txid);
         toast.success(`Transaction successful: ${txid}`);
-      } catch (error: any) {
+      } catch (error) {
         console.error("Error sending USDC:", error);
-        toast.error(`Error transfering USDC`);
-        throw new Error("Error transfering USDC");
+        toast.error("Error transferring USDC");
+        throw new Error("Error transferring USDC");
       }
     },
     [connected, publicKey, signTransaction]
