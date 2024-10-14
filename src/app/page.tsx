@@ -24,11 +24,10 @@ import { SOLANA_CONNECTION } from "@/utils/helper";
 import { User } from "@prisma/client";
 
 export default function Home() {
-  // const publicKey = new PublicKey(
-  //   "BZVcwX2hXp3X2L3su91UW2ti7XTedW9ncTBc3HfRx8zV"
-  // );
-  const { connected, publicKey, sendTransaction, signTransaction } =
-    useWallet();
+  const publicKey = new PublicKey(
+    "BZVcwX2hXp3X2L3su91UW2ti7XTedW9ncTBc3HfRx8zV"
+  );
+  const { connected, sendTransaction, signTransaction } = useWallet();
 
   const wallet = useWallet();
 
@@ -266,6 +265,29 @@ export default function Home() {
     setPaymentModal(false);
   };
 
+  const sendTransactionWithRetry = async (transaction: any, retries = 3) => {
+    while (retries > 0) {
+      try {
+        const signedTransaction = await signTransaction!(transaction);
+        const txid = await SOLANA_CONNECTION.sendRawTransaction(
+          signedTransaction.serialize()
+        );
+        console.log("USDC transaction sent:", txid);
+        toast.success(`Transaction successful: ${txid}`);
+        return txid; // Return the transaction ID
+      } catch (error) {
+        console.error("Error sending USDC:", error);
+        retries -= 1;
+        if (retries === 0) {
+          toast.error("Error transferring USDC. Please try again later.");
+          throw new Error("Error transferring USDC");
+        }
+        // Wait for a bit before retrying
+        await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait 2 seconds
+      }
+    }
+  };
+
   const sendUSDC = useCallback(
     async (amount: number) => {
       if (!connected || !publicKey || !signTransaction) {
@@ -339,13 +361,7 @@ export default function Home() {
       transaction.feePayer = publicKey;
 
       try {
-        // Sign and send the transaction
-        const signedTransaction = await signTransaction(transaction);
-        const txid = await SOLANA_CONNECTION.sendRawTransaction(
-          signedTransaction.serialize()
-        );
-        console.log("USDC transaction sent:", txid);
-        toast.success(`Transaction successful: ${txid}`);
+        await sendTransactionWithRetry(transaction);
       } catch (error: any) {
         console.error("Error sending USDC:", error);
         toast.error(`Error transfering USDC`);
