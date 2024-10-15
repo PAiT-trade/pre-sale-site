@@ -21,24 +21,14 @@ model User {
 }
 
 model Purchase {
-  id                  Int         @id @default(autoincrement())
+  id                  Int      @id @default(autoincrement())
   user_id             Int
-  user                User?       @relation(fields: [user_id], references: [id])
-  pait_tokens         Int         @default(0)
-  usdc_amount         Int         @default(0)
-  used_referral       String?     @default("")
-  signed_document_url String?     @default("")
-  uploud_id           Int?
-  uploud              UploadFile? @relation(fields: [uploud_id], references: [id])
-  created_at          DateTime    @default(now())
+  user                User?    @relation(fields: [user_id], references: [id])
+  pait_tokens         Int      @default(0)
+  usdc_amount         Int      @default(0)
+  used_referral       String?  @default("")
+  signed_document_url String?  @default("")
+  created_at          DateTime @default(now())
 
   @@map("purchases")
-}
-
-model UploadFile {
-  id         Int        @id @default(autoincrement())
-  data       String     @default("")
-  file_type  String     @default("pdf")
-  created_at DateTime   @default(now())
-  Purchase   Purchase[]
 }
