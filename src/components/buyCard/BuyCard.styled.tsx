@@ -198,8 +198,8 @@ export const BuyCardControlInputControl = styled.div<BuyCardControlInputControlP
 `;
 
 export const BuyCardControlInputIcon = styled.img`
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
 `;
 export const BuyCardControlInput = styled.input`
   border: none;

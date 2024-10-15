@@ -59,43 +59,39 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
     console.log("Current: ", currentDate);
   }, []);
 
-  // useEffect(() => {
-  //   const canvas = canvasRef.current;
-  //   if (canvas) {
-  //     // Set the width and height based on the current size
-  //     const context = canvas.getContext("2d");
-  //     if (context) {
-  //       // This ensures the drawing resolution matches the canvas size
-  //       canvas.width = canvas.clientWidth; // Set canvas width to client width
-  //       canvas.height = 70; // Keep a fixed height, or make it dynamic if needed
-  //     }
-  //   }
-  // }, []);
+  const isCanvasEmpty = () => {
+    // const canvas = canvasRef.current?.getCanvas();
+    // const ctx = canvas.getContext("2d");
+    // const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-  const clearCanvas = () => {
-    const canvas = canvasRef.current;
-    canvas.clearRect(0, 0, canvas.width, canvas.height);
+    // // Check if the image data is all transparent
+    // const data = imageData.data;
+    // for (let i = 0; i < data.length; i += 4) {
+    //   if (data[i + 3] !== 0) {
+    //     return false;
+    //   }
+    // }
+    return false;
+  };
+
+  const clear = () => {
+    canvasRef.current.clear();
   };
 
   const saveSignature = async () => {
     setLoading(true);
 
-    if (!isDrawing) {
+    if (isCanvasEmpty()) {
       toast.error("Please provide your signature!!!");
       setLoading(false);
       return;
     }
-    const canvas: any = canvasRef.current;
-    if (canvas) {
-      if (onSave) {
-        if (!name || !email) {
-          toast.error("Please enter your name or email");
-          return;
-        }
-        await downloadDocument();
-      }
+    if (!name || !email) {
+      toast.error("Please provide your email to proceed");
+      setLoading(false);
+      return;
     }
-
+    await downloadDocument();
     setLoading(false);
   };
 
@@ -110,7 +106,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
 
         console.log("UPLOADED: ", result);
         if (result.status === "success") {
-          router.push("/");
+          await updatePurchase(result.url);
         } else {
         }
       } catch (error) {
@@ -119,32 +115,22 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
     }
   };
 
-  const updatePurchase = async (fileData: string) => {
+  const updatePurchase = async (url: string) => {
     try {
       const response = await fetch(`/api/update-purchase/${purchaseId}`, {
         method: "POST",
         headers: {
-          "Content-Type": "multipart/form-data",
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ base64Data: fileData }),
+        body: JSON.stringify({ url: url }),
       });
       const result = await response.json();
-      console.log("UPDATE PURCHASE: ", result);
       if (result.status === "success") {
+        router.push("/");
       } else {
       }
     } catch (error) {}
   };
-
-  // useEffect(() => {
-  //   const canvas: any = canvasRef.current;
-  //   if (canvas) {
-  //     const ctx = canvas.getContext("2d");
-  //     ctx.strokeStyle = "#000";
-  //     ctx.lineWidth = 2;
-  //     ctx.lineCap = "round";
-  //   }
-  // }, []);
 
   const downloadDocument = async (): Promise<FormData | null> => {
     const input = document.getElementById("document-section");
@@ -191,8 +177,9 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
       console.log(key, value);
     }
 
+    setLoading(true);
     uploadDocument(formData);
-
+    setLoading(false);
     return formData;
   };
   return (
@@ -599,9 +586,9 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
       </div>
       {showSignature && (
         <Container>
-          {/* <Button onClick={clearCanvas} style={{ border: "2px solid red" }}>
+          <Button onClick={clear} style={{ border: "2px solid red" }}>
             CLEAR
-          </Button> */}
+          </Button>
           <Button onClick={saveSignature}>
             {isLoading ? (
               <>

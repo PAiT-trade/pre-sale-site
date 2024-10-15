@@ -148,8 +148,8 @@ export const BuyCard: React.FC<BuyCardProps> = ({
         {/* <BuyCardsText>Choose payment method</BuyCardsText> */}
         <BuyCardActionButtonWrapper>
           <BuyCardActionButton
-            bgcolor={paymentMethod == "usdt" ? "#131928" : ""}
-            onClick={() => setPaymentMethod("usdt")}
+            bgcolor={paymentMethod == "usdc" ? "#131928" : ""}
+            onClick={() => setPaymentMethod("usdc")}
           >
             <BuyCardActionButtonIcon>
               <BuyCardControlInputIcon src="/usdc.png" />
@@ -185,7 +185,7 @@ export const BuyCard: React.FC<BuyCardProps> = ({
                   value={amountInUsd}
                   onChange={(e) => setAmountInUsd(e.target.value)}
                 />
-                <BuyCardControlInputIcon src="/usdt_icon.svg" />
+                <BuyCardControlInputIcon src="/usdc.png" />
               </BuyCardControlInputControl>
             </BuyCardControlInputGroup>
             <BuyCardControlInputGroup>

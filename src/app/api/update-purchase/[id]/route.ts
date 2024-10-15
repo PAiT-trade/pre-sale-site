@@ -24,7 +24,7 @@ export async function POST(
     const purchase = await prisma.purchase.update({
       where: { id: purchaseId },
       data: {
-        uploud_id: Number(data.upload_id),
+        signed_document_url: data.url,
       },
     });
 

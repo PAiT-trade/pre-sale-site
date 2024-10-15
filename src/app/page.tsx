@@ -27,7 +27,8 @@ export default function Home() {
   // const publicKey = new PublicKey(
   //   "BZVcwX2hXp3X2L3su91UW2ti7XTedW9ncTBc3HfRx8zV"
   // );
-  const { connected, publicKey, sendTransaction, signTransaction } = useWallet();
+  const { connected, publicKey, sendTransaction, signTransaction } =
+    useWallet();
 
   const wallet = useWallet();
 
@@ -50,7 +51,7 @@ export default function Home() {
     usdt: "0",
   });
 
-  const [symbol, setSymbol] = useState("USDT");
+  const [symbol, setSymbol] = useState("USDC");
   const [USDTAddress, setUSDTAddress] = useState(
     "Es9vMFrzaCERXgGyQr57yVCrr6oYqN2NEPNwv3PWoTy" // USDT Mint Adderss
   );
@@ -477,7 +478,7 @@ export default function Home() {
         }
       }
     } catch (error) {
-      toast.error(`Error sending USDT`);
+      toast.error(`Error sending USDC`);
     }
 
     setIsLoading(false);
