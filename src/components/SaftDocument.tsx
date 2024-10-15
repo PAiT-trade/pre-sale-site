@@ -137,7 +137,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
 
     if (!input) return null;
 
-    const canvas = await html2canvas(input);
+    const canvas = await html2canvas(input, { scale: 2 });
     const imgData = canvas.toDataURL("image/png");
     const pdf = new jsPDF("p", "pt", "a4");
 
@@ -605,14 +605,6 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
 };
 
 export default SignaturePad;
-
-const CanvasContainer = styled.canvas`
-  border: 1px solid #000;
-  cursor: crosshair;
-  background-color: white;
-  width: 100%;
-  height: auto;
-`;
 
 const Container = styled.div`
   max-width: 90%;
