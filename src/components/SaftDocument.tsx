@@ -5,6 +5,7 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import toast from "react-hot-toast";
 import { useWallet } from "@solana/wallet-adapter-react";
+import { Loader } from "lucide-react";
 
 interface SignaturePadProps {
   onSave?: (url: string) => void;
@@ -33,6 +34,8 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
   const isDrawing = useRef(false);
 
   const { publicKey } = useWallet();
+
+  const [isLoading, setLoading] = useState(false);
 
   const [file, setFile] = useState("");
   const [currentDate, setCurrentDate] = useState<{
@@ -85,6 +88,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
   };
 
   const saveSignature = async () => {
+    setLoading(true);
     const canvas: any = canvasRef.current;
     if (canvas) {
       const dataURL = canvas.toDataURL("image/png");
@@ -99,10 +103,13 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
           toast.error("Please enter your name or email");
           return;
         }
-        onSave(dataURL);
         await downloadDocument();
+        onSave(dataURL);
+        window.location.href = "/";
       }
     }
+
+    setLoading(false);
   };
 
   const uploadDocument = async (formData: FormData) => {
@@ -119,7 +126,9 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
           await updatePurchase(result?.upload?.id!);
         } else {
         }
-      } catch (error) {}
+      } catch (error) {
+        console.log("App Error: ", error);
+      }
     }
   };
 
@@ -153,48 +162,44 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
   const downloadDocument = async (): Promise<FormData | null> => {
     const input = document.getElementById("document-section");
 
-    if (!input) return null; // Return null if the input element is not found
+    if (!input) return null;
 
-    const canvas = await html2canvas(input); // Await the canvas creation
+    const canvas = await html2canvas(input);
     const imgData = canvas.toDataURL("image/png");
     const pdf = new jsPDF("p", "pt", "a4");
 
-    const pageWidth = pdf.internal.pageSize.getWidth(); // Get A4 page width
-    const imgWidth = pageWidth - 20; // Set image width to page width minus margins (10 points each side)
-    const imgHeight = (canvas.height * imgWidth) / canvas.width; // Maintain aspect ratio
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const imgWidth = pageWidth - 20;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-    const topMargin = 20; // Define the top margin
-    const bottomMargin = 20; // Define the bottom margin
+    const topMargin = 60;
+    const bottomMargin = 60;
     const availableHeight =
-      pdf.internal.pageSize.getHeight() - topMargin - bottomMargin; // Calculate available height for the image
+      pdf.internal.pageSize.getHeight() - (topMargin - bottomMargin);
 
     let heightLeft = imgHeight;
-    let position = topMargin; // Start position for the first page
+    let position = topMargin;
 
     // Add the first page with the image
     pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
-    heightLeft -= availableHeight; // Subtract the available height from height left
+    heightLeft -= availableHeight;
 
-    // Add additional pages as needed
     while (heightLeft >= 0) {
-      position = heightLeft - imgHeight + topMargin; // Adjust position to account for the top margin
-      pdf.addPage();
+      position = heightLeft - (imgHeight + topMargin);
+      pdf.addPage("a4", "p");
       pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
-      heightLeft -= availableHeight; // Subtract the available height from height left
+      heightLeft -= availableHeight;
     }
 
     const fileName = `PAiT_SAFT_AGGREEMENT_DOCUMENT-${name}-${publicKey?.toBase58()}.pdf`;
     // Save the PDF
     pdf.save(fileName);
 
-    // Get the PDF as a Blob
     const pdfBlob = pdf.output("blob");
 
-    // Create FormData to send the PDF
     const formData = new FormData();
     formData.append("file", pdfBlob, fileName);
 
-    // Optionally log the FormData entries for debugging
     for (const [key, value] of formData.entries()) {
       console.log(key, value);
     }
@@ -203,7 +208,6 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
 
     return formData;
   };
-
   return (
     <>
       <div
@@ -611,7 +615,15 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
           <Button onClick={clearCanvas} style={{ border: "2px solid red" }}>
             CLEAR
           </Button>
-          <Button onClick={saveSignature}>COMPLETE</Button>
+          <Button onClick={saveSignature}>
+            {isLoading ? (
+              <>
+                <Loader size={24} />
+              </>
+            ) : (
+              "COMPLETE"
+            )}
+          </Button>
         </Container>
       )}
     </>

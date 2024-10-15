@@ -19,7 +19,7 @@ const Home: React.FC<QueryParams> = ({ params }) => {
   const { id } = params;
 
   const submitDocument = (dataURL: any) => {
-    window.location.href = "/";
+    // window.location.href = "/";
   };
 
   useEffect(() => {
