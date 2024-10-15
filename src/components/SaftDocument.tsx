@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { Loader } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
+import CanvasDraw from "react-canvas-draw";
 
 interface SignaturePadProps {
   onSave?: (url: string) => void;
@@ -31,7 +32,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
   tokens,
   address,
 }) => {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const canvasRef = useRef<any>(null);
   const isDrawing = useRef(false);
 
   const { publicKey } = useWallet();
@@ -56,18 +57,18 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
     console.log("Current: ", currentDate);
   }, []);
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (canvas) {
-      // Set the width and height based on the current size
-      const context = canvas.getContext("2d");
-      if (context) {
-        // This ensures the drawing resolution matches the canvas size
-        canvas.width = canvas.clientWidth; // Set canvas width to client width
-        canvas.height = 70; // Keep a fixed height, or make it dynamic if needed
-      }
-    }
-  }, []);
+  // useEffect(() => {
+  //   const canvas = canvasRef.current;
+  //   if (canvas) {
+  //     // Set the width and height based on the current size
+  //     const context = canvas.getContext("2d");
+  //     if (context) {
+  //       // This ensures the drawing resolution matches the canvas size
+  //       canvas.width = canvas.clientWidth; // Set canvas width to client width
+  //       canvas.height = 70; // Keep a fixed height, or make it dynamic if needed
+  //     }
+  //   }
+  // }, []);
 
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
     isDrawing.current = true;
@@ -180,15 +181,15 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
     } catch (error) {}
   };
 
-  useEffect(() => {
-    const canvas: any = canvasRef.current;
-    if (canvas) {
-      const ctx = canvas.getContext("2d");
-      ctx.strokeStyle = "#000";
-      ctx.lineWidth = 2;
-      ctx.lineCap = "round";
-    }
-  }, []);
+  // useEffect(() => {
+  //   const canvas: any = canvasRef.current;
+  //   if (canvas) {
+  //     const ctx = canvas.getContext("2d");
+  //     ctx.strokeStyle = "#000";
+  //     ctx.lineWidth = 2;
+  //     ctx.lineCap = "round";
+  //   }
+  // }, []);
 
   const downloadDocument = async (): Promise<FormData | null> => {
     const input = document.getElementById("document-section");
@@ -594,6 +595,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
                         setName(e.target.value);
                       }
                     }}
+                    disabled={true}
                     placeholder="Your Full Name"
                   />
                 </UserInputGroup>
@@ -619,18 +621,17 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
 
                 <UserInputGroup>
                   <UserInputLabel>Signature: </UserInputLabel>
-                  <CanvasContainer
+                  <CanvasDraw
                     ref={canvasRef}
-                    // height={70}
+                    brushColor="#000"
+                    brushRadius={2}
+                    canvasWidth={300}
+                    canvasHeight={100}
                     style={{
                       border: "1px solid #000",
-                      cursor: "crosshair",
-                      backgroundColor: "white",
+                      borderRadius: "8px",
+                      padding: "6px",
                     }}
-                    onMouseDown={startDrawing}
-                    onMouseMove={draw}
-                    onMouseUp={stopDrawing}
-                    onMouseLeave={stopDrawing}
                   />
                 </UserInputGroup>
               </SecondPartySignature>

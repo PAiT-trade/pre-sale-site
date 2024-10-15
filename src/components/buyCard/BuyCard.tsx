@@ -152,7 +152,7 @@ export const BuyCard: React.FC<BuyCardProps> = ({
             onClick={() => setPaymentMethod("usdt")}
           >
             <BuyCardActionButtonIcon>
-              <BuyCardControlInputIcon src="/usdt_icon.svg" />
+              <BuyCardControlInputIcon src="/usdc.png" />
             </BuyCardActionButtonIcon>
 
             <BuyCardActionButtonText>USDC</BuyCardActionButtonText>
