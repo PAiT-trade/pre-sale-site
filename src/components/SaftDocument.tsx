@@ -7,6 +7,8 @@ import toast from "react-hot-toast";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { Loader } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
+import CanvasDraw from "react-canvas-draw";
+import { useRouter } from "next/navigation";
 
 interface SignaturePadProps {
   onSave?: (url: string) => void;
@@ -31,12 +33,13 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
   tokens,
   address,
 }) => {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const canvasRef = useRef<any>(null);
   const isDrawing = useRef(false);
 
   const { publicKey } = useWallet();
 
   const [isLoading, setLoading] = useState(false);
+  const router = useRouter();
 
   const [file, setFile] = useState("");
   const [currentDate, setCurrentDate] = useState<{
@@ -56,61 +59,22 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
     console.log("Current: ", currentDate);
   }, []);
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (canvas) {
-      // Set the width and height based on the current size
-      const context = canvas.getContext("2d");
-      if (context) {
-        // This ensures the drawing resolution matches the canvas size
-        canvas.width = canvas.clientWidth; // Set canvas width to client width
-        canvas.height = 70; // Keep a fixed height, or make it dynamic if needed
-      }
-    }
-  }, []);
-
-  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    isDrawing.current = true;
-    const canvas = canvasRef.current;
-    if (canvas) {
-      const ctx = canvas.getContext("2d");
-      if (ctx) {
-        ctx.beginPath();
-        const rect = canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left; // Calculate the X coordinate
-        const y = e.clientY - rect.top; // Calculate the Y coordinate
-        ctx.moveTo(x, y);
-      }
-    }
-  };
-
-  const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isDrawing.current) return;
-    const canvas = canvasRef.current;
-    if (canvas) {
-      const ctx = canvas.getContext("2d");
-      if (ctx) {
-        const rect = canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left; // Calculate the X coordinate
-        const y = e.clientY - rect.top; // Calculate the Y coordinate
-        ctx.lineTo(x, y);
-        ctx.stroke();
-      }
-    }
-  };
-
-  const stopDrawing = () => {
-    isDrawing.current = false;
-  };
+  // useEffect(() => {
+  //   const canvas = canvasRef.current;
+  //   if (canvas) {
+  //     // Set the width and height based on the current size
+  //     const context = canvas.getContext("2d");
+  //     if (context) {
+  //       // This ensures the drawing resolution matches the canvas size
+  //       canvas.width = canvas.clientWidth; // Set canvas width to client width
+  //       canvas.height = 70; // Keep a fixed height, or make it dynamic if needed
+  //     }
+  //   }
+  // }, []);
 
   const clearCanvas = () => {
     const canvas = canvasRef.current;
-    if (canvas) {
-      const ctx = canvas.getContext("2d");
-      if (ctx) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-      }
-    }
+    canvas.clearRect(0, 0, canvas.width, canvas.height);
   };
 
   const saveSignature = async () => {
@@ -123,13 +87,6 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
     }
     const canvas: any = canvasRef.current;
     if (canvas) {
-      const dataURL = canvas.toDataURL("image/png");
-
-      if (!dataURL) {
-        toast.error("Please sign to proceed");
-        return;
-      }
-
       if (onSave) {
         if (!name || !email) {
           toast.error("Please enter your name or email");
@@ -153,8 +110,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
 
         console.log("UPLOADED: ", result);
         if (result.status === "success") {
-          // await updatePurchase(result?.upload?.id!);
-          window.location.href = "";
+          router.push("/");
         } else {
         }
       } catch (error) {
@@ -180,15 +136,15 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
     } catch (error) {}
   };
 
-  useEffect(() => {
-    const canvas: any = canvasRef.current;
-    if (canvas) {
-      const ctx = canvas.getContext("2d");
-      ctx.strokeStyle = "#000";
-      ctx.lineWidth = 2;
-      ctx.lineCap = "round";
-    }
-  }, []);
+  // useEffect(() => {
+  //   const canvas: any = canvasRef.current;
+  //   if (canvas) {
+  //     const ctx = canvas.getContext("2d");
+  //     ctx.strokeStyle = "#000";
+  //     ctx.lineWidth = 2;
+  //     ctx.lineCap = "round";
+  //   }
+  // }, []);
 
   const downloadDocument = async (): Promise<FormData | null> => {
     const input = document.getElementById("document-section");
@@ -201,7 +157,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
 
     const pageWidth = pdf.internal.pageSize.getWidth();
     const imgWidth = pageWidth - 20;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    const imgHeight = ((canvas.height - 100) * imgWidth) / canvas.width;
 
     const topMargin = 60;
     const bottomMargin = 60;
@@ -218,7 +174,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
     while (heightLeft >= 0) {
       position = heightLeft - (imgHeight + topMargin);
       pdf.addPage("a4", "p");
-      pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+      pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight + 25);
       heightLeft -= availableHeight;
     }
 
@@ -594,6 +550,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
                         setName(e.target.value);
                       }
                     }}
+                    disabled={true}
                     placeholder="Your Full Name"
                   />
                 </UserInputGroup>
@@ -619,18 +576,17 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
 
                 <UserInputGroup>
                   <UserInputLabel>Signature: </UserInputLabel>
-                  <CanvasContainer
+                  <CanvasDraw
                     ref={canvasRef}
-                    // height={70}
+                    brushColor="#000"
+                    brushRadius={2}
+                    canvasWidth={300}
+                    canvasHeight={100}
                     style={{
                       border: "1px solid #000",
-                      cursor: "crosshair",
-                      backgroundColor: "white",
+                      borderRadius: "8px",
+                      padding: "6px",
                     }}
-                    onMouseDown={startDrawing}
-                    onMouseMove={draw}
-                    onMouseUp={stopDrawing}
-                    onMouseLeave={stopDrawing}
                   />
                 </UserInputGroup>
               </SecondPartySignature>
@@ -643,9 +599,9 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
       </div>
       {showSignature && (
         <Container>
-          <Button onClick={clearCanvas} style={{ border: "2px solid red" }}>
+          {/* <Button onClick={clearCanvas} style={{ border: "2px solid red" }}>
             CLEAR
-          </Button>
+          </Button> */}
           <Button onClick={saveSignature}>
             {isLoading ? (
               <>
