@@ -24,10 +24,10 @@ import { SOLANA_CONNECTION } from "@/utils/helper";
 import { User } from "@prisma/client";
 
 export default function Home() {
-  const publicKey = new PublicKey(
-    "BZVcwX2hXp3X2L3su91UW2ti7XTedW9ncTBc3HfRx8zV"
-  );
-  const { connected, sendTransaction, signTransaction } = useWallet();
+  // const publicKey = new PublicKey(
+  //   "BZVcwX2hXp3X2L3su91UW2ti7XTedW9ncTBc3HfRx8zV"
+  // );
+  const { connected, publicKey, sendTransaction, signTransaction } = useWallet();
 
   const wallet = useWallet();
 
