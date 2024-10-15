@@ -1,3 +1,4 @@
+import { devices } from "@/utils/common";
 import styled from "styled-components";
 
 export const ModalOverlary = styled.div`
@@ -20,6 +21,10 @@ export const Modal = styled.div`
   box-shadow: 0 0 1.5rem rgba(0, 0, 0, 0.25);
   color: #fff;
   max-width: 40rem;
+
+  @media ${devices.mobile} {
+    max-width: 80%;
+  }
 `;
 
 export const ModalHeader = styled.div`
