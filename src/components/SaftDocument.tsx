@@ -89,6 +89,12 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
 
   const saveSignature = async () => {
     setLoading(true);
+
+    if (!isDrawing) {
+      toast.error("Please provide your signature!!!");
+      setLoading(false);
+      return;
+    }
     const canvas: any = canvasRef.current;
     if (canvas) {
       const dataURL = canvas.toDataURL("image/png");
@@ -633,7 +639,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
 export default SignaturePad;
 
 const Container = styled.div`
-  max-width: 800px;
+  max-width: 90%;
   margin: 0 auto;
   padding: 20px;
   color: #333;
@@ -641,12 +647,13 @@ const Container = styled.div`
   font-family: Arial, sans-serif;
   background-color: #fff;
   display: flex;
-  justify-content: space-around;
+  gap: 1.3rem;
+  justify-content: space-between;
   align-items: center;
 `;
 
 const DocumentContainer = styled.div`
-  max-width: 800px;
+  max-width: 90%;
   margin: 0 auto;
   padding: 20px;
   color: #333;
@@ -656,27 +663,43 @@ const DocumentContainer = styled.div`
 
 const Title = styled.h1`
   text-align: left;
-  font-size: 24px;
+  font-size: 2rem; /* Use rem for responsive font size */
   margin-bottom: 20px;
+
+  @media (max-width: 600px) {
+    font-size: 1.5rem;
+  }
 `;
 
 const Subtitle = styled.h2`
-  font-size: 20px;
+  font-size: 1.5rem; /* Use rem for responsive font size */
   margin: 20px 0 10px;
+
+  @media (max-width: 600px) {
+    font-size: 1.4rem;
+  }
 `;
 
 const Paragraph = styled.p`
-  font-size: 16px;
+  font-size: 1rem; /* Use rem for responsive font size */
   line-height: 1.5;
   margin: 10px 0;
+
+  @media (max-width: 600px) {
+    font-size: 1.4rem;
+  }
 `;
 
 const SignatureContainer = styled.div`
   display: flex;
-  justify-content: space-around;
+  flex-direction: column; /* Stack signatures on small screens */
   align-items: center;
-  align-content: center;
   margin-top: 2rem;
+
+  @media (min-width: 600px) {
+    flex-direction: row; /* Arrange signatures in a row on larger screens */
+    justify-content: space-around;
+  }
 `;
 
 const SecondPartySignature = styled.div`
@@ -684,12 +707,19 @@ const SecondPartySignature = styled.div`
   flex-direction: column;
   gap: 10px;
 `;
+
 const UserInputGroup = styled.div`
   display: flex;
+  flex-direction: column; /* Stack inputs on small screens */
   align-items: flex-end;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 10px;
+
+  @media (min-width: 600px) {
+    flex-direction: row; /* Arrange inputs in a row on larger screens */
+  }
 `;
+
 const UserInputLabel = styled.div``;
 
 interface UserInputProps {
@@ -702,7 +732,7 @@ const UserInput = styled.input<UserInputProps>`
   border: 0;
   overflow: hidden;
   border-bottom: 3px dotted ${({ border }) => border || "#000"};
-  width: 100%;
+  width: 100%; /* Full width to be responsive */
 `;
 
 const OwnerPartySignature = styled.div``;
@@ -710,18 +740,28 @@ const OwnerPartySignatureImg = styled.img``;
 
 const SignatureLine = styled.div`
   border-bottom: 1px solid #000;
-  width: 300px;
+  width: 100%; /* Full width for responsiveness */
+  max-width: 300px; /* Limit maximum width */
   margin: 20px auto;
 `;
 
 const Button = styled.button`
   border: 2px solid #80dcd7;
-  padding: 0.5rem 1.2rem;
+  padding: 0.5rem 1.4rem;
   outline-width: 0;
   cursor: pointer;
+  font-size: 1rem; /* Use rem for responsive font size */
+
+  @media (max-width: 600px) {
+    font-size: 1.4rem;
+  }
 `;
 
 const SignatureText = styled.p`
-  font-size: 14px;
+  font-size: 0.875rem; /* Use rem for responsive font size */
   margin: 5px 0;
+
+  @media (max-width: 600px) {
+    font-size: 0.75rem;
+  }
 `;

@@ -11,7 +11,7 @@ export const GlobalStyle = createGlobalStyle`
 
     a  {
         text-decoration: none;
-        color:  #2b5dfb;
+        color:  #fff !important;
     }
     :root {
         font-size: ${pixelToViewPortWidth(24)};
@@ -132,12 +132,14 @@ export const GlobalStyle = createGlobalStyle`
         background-color: #333e59 !important;
         padding: 0.3rem !important;
         border-radius: 1.5rem !important;
+        width: 100% !important;
     }
 
     .makeStyles-copyContainer-5  {
         border: none !important;
         border-radius: 1.5rem !important;
         margin: 0.5rem 0!important;
+        width: 100% !important;
     }
     .makeStyles-iconContainer-3 {
         display: flex !important;
@@ -145,5 +147,6 @@ export const GlobalStyle = createGlobalStyle`
         gap: 0.5rem !important;
         cursor: pointer;
         padding: 0.4rem 0.3rem !important;
+        width: 100% !important;
     }
 `;

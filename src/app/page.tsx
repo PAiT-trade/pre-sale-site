@@ -24,11 +24,10 @@ import { SOLANA_CONNECTION } from "@/utils/helper";
 import { User } from "@prisma/client";
 
 export default function Home() {
-  // const publicKey = new PublicKey(
-  //   "BZVcwX2hXp3X2L3su91UW2ti7XTedW9ncTBc3HfRx8zV"
-  // );
-  const { connected, publicKey, sendTransaction, signTransaction } =
-    useWallet();
+  const publicKey = new PublicKey(
+    "BZVcwX2hXp3X2L3su91UW2ti7XTedW9ncTBc3HfRx8zV"
+  );
+  const { connected, sendTransaction, signTransaction } = useWallet();
 
   const wallet = useWallet();
 
@@ -393,7 +392,7 @@ export default function Home() {
           signedTransaction.serialize()
         );
         console.log("USDC transaction sent:", txid);
-        toast.success(`Transaction successful: ${txid}`);
+        toast.success(`Transaction successful`);
       } catch (error) {
         console.error("Error sending USDC:", error);
         toast.error("Error transferring USDC");
@@ -562,20 +561,11 @@ export default function Home() {
               <PageSubTitle>Steps to Acquire PAiT Tokens</PageSubTitle>
               <PageDescription>
                 1. Connect your Phantom Wallet on the Solana
-                <a
-                  href="https://phantom.app"
-                  target="_blank"
-                  style={{
-                    color: "#fff",
-                    fontWeight: "bold",
-                    borderBottom: "2px solid #fff",
-                    display: "inline-block",
-                    fontSize: "1rem",
-                  }}
-                >
-                  <span style={{ marginRight: "0.3rem" }}></span>{" "}
-                  {"  Phantom Wallet "}
-                </a>
+                <PageDescriptionContext>
+                  <ExternalLink href="https://phantom.app" target="_blank">
+                    {" Phantom Wallet "}
+                  </ExternalLink>
+                </PageDescriptionContext>
               </PageDescription>
               <PageDescription>
                 {" "}
@@ -583,20 +573,9 @@ export default function Home() {
               </PageDescription>
               <PageDescription onClick={() => setOpenModal(!openModal)}>
                 3.
-                <span
-                  style={{
-                    color: "#fff",
-                    fontWeight: "bold",
-                    borderBottom: "2px solid #fff",
-                    margin: "0 4px", // Simplify margin
-                    cursor: "pointer",
-                    fontSize: "1rem",
-                    display: "inline-block", // Ensure it stays inline but block for better spacing
-                  }}
-                >
-                  {"  "}
+                <PageDescriptionContext>
                   Read the SAFT Agreement
-                </span>{" "}
+                </PageDescriptionContext>
                 before making a purchase
               </PageDescription>
               <ModalSection
@@ -685,10 +664,25 @@ const PageAdvertisementIcon = styled.img`
 `;
 
 const PageDescription = styled.p`
-  font-size: 15px;
   color: #e0e5f0;
   display: flex;
   text-align: left;
+
+  @media ${devices.mobile} {
+    font-size: 10px !important;
+  }
+`;
+
+const PageDescriptionContext = styled.b`
+  color: #fff;
+  font-weight: bold;
+  /* font-size: 1rem; */
+  cursor: pointer;
+  padding: 0 2px !important;
+
+  @media ${devices.desktop} {
+    border-bottom: 2px solid fff;
+  }
 `;
 
 const PageContent = styled.div`
@@ -752,3 +746,5 @@ const ReadAgreement = styled.div`
   height: 500px;
   overflow-y: auto;
 `;
+
+const ExternalLink = styled.a``;
