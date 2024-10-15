@@ -33,6 +33,18 @@ export const GlobalStyle = createGlobalStyle`
         height: 100vh;
         line-height: 1.5;
     }
+
+    @media print {
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #document-section {
+            page-break-after: always;
+        }
+    }
+
     
     img  {
         max-width: 100%;
