@@ -6,6 +6,7 @@ import jsPDF from "jspdf";
 import toast from "react-hot-toast";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { Loader } from "lucide-react";
+import { v4 as uuidv4 } from "uuid";
 
 interface SignaturePadProps {
   onSave?: (url: string) => void;
@@ -30,7 +31,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
   tokens,
   address,
 }) => {
-  const canvasRef = useRef(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const isDrawing = useRef(false);
 
   const { publicKey } = useWallet();
@@ -55,23 +56,46 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
     console.log("Current: ", currentDate);
   }, []);
 
-  const startDrawing = (e: any) => {
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (canvas) {
+      // Set the width and height based on the current size
+      const context = canvas.getContext("2d");
+      if (context) {
+        // This ensures the drawing resolution matches the canvas size
+        canvas.width = canvas.clientWidth; // Set canvas width to client width
+        canvas.height = 70; // Keep a fixed height, or make it dynamic if needed
+      }
+    }
+  }, []);
+
+  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
     isDrawing.current = true;
-    const canvas: any = canvasRef.current;
+    const canvas = canvasRef.current;
     if (canvas) {
       const ctx = canvas.getContext("2d");
-      ctx.beginPath();
-      ctx.moveTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+      if (ctx) {
+        ctx.beginPath();
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left; // Calculate the X coordinate
+        const y = e.clientY - rect.top; // Calculate the Y coordinate
+        ctx.moveTo(x, y);
+      }
     }
   };
 
-  const draw = (e: any) => {
+  const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (!isDrawing.current) return;
-    const canvas: any = canvasRef.current;
+    const canvas = canvasRef.current;
     if (canvas) {
       const ctx = canvas.getContext("2d");
-      ctx.lineTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
-      ctx.stroke();
+      if (ctx) {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left; // Calculate the X coordinate
+        const y = e.clientY - rect.top; // Calculate the Y coordinate
+        ctx.lineTo(x, y);
+        ctx.stroke();
+      }
     }
   };
 
@@ -80,10 +104,12 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
   };
 
   const clearCanvas = () => {
-    const canvas: any = canvasRef.current;
+    const canvas = canvasRef.current;
     if (canvas) {
       const ctx = canvas.getContext("2d");
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (ctx) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
     }
   };
 
@@ -110,8 +136,6 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
           return;
         }
         await downloadDocument();
-        onSave(dataURL);
-        window.location.href = "/";
       }
     }
 
@@ -129,7 +153,8 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
 
         console.log("UPLOADED: ", result);
         if (result.status === "success") {
-          await updatePurchase(result?.upload?.id!);
+          // await updatePurchase(result?.upload?.id!);
+          window.location.href = "";
         } else {
         }
       } catch (error) {
@@ -197,7 +222,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
       heightLeft -= availableHeight;
     }
 
-    const fileName = `PAiT_SAFT_AGGREEMENT_DOCUMENT-${name}-${publicKey?.toBase58()}.pdf`;
+    const fileName = `PAiT_SAFT_AGGREEMENT_DOCUMENT-${name}-${uuidv4()}-${publicKey?.toBase58()}.pdf`;
     // Save the PDF
     pdf.save(fileName);
 
@@ -594,9 +619,9 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
 
                 <UserInputGroup>
                   <UserInputLabel>Signature: </UserInputLabel>
-                  <canvas
+                  <CanvasContainer
                     ref={canvasRef}
-                    height={70}
+                    // height={70}
                     style={{
                       border: "1px solid #000",
                       cursor: "crosshair",
@@ -637,6 +662,14 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
 };
 
 export default SignaturePad;
+
+const CanvasContainer = styled.canvas`
+  border: 1px solid #000;
+  cursor: crosshair;
+  background-color: white;
+  width: 100%;
+  height: auto;
+`;
 
 const Container = styled.div`
   max-width: 90%;
