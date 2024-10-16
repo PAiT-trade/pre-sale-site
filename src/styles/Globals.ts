@@ -37,13 +37,52 @@ export const GlobalStyle = createGlobalStyle`
     @media print {
         body {
             margin: 0;
-            padding: 0;
+            font-family: Arial, sans-serif;
+            font-size: 14pt; 
         }
 
-        #document-section {
-            page-break-after: always;
+        .no-print {
+            display: none; 
+        }
+
+        h1, h2, h3 {
+            page-break-after: avoid; 
+            color: black;
+        }
+
+        p {
+            margin: 0.5em 0; 
+            line-height: 1.5;
+        }
+
+        ul, ol {
+            margin: 0 0 1em 2em;
+        }
+
+        h2 {
+            page-break-after: always; 
+        }
+
+        footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 10pt;
+        }
+
+        @media (max-width: 600px) {
+            .print-section {
+                width: 100%; 
+                padding: 20px; 
+            }
+        }
+
+        @page {
+            margin: 20mm; /* Set margins for the printed page */
         }
     }
+
 
     
     img  {

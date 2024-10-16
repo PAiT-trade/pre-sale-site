@@ -719,13 +719,18 @@ const Content = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
+  justify-content: flex-start !important;
+  align-content: left !important;
 
   @media ${devices.mobile} {
+    text-align: left;
+    margin-bottom: 2rem !important;
   }
 
   @media ${devices.tablet} {
+    text-align: left;
+    margin-bottom: 2rem !important;
   }
-
   @media ${devices.desktop} {
     width: 30rem;
     padding: 0 2rem;

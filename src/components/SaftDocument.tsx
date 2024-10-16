@@ -9,6 +9,7 @@ import { Loader } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import CanvasDraw from "react-canvas-draw";
 import { useRouter } from "next/navigation";
+import generatePDF, { Resolution } from "react-to-pdf";
 
 interface SignaturePadProps {
   onSave?: (url: string) => void;
@@ -35,6 +36,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
 }) => {
   const canvasRef = useRef<any>(null);
   const isDrawing = useRef(false);
+  const printRef = useRef<HTMLDivElement>(null);
 
   const { publicKey } = useWallet();
 
@@ -192,7 +194,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
           }
         }
       >
-        <DocumentContainer>
+        <DocumentContainer ref={printRef}>
           <Title>Token Sale Agreement</Title>
           <Subtitle>Effective as of {currentDate.human}</Subtitle>
           <Paragraph>
@@ -589,7 +591,27 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
           <Button onClick={clear} style={{ border: "2px solid red" }}>
             CLEAR
           </Button>
-          <Button onClick={saveSignature}>
+          <Button
+            onClick={() => {
+              generatePDF(printRef, {
+                filename: "page.pdf",
+                page: {
+                  margin: {
+                    top: 20,
+                    bottom: 20,
+                    left: 10,
+                    right: 10,
+                  },
+                  format: "letter",
+                  orientation: "portrait",
+                },
+                // canvas: {
+                //   mimeType: "image/png",
+                //   qualityRatio: 2,
+                // },
+              });
+            }}
+          >
             {isLoading ? (
               <>
                 <Loader size={24} />
@@ -651,7 +673,7 @@ const Subtitle = styled.h2`
 const Paragraph = styled.p`
   font-size: 1rem; /* Use rem for responsive font size */
   line-height: 1.5;
-  margin: 10px 0;
+  margin: 2.4rem 0;
 
   @media (max-width: 600px) {
     font-size: 1.4rem;
