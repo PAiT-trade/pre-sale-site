@@ -91,7 +91,8 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
       setLoading(false);
       return;
     }
-    await downloadDocument();
+    // await downloadDocument();
+    generatePDF();
     setLoading(false);
   };
 
@@ -115,43 +116,155 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
     }
   };
 
-  const updatePurchase = async (url: string) => {
-    try {
-      const response = await fetch(`/api/update-purchase/${purchaseId}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ url: url }),
-      });
-      const result = await response.json();
-      if (result.status === "success") {
-        router.push("/");
-      } else {
+  const generatePDF = async (): Promise<FormData | null> => {
+    const input = document.getElementById("document-section");
+    const marginTopBottom = 10; // Margin in mm
+    const pagePadding = 5; // Additional padding inside the PDF pages in mm
+    const pdf = new jsPDF("p", "pt", "a4");
+    const pageHeight =
+      pdf.internal.pageSize.height - 2 * marginTopBottom - 2 * pagePadding;
+    const pageWidth = pdf.internal.pageSize.width - 2 * pagePadding;
+    let currentPosition = 0; // Tracks the current position for each page
+    if (!input) return null;
+    html2canvas(input, { scale: 3 }).then((canvas) => {
+      const imgWidth = 210; // A4 width in mm
+      const imgHeight = (canvas.height * pageWidth) / canvas.width;
+
+      const totalCanvasHeight = canvas.height;
+      const totalPDFPages = Math.ceil(
+        totalCanvasHeight / ((pageHeight * canvas.width) / pageWidth)
+      );
+
+      for (let i = 0; i < totalPDFPages; i++) {
+        const pageCanvas = document.createElement("canvas");
+        pageCanvas.width = canvas.width;
+        pageCanvas.height = (pageHeight * canvas.width) / pageWidth;
+
+        const pageCtx = pageCanvas.getContext("2d");
+
+        if (!pageCtx) return;
+        pageCtx.fillStyle = "white";
+        pageCtx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+
+        // Draw only the section that fits on this page
+        pageCtx.drawImage(
+          canvas,
+          0,
+          currentPosition,
+          canvas.width,
+          pageCanvas.height,
+          0,
+          0,
+          canvas.width,
+          pageCanvas.height
+        );
+
+        const pageData = pageCanvas.toDataURL("image/png");
+        if (i > 0) pdf.addPage();
+        pdf.addImage(
+          pageData,
+          "PNG",
+          pagePadding,
+          marginTopBottom + pagePadding,
+          pageWidth,
+          pageHeight
+        );
+
+        currentPosition += (pageHeight * canvas.width) / pageWidth; // Update position for the next page
       }
-    } catch (error) {}
+
+      // pdf.save("download.pdf");
+
+      const fileName = `PAiT_SAFT_AGGREEMENT_DOCUMENT-${name}-${uuidv4()}-${publicKey?.toBase58()}.pdf`;
+      // Save the PDF
+      pdf.save(fileName);
+
+      const pdfBlob = pdf.output("blob");
+
+      const formData = new FormData();
+      formData.append("file", pdfBlob, fileName);
+      formData.append("purchase_id", purchaseId?.toString() || "");
+
+      for (const [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
+
+      setLoading(true);
+      uploadDocument(formData);
+      setLoading(false);
+      return formData;
+    });
+
+    return null;
   };
 
   const downloadDocument = async (): Promise<FormData | null> => {
     const input = document.getElementById("document-section");
-
+    let currentPosition = 0;
     if (!input) return null;
 
     const canvas = await html2canvas(input, { scale: 2 });
     const imgData = canvas.toDataURL("image/png");
     const pdf = new jsPDF("p", "pt", "a4");
+    const topMargin = 60;
+    const bottomMargin = 60;
+    const pagePadding = 10;
+    const pageWidth = pdf.internal.pageSize.width - 2 * pagePadding;
 
-    const pageWidth = pdf.internal.pageSize.getWidth();
     const imgWidth = pageWidth - 20;
     const imgHeight = ((canvas.height - 100) * imgWidth) / canvas.width;
 
-    const topMargin = 60;
-    const bottomMargin = 60;
     const availableHeight =
       pdf.internal.pageSize.getHeight() - (topMargin - bottomMargin);
 
     let heightLeft = imgHeight;
     let position = topMargin;
+
+    const totalCanvasHeight = canvas.height;
+    const pageHeight =
+      pdf.internal.pageSize.height - 2 * topMargin - 2 * pagePadding;
+    const totalPDFPages = Math.ceil(
+      totalCanvasHeight / ((heightLeft * imgWidth) / pageWidth)
+    );
+
+    for (let i = 0; i < totalPDFPages; i++) {
+      const pageCanvas = document.createElement("canvas");
+      pageCanvas.width = imgWidth;
+      pageCanvas.height = (heightLeft * imgWidth) / pageWidth;
+
+      const pageCtx = pageCanvas.getContext("2d");
+
+      if (pageCtx) {
+        pageCtx.fillStyle = "white";
+        pageCtx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+
+        // Draw only the section that fits on this page
+        pageCtx.drawImage(
+          canvas,
+          0,
+          currentPosition,
+          canvas.width,
+          pageCanvas.height,
+          0,
+          0,
+          canvas.width,
+          pageCanvas.height
+        );
+
+        const pageData = pageCanvas.toDataURL("image/png");
+        if (i > 0) pdf.addPage();
+        pdf.addImage(
+          pageData,
+          "PNG",
+          pagePadding,
+          bottomMargin + pagePadding,
+          pageWidth,
+          pageHeight
+        );
+
+        currentPosition += (pageHeight * canvas.width) / pageWidth; // Update position for the next page
+      }
+    }
 
     // Add the first page with the image
     pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
