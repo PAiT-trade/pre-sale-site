@@ -5,7 +5,7 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import toast from "react-hot-toast";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { Loader } from "lucide-react";
+import { Loader, Loader2 } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import CanvasDraw from "react-canvas-draw";
 import { useRouter } from "next/navigation";
@@ -99,17 +99,13 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
   const uploadDocument = async (formData: FormData) => {
     if (formData) {
       try {
-        const response = await fetch("/api/upload-file", {
+        fetch("/api/upload-file", {
           method: "POST",
           body: formData,
         });
-        const result = await response.json();
-
-        console.log("UPLOADED: ", result);
-        if (result.status === "success") {
-          router.push("/");
-        } else {
-        }
+        toast.success("Thank you for making the purchase!!!!");
+        setLoading(false);
+        router.push("/");
       } catch (error) {
         console.log("App Error: ", error);
       }
@@ -117,6 +113,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
   };
 
   const generatePDF = async (): Promise<FormData | null> => {
+    toast.success("Please wait as we complete your purchase process!!!");
     const input = document.getElementById("document-section");
     const marginTopBottom = 10; // Margin in mm
     const pagePadding = 5; // Additional padding inside the PDF pages in mm
@@ -125,7 +122,10 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
       pdf.internal.pageSize.height - 2 * marginTopBottom - 2 * pagePadding;
     const pageWidth = pdf.internal.pageSize.width - 2 * pagePadding;
     let currentPosition = 0; // Tracks the current position for each page
-    if (!input) return null;
+    if (!input) {
+      setLoading(false);
+      return null;
+    }
     html2canvas(input, { scale: 3 }).then((canvas) => {
       const imgWidth = 210; // A4 width in mm
       const imgHeight = (canvas.height * pageWidth) / canvas.width;
@@ -142,7 +142,9 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
 
         const pageCtx = pageCanvas.getContext("2d");
 
-        if (!pageCtx) return;
+        if (!pageCtx) {
+          return null;
+        }
         pageCtx.fillStyle = "white";
         pageCtx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
 
@@ -173,8 +175,6 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
         currentPosition += (pageHeight * canvas.width) / pageWidth; // Update position for the next page
       }
 
-      // pdf.save("download.pdf");
-
       const fileName = `PAiT_SAFT_AGGREEMENT_DOCUMENT-${name}-${uuidv4()}-${publicKey?.toBase58()}.pdf`;
       // Save the PDF
       pdf.save(fileName);
@@ -189,113 +189,12 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
         console.log(key, value);
       }
 
-      setLoading(true);
       uploadDocument(formData);
-      setLoading(false);
       return formData;
     });
-
     return null;
   };
 
-  const downloadDocument = async (): Promise<FormData | null> => {
-    const input = document.getElementById("document-section");
-    let currentPosition = 0;
-    if (!input) return null;
-
-    const canvas = await html2canvas(input, { scale: 2 });
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF("p", "pt", "a4");
-    const topMargin = 60;
-    const bottomMargin = 60;
-    const pagePadding = 10;
-    const pageWidth = pdf.internal.pageSize.width - 2 * pagePadding;
-
-    const imgWidth = pageWidth - 20;
-    const imgHeight = ((canvas.height - 100) * imgWidth) / canvas.width;
-
-    const availableHeight =
-      pdf.internal.pageSize.getHeight() - (topMargin - bottomMargin);
-
-    let heightLeft = imgHeight;
-    let position = topMargin;
-
-    const totalCanvasHeight = canvas.height;
-    const pageHeight =
-      pdf.internal.pageSize.height - 2 * topMargin - 2 * pagePadding;
-    const totalPDFPages = Math.ceil(
-      totalCanvasHeight / ((heightLeft * imgWidth) / pageWidth)
-    );
-
-    for (let i = 0; i < totalPDFPages; i++) {
-      const pageCanvas = document.createElement("canvas");
-      pageCanvas.width = imgWidth;
-      pageCanvas.height = (heightLeft * imgWidth) / pageWidth;
-
-      const pageCtx = pageCanvas.getContext("2d");
-
-      if (pageCtx) {
-        pageCtx.fillStyle = "white";
-        pageCtx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
-
-        // Draw only the section that fits on this page
-        pageCtx.drawImage(
-          canvas,
-          0,
-          currentPosition,
-          canvas.width,
-          pageCanvas.height,
-          0,
-          0,
-          canvas.width,
-          pageCanvas.height
-        );
-
-        const pageData = pageCanvas.toDataURL("image/png");
-        if (i > 0) pdf.addPage();
-        pdf.addImage(
-          pageData,
-          "PNG",
-          pagePadding,
-          bottomMargin + pagePadding,
-          pageWidth,
-          pageHeight
-        );
-
-        currentPosition += (pageHeight * canvas.width) / pageWidth; // Update position for the next page
-      }
-    }
-
-    // Add the first page with the image
-    pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
-    heightLeft -= availableHeight;
-
-    while (heightLeft >= 0) {
-      position = heightLeft - (imgHeight + topMargin);
-      pdf.addPage("a4", "p");
-      pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight + 25);
-      heightLeft -= availableHeight;
-    }
-
-    const fileName = `PAiT_SAFT_AGGREEMENT_DOCUMENT-${name}-${uuidv4()}-${publicKey?.toBase58()}.pdf`;
-    // Save the PDF
-    pdf.save(fileName);
-
-    const pdfBlob = pdf.output("blob");
-
-    const formData = new FormData();
-    formData.append("file", pdfBlob, fileName);
-    formData.append("purchase_id", purchaseId?.toString() || "");
-
-    for (const [key, value] of formData.entries()) {
-      console.log(key, value);
-    }
-
-    setLoading(true);
-    uploadDocument(formData);
-    setLoading(false);
-    return formData;
-  };
   return (
     <>
       <div
@@ -344,15 +243,15 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
               matters; and (2) third-party information that the Company treats
               as confidential.
             </Paragraph>
-          </Spacing>
-
-          <Spacing>
             <Paragraph>
               "Content" means works in the literary, artistic, and scientific
               domains, including texts, code, software, methods, data, images,
               pictures, video, music, audio, or other materials and
               publications.
             </Paragraph>
+          </Spacing>
+
+          <Spacing>
             <Paragraph>
               “Restricted Territory” includes Afghanistan, Bosnia and
               Herzegovina, Central African Republic, Cuba, the Democratic
@@ -391,14 +290,17 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
               1.2. Third parties may publish Content accessible to you. Such
               Content may be subject to different rules, and you must
               familiarize yourself with these rules. Your use of third-party
-              Content is at your own risk. The Company is not liable for any
-              payments, damages, or losses due to your use of third-party
-              Content. The Company is not responsible for the accuracy,
-              availability, or accessibility of such Content, including network
-              information, fee information, or other data. The Company may edit,
-              publish, and delete the Content.
+              Content is at your own risk.
             </Paragraph>
-
+          </Spacing>
+          <Spacing>
+            <Paragraph>
+              The Company is not liable for any payments, damages, or losses due
+              to your use of third-party Content. The Company is not responsible
+              for the accuracy, availability, or accessibility of such Content,
+              including network information, fee information, or other data. The
+              Company may edit, publish, and delete the Content.
+            </Paragraph>
             <Subtitle>2. SECURITY TERMS AND DATA PRIVACY PROTECTION</Subtitle>
             <Paragraph>
               2.1. You must deploy appropriate technical and security measures
@@ -427,8 +329,6 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
               to third parties without your consent, except as provided here or
               in accordance with the Terms or the Company's Privacy Policy.
             </Paragraph>
-          </Spacing>
-          <Spacing>
             <Subtitle>3. PURCHASE AND DELIVERY OF TOKEN</Subtitle>
             <Paragraph>
               3.1. You agree to pay for and acquire Tokens in accordance with
@@ -438,7 +338,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
               of the acquisition price under any circumstances unless otherwise
               specified on the Site.
             </Paragraph>
-            <Paragraph>
+            <Paragraph style={{ marginTop: "20px" }}>
               3.2. Aquared PAiT tokens{" "}
               <b style={{ borderBottom: "2px solid #000" }}>
                 {tokens ? `${" " + tokens + " "}` : " ............. "}
@@ -528,12 +428,12 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
               destruction, damage, loss, or failure to preserve data, including
               records, keys, and credentials regarding the Token.
             </Paragraph>
+          </Spacing>
+          <Spacing>
             <Paragraph>
               7.2. You waive your right to demand a refund of any virtual
               currency you paid the Company in the Sale under any circumstances.
             </Paragraph>
-          </Spacing>
-          <Spacing>
             <Paragraph>8. RISKS AND DISCLAIMERS</Paragraph>
             <Paragraph>
               8.1. You agree that Tokens, blockchain technology,
@@ -726,7 +626,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
           <Button onClick={saveSignature}>
             {isLoading ? (
               <>
-                <Loader size={24} />
+                <Loader2 size={24} />
               </>
             ) : (
               "COMPLETE"
