@@ -178,8 +178,16 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
       const fileName = `PAiT_SAFT_AGGREEMENT_DOCUMENT-${name}-${uuidv4()}-${publicKey?.toBase58()}.pdf`;
       // Save the PDF
       pdf.save(fileName);
-
       const pdfBlob = pdf.output("blob");
+
+      // check if app is running on in app
+      const isInAppBrowser = /Phantom/i.test(navigator.userAgent);
+      if (isInAppBrowser) {
+        const downloadLink = document.createElement("a");
+        downloadLink.href = URL.createObjectURL(pdfBlob);
+        downloadLink.download = fileName;
+        downloadLink.click();
+      }
 
       const formData = new FormData();
       formData.append("file", pdfBlob, fileName);
