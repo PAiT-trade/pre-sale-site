@@ -9,6 +9,7 @@ import { Loader, Loader2 } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import CanvasDraw from "react-canvas-draw";
 import { useRouter } from "next/navigation";
+import { useLoading } from "@/context/loading-context";
 
 interface SignaturePadProps {
   onSave?: (url: string) => void;
@@ -34,14 +35,12 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
   address,
 }) => {
   const canvasRef = useRef<any>(null);
-  const isDrawing = useRef(false);
 
   const { publicKey } = useWallet();
 
-  const [isLoading, setLoading] = useState(false);
+  const { setIsLoading, isLoading } = useLoading();
   const router = useRouter();
 
-  const [file, setFile] = useState("");
   const [currentDate, setCurrentDate] = useState<{
     human: string;
     decimal: string;
@@ -55,22 +54,9 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
       human: moment(new Date()).format("MMMM, D YYYY"),
       decimal: moment(new Date()).format("YYYY-MM-DD"),
     });
-
-    console.log("Current: ", currentDate);
   }, []);
 
   const isCanvasEmpty = () => {
-    // const canvas = canvasRef.current?.getCanvas();
-    // const ctx = canvas.getContext("2d");
-    // const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
-    // // Check if the image data is all transparent
-    // const data = imageData.data;
-    // for (let i = 0; i < data.length; i += 4) {
-    //   if (data[i + 3] !== 0) {
-    //     return false;
-    //   }
-    // }
     return false;
   };
 
@@ -79,21 +65,23 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
   };
 
   const saveSignature = async () => {
-    setLoading(true);
+    setIsLoading(true);
 
     if (isCanvasEmpty()) {
       toast.error("Please provide your signature!!!");
-      setLoading(false);
+      setIsLoading(false);
       return;
     }
     if (!name || !email) {
       toast.error("Please provide your email to proceed");
-      setLoading(false);
+      setIsLoading(false);
       return;
     }
-    // await downloadDocument();
-    generatePDF();
-    setLoading(false);
+    await generatePDF().catch((_error) => {
+      toast.error(
+        "Error downloading your pdf document. Please contact PAiT team for support. Thank you!!!"
+      );
+    });
   };
 
   const uploadDocument = async (formData: FormData) => {
@@ -104,7 +92,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
           body: formData,
         });
         toast.success("Thank you for making the purchase!!!!");
-        setLoading(false);
+        setIsLoading(false);
         router.push("/");
       } catch (error) {
         console.log("App Error: ", error);
@@ -113,23 +101,21 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
   };
 
   const generatePDF = async (): Promise<FormData | null> => {
+    setIsLoading(true);
     toast.success("Please wait as we complete your purchase process!!!");
+    console.group("Generating PDF");
     const input = document.getElementById("document-section");
-    const marginTopBottom = 10; // Margin in mm
-    const pagePadding = 5; // Additional padding inside the PDF pages in mm
+    const marginTopBottom = 10;
+    const pagePadding = 5;
     const pdf = new jsPDF("p", "pt", "a4");
     const pageHeight =
       pdf.internal.pageSize.height - 2 * marginTopBottom - 2 * pagePadding;
     const pageWidth = pdf.internal.pageSize.width - 2 * pagePadding;
-    let currentPosition = 0; // Tracks the current position for each page
+    let currentPosition = 0;
     if (!input) {
-      setLoading(false);
       return null;
     }
-    html2canvas(input, { scale: 3 }).then((canvas) => {
-      const imgWidth = 210; // A4 width in mm
-      const imgHeight = (canvas.height * pageWidth) / canvas.width;
-
+    html2canvas(input, { scale: 3 }).then(async (canvas) => {
       const totalCanvasHeight = canvas.height;
       const totalPDFPages = Math.ceil(
         totalCanvasHeight / ((pageHeight * canvas.width) / pageWidth)
@@ -148,7 +134,6 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
         pageCtx.fillStyle = "white";
         pageCtx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
 
-        // Draw only the section that fits on this page
         pageCtx.drawImage(
           canvas,
           0,
@@ -176,21 +161,38 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
       }
 
       const fileName = `PAiT_SAFT_AGGREEMENT_DOCUMENT-${name}-${uuidv4()}-${publicKey?.toBase58()}.pdf`;
-      // Save the PDF
-      pdf.save(fileName);
+
       const pdfBlob = pdf.output("blob");
+      /// DOWNLOAD on IN App or PWA setup
+      const checkAppMode = () => {
+        const isInAppMode = window.matchMedia(
+          "(display-mode: standalone)"
+        ).matches;
 
-      // check if app is running on in app
-      const isInAppBrowser = /Phantom/i.test(navigator.userAgent);
-
-      // ssssdsfsdfs
-      ///sdssdsd
-      if (isInAppBrowser) {
-        const downloadLink = document.createElement("a");
-        downloadLink.href = URL.createObjectURL(pdfBlob);
-        downloadLink.download = fileName;
-        downloadLink.click();
-      }
+        if (isInAppMode) {
+          downloadFile(pdfBlob, fileName);
+          console.log("Running in standalone or PWA mode.");
+        } else {
+          // Save the PDF
+          pdf.save(fileName);
+          console.log("Running in browser mode.");
+        }
+      };
+      // Initial check
+      checkAppMode();
+      // Listen for display mode changes
+      window
+        .matchMedia("(display-mode: standalone)")
+        .addEventListener("change", (e) => {
+          if (e.matches) {
+            downloadFile(pdfBlob, fileName);
+            console.log("App is now in standalone mode.");
+          } else {
+            // Save the PDF
+            pdf.save(fileName);
+            console.log("App is now in browser mode.");
+          }
+        });
 
       const formData = new FormData();
       formData.append("file", pdfBlob, fileName);
@@ -200,22 +202,24 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
         console.log(key, value);
       }
 
-      uploadDocument(formData);
+      await uploadDocument(formData);
+      setIsLoading(false);
       return formData;
     });
     return null;
   };
 
+  const downloadFile = (blob: Blob, fileName: string) => {
+    console.log("Running in standalone mode (PWA or in-app mode on iOS).");
+    const downloadLink = document.createElement("a");
+    downloadLink.href = URL.createObjectURL(blob);
+    downloadLink.download = fileName;
+    downloadLink.click();
+  };
+
   return (
     <>
-      <div
-        id="document-section"
-        style={
-          {
-            // maxWidth: "800px",
-          }
-        }
-      >
+      <div id="document-section" style={{}}>
         <DocumentContainer>
           <Spacing>
             <Title>Token Sale Agreement</Title>

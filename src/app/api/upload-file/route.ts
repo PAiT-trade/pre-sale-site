@@ -1,6 +1,6 @@
 import { prisma } from "@/db/prisma";
 import { NextResponse } from "next/server";
-import s3 from "@/lib/aws";
+import { uploadToS3 } from "@/lib/aws";
 export async function POST(req: Request) {
   try {
     const formData = await req.formData();
@@ -25,7 +25,14 @@ export async function POST(req: Request) {
     };
 
     // Upload the file to S3
-    const data = await s3.upload(params).promise();
+    // const data = await s3.upload(params).promise();
+
+    const data = await uploadToS3(
+      file,
+      process.env.AWS_S3_BUCKET_NAME!,
+      file.name
+    );
+
     console.log("File uploaded successfully:", data.Location);
 
     const purchase = await prisma.purchase.update({
