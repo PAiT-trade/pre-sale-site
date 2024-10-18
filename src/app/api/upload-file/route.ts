@@ -1,11 +1,12 @@
-// app/api/upload/route.ts
+import { prisma } from "@/db/prisma";
 import { NextResponse } from "next/server";
-import s3 from "@/lib/aws"; // Adjust the import path based on your file structure
-
+import { uploadToS3 } from "@/lib/aws";
 export async function POST(req: Request) {
   try {
-    const formData = await req.formData(); // Parse the incoming FormData
-    const file = formData.get("file") as File; // Get the file from FormData
+    const formData = await req.formData();
+    const file = formData.get("file") as File;
+
+    const purchase_id = Number(formData.get("purchase_id"));
 
     if (!file) {
       return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
@@ -13,7 +14,7 @@ export async function POST(req: Request) {
 
     // Read the file as a Blob
     const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer); // Convert ArrayBuffer to Buffer
+    const buffer = Buffer.from(arrayBuffer);
 
     // S3 upload parameters
     const params = {
@@ -24,8 +25,20 @@ export async function POST(req: Request) {
     };
 
     // Upload the file to S3
-    const data = await s3.upload(params).promise();
-    console.log("File uploaded successfully:", data.Location); // Log the uploaded file URL
+    // const data = await s3.upload(params).promise();
+
+    const data = await uploadToS3(
+      file,
+      process.env.AWS_S3_BUCKET_NAME!,
+      file.name
+    );
+
+    console.log("File uploaded successfully:", data.Location);
+
+    const purchase = await prisma.purchase.update({
+      where: { id: purchase_id },
+      data: { signed_document_url: data.Location },
+    });
     return NextResponse.json(
       { status: "success", url: data.Location },
       { status: 200 }

@@ -8,8 +8,13 @@ import {
   WalletProvider,
 } from "@solana/wallet-adapter-react";
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
-import { SolflareWalletAdapter } from "@solana/wallet-adapter-solflare";
-import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
+import {
+  PhantomWalletAdapter,
+  SolflareWalletAdapter,
+  AlphaWalletAdapter,
+  AvanaWalletAdapter,
+  MathWalletAdapter,
+} from "@solana/wallet-adapter-wallets";
 
 import { ReactNode, useCallback, useMemo } from "react";
 import {
@@ -34,6 +39,9 @@ export function SolanaProvider({ children }: { children: ReactNode }) {
         network: toWalletAdapterNetwork(cluster.network),
       }),
       new PhantomWalletAdapter(),
+      new AlphaWalletAdapter(),
+      new AvanaWalletAdapter(),
+      new MathWalletAdapter(),
     ],
     [cluster]
   );

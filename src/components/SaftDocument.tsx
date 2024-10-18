@@ -5,11 +5,11 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import toast from "react-hot-toast";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { Loader } from "lucide-react";
+import { Loader, Loader2 } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import CanvasDraw from "react-canvas-draw";
 import { useRouter } from "next/navigation";
-import generatePDF, { Resolution } from "react-to-pdf";
+import { useLoading } from "@/context/loading-context";
 
 interface SignaturePadProps {
   onSave?: (url: string) => void;
@@ -35,15 +35,12 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
   address,
 }) => {
   const canvasRef = useRef<any>(null);
-  const isDrawing = useRef(false);
-  const printRef = useRef<HTMLDivElement>(null);
 
   const { publicKey } = useWallet();
 
-  const [isLoading, setLoading] = useState(false);
+  const { setIsLoading, isLoading } = useLoading();
   const router = useRouter();
 
-  const [file, setFile] = useState("");
   const [currentDate, setCurrentDate] = useState<{
     human: string;
     decimal: string;
@@ -57,22 +54,9 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
       human: moment(new Date()).format("MMMM, D YYYY"),
       decimal: moment(new Date()).format("YYYY-MM-DD"),
     });
-
-    console.log("Current: ", currentDate);
   }, []);
 
   const isCanvasEmpty = () => {
-    // const canvas = canvasRef.current?.getCanvas();
-    // const ctx = canvas.getContext("2d");
-    // const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
-    // // Check if the image data is all transparent
-    // const data = imageData.data;
-    // for (let i = 0; i < data.length; i += 4) {
-    //   if (data[i + 3] !== 0) {
-    //     return false;
-    //   }
-    // }
     return false;
   };
 
@@ -81,120 +65,162 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
   };
 
   const saveSignature = async () => {
-    setLoading(true);
+    setIsLoading(true);
 
     if (isCanvasEmpty()) {
       toast.error("Please provide your signature!!!");
-      setLoading(false);
+      setIsLoading(false);
       return;
     }
     if (!name || !email) {
       toast.error("Please provide your email to proceed");
-      setLoading(false);
+      setIsLoading(false);
       return;
     }
-    await downloadDocument();
-    setLoading(false);
+    await generatePDF().catch((_error) => {
+      toast.error(
+        "Error downloading your pdf document. Please contact PAiT team for support. Thank you!!!"
+      );
+    });
   };
 
   const uploadDocument = async (formData: FormData) => {
     if (formData) {
       try {
-        const response = await fetch("/api/upload-file", {
+        fetch("/api/upload-file", {
           method: "POST",
           body: formData,
         });
-        const result = await response.json();
-
-        console.log("UPLOADED: ", result);
-        if (result.status === "success") {
-          await updatePurchase(result.url);
-        } else {
-        }
+        toast.success("Thank you for making the purchase!!!!");
+        setIsLoading(false);
+        router.push("/");
       } catch (error) {
         console.log("App Error: ", error);
       }
     }
   };
 
-  const updatePurchase = async (url: string) => {
-    try {
-      const response = await fetch(`/api/update-purchase/${purchaseId}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ url: url }),
-      });
-      const result = await response.json();
-      if (result.status === "success") {
-        router.push("/");
-      } else {
-      }
-    } catch (error) {}
-  };
-
-  const downloadDocument = async (): Promise<FormData | null> => {
+  const generatePDF = async (): Promise<FormData | null> => {
+    setIsLoading(true);
+    toast.success("Please wait as we complete your purchase process!!!");
+    console.group("Generating PDF");
     const input = document.getElementById("document-section");
-
-    if (!input) return null;
-
-    const canvas = await html2canvas(input, { scale: 2 });
-    const imgData = canvas.toDataURL("image/png");
+    const marginTopBottom = 10;
+    const pagePadding = 5;
     const pdf = new jsPDF("p", "pt", "a4");
-
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const imgWidth = pageWidth - 20;
-    const imgHeight = (canvas.height * imgWidth) / (canvas.width + 20);
-
-    const topMargin = 60;
-    const bottomMargin = 60;
-    const availableHeight =
-      pdf.internal.pageSize.getHeight() - (topMargin - bottomMargin);
-
-    let heightLeft = imgHeight;
-    let position = topMargin;
-
-    // Add the first page with the image
-    pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
-    heightLeft -= availableHeight;
-
-    while (heightLeft >= 0) {
-      position = heightLeft - (imgHeight + topMargin);
-      pdf.addPage("a4", "p");
-      pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight + 25);
-      heightLeft -= availableHeight;
+    const pageHeight =
+      pdf.internal.pageSize.height - 2 * marginTopBottom - 2 * pagePadding;
+    const pageWidth = pdf.internal.pageSize.width - 2 * pagePadding;
+    let currentPosition = 0;
+    if (!input) {
+      return null;
     }
+    html2canvas(input, { scale: 3 }).then(async (canvas) => {
+      const totalCanvasHeight = canvas.height;
+      const totalPDFPages = Math.ceil(
+        totalCanvasHeight / ((pageHeight * canvas.width) / pageWidth)
+      );
 
-    const fileName = `PAiT_SAFT_AGGREEMENT_DOCUMENT-${name}-${uuidv4()}-${publicKey?.toBase58()}.pdf`;
-    // Save the PDF
-    pdf.save(fileName);
+      for (let i = 0; i < totalPDFPages; i++) {
+        const pageCanvas = document.createElement("canvas");
+        pageCanvas.width = canvas.width;
+        pageCanvas.height = (pageHeight * canvas.width) / pageWidth;
 
-    const pdfBlob = pdf.output("blob");
+        const pageCtx = pageCanvas.getContext("2d");
 
-    const formData = new FormData();
-    formData.append("file", pdfBlob, fileName);
+        if (!pageCtx) {
+          return null;
+        }
+        pageCtx.fillStyle = "white";
+        pageCtx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
 
-    for (const [key, value] of formData.entries()) {
-      console.log(key, value);
-    }
+        pageCtx.drawImage(
+          canvas,
+          0,
+          currentPosition,
+          canvas.width,
+          pageCanvas.height,
+          0,
+          0,
+          canvas.width,
+          pageCanvas.height
+        );
 
-    setLoading(true);
-    uploadDocument(formData);
-    setLoading(false);
-    return formData;
+        const pageData = pageCanvas.toDataURL("image/png");
+        if (i > 0) pdf.addPage();
+        pdf.addImage(
+          pageData,
+          "PNG",
+          pagePadding,
+          marginTopBottom + pagePadding,
+          pageWidth,
+          pageHeight
+        );
+
+        currentPosition += (pageHeight * canvas.width) / pageWidth; // Update position for the next page
+      }
+
+      const fileName = `PAiT_SAFT_AGGREEMENT_DOCUMENT-${name}-${uuidv4()}-${publicKey?.toBase58()}.pdf`;
+
+      const pdfBlob = pdf.output("blob");
+      /// DOWNLOAD on IN App or PWA setup
+      const checkAppMode = () => {
+        const isInAppMode = window.matchMedia(
+          "(display-mode: standalone)"
+        ).matches;
+
+        if (isInAppMode) {
+          downloadFile(pdfBlob, fileName);
+          console.log("Running in standalone or PWA mode.");
+        } else {
+          // Save the PDF
+          pdf.save(fileName);
+          console.log("Running in browser mode.");
+        }
+      };
+      // Initial check
+      checkAppMode();
+      // Listen for display mode changes
+      window
+        .matchMedia("(display-mode: standalone)")
+        .addEventListener("change", (e) => {
+          if (e.matches) {
+            downloadFile(pdfBlob, fileName);
+            console.log("App is now in standalone mode.");
+          } else {
+            // Save the PDF
+            pdf.save(fileName);
+            console.log("App is now in browser mode.");
+          }
+        });
+
+      const formData = new FormData();
+      formData.append("file", pdfBlob, fileName);
+      formData.append("purchase_id", purchaseId?.toString() || "");
+
+      for (const [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
+
+      await uploadDocument(formData);
+      setIsLoading(false);
+      return formData;
+    });
+    return null;
   };
+
+  const downloadFile = (blob: Blob, fileName: string) => {
+    console.log("Running in standalone mode (PWA or in-app mode on iOS).");
+    const downloadLink = document.createElement("a");
+    downloadLink.href = URL.createObjectURL(blob);
+    downloadLink.download = fileName;
+    downloadLink.click();
+  };
+
   return (
     <>
-      <div
-        id="document-section"
-        style={
-          {
-            // maxWidth: "800px",
-          }
-        }
-      >
-        <DocumentContainer ref={printRef}>
+      <div id="document-section" style={{}}>
+        <DocumentContainer>
           <Spacing>
             <Title>Token Sale Agreement</Title>
             <Subtitle>Effective as of {currentDate.human}</Subtitle>
@@ -232,15 +258,15 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
               matters; and (2) third-party information that the Company treats
               as confidential.
             </Paragraph>
-          </Spacing>
-
-          <Spacing>
             <Paragraph>
               "Content" means works in the literary, artistic, and scientific
               domains, including texts, code, software, methods, data, images,
               pictures, video, music, audio, or other materials and
               publications.
             </Paragraph>
+          </Spacing>
+
+          <Spacing>
             <Paragraph>
               “Restricted Territory” includes Afghanistan, Bosnia and
               Herzegovina, Central African Republic, Cuba, the Democratic
@@ -258,9 +284,11 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
               "Terms" means the Site terms and conditions, privacy policy, risk
               statement, and any other document published on the Site, including
               restrictions described in the Company's Content and on the Site.
-              In case of a conflict between the Terms and this Agreement, this
+              In case of a conflict between the Terms and this Agree--ment, this
               Agreement shall prevail.
             </Paragraph>
+          </Spacing>
+          <Spacing>
             <Subtitle>1. GENERAL TERMS</Subtitle>
             <Paragraph>
               1.1. You agree to be bound by all applicable terms, conditions,
@@ -273,19 +301,20 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
               Agreement, Terms, or other documents, you should contact the
               Company via the provided communication channels.
             </Paragraph>
-          </Spacing>
-
-          <Spacing>
             <Paragraph>
               1.2. Third parties may publish Content accessible to you. Such
               Content may be subject to different rules, and you must
               familiarize yourself with these rules. Your use of third-party
-              Content is at your own risk. The Company is not liable for any
-              payments, damages, or losses due to your use of third-party
-              Content. The Company is not responsible for the accuracy,
-              availability, or accessibility of such Content, including network
-              information, fee information, or other data. The Company may edit,
-              publish, and delete the Content.
+              Content is at your own risk.
+            </Paragraph>
+          </Spacing>
+          <Spacing>
+            <Paragraph>
+              The Company is not liable for any payments, damages, or losses due
+              to your use of third-party Content. The Company is not responsible
+              for the accuracy, availability, or accessibility of such Content,
+              including network information, fee information, or other data. The
+              Company may edit, publish, and delete the Content.
             </Paragraph>
             <Subtitle>2. SECURITY TERMS AND DATA PRIVACY PROTECTION</Subtitle>
             <Paragraph>
@@ -315,8 +344,6 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
               to third parties without your consent, except as provided here or
               in accordance with the Terms or the Company's Privacy Policy.
             </Paragraph>
-          </Spacing>
-          <Spacing>
             <Subtitle>3. PURCHASE AND DELIVERY OF TOKEN</Subtitle>
             <Paragraph>
               3.1. You agree to pay for and acquire Tokens in accordance with
@@ -326,7 +353,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
               of the acquisition price under any circumstances unless otherwise
               specified on the Site.
             </Paragraph>
-            <Paragraph>
+            <Paragraph style={{ marginTop: "20px" }}>
               3.2. Aquared PAiT tokens{" "}
               <b style={{ borderBottom: "2px solid #000" }}>
                 {tokens ? `${" " + tokens + " "}` : " ............. "}
@@ -339,6 +366,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
               TGE, 3 month cliff, 9 months linear vesting. Token Generation
               Event (TGE) Planned on December 10th, 2024
             </Paragraph>
+
             <Paragraph>
               3.3. All deliveries from the Sale shall be made online. Deliveries
               shall be made to your Solana account, or another wallet related to
@@ -353,9 +381,6 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
               financial losses or damages when using third-party payment
               processors.
             </Paragraph>
-          </Spacing>
-
-          <Spacing>
             <Subtitle>4. REGULATORY COMPLIANCE AND TAXES</Subtitle>
             <Paragraph>
               4.1. All fees and charges that you must pay in accordance with
@@ -370,14 +395,14 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
               that the deducted and withheld amounts have been paid to taxing
               authorities.
             </Paragraph>
+          </Spacing>
+          <Spacing>
             <Subtitle>5. YOUR RESPONSIBILITIES</Subtitle>
             <Paragraph>
               5.1. You are responsible for setting up the software that provides
               your access to Tokens. Your credentials are for your personal use
               and shall not be accessible to any third party.
             </Paragraph>
-          </Spacing>
-          <Spacing>
             <Paragraph>
               5.2. You shall comply with the Agreement, Terms, and applicable
               laws. If you violate the Agreement, Terms, or applicable laws, the
@@ -404,8 +429,6 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
               intellectual property except for personal use with one copy on
               each device.
             </Paragraph>
-          </Spacing>
-          <Spacing>
             <Subtitle>7. LIMITATIONS OF LIABILITY</Subtitle>
             <Paragraph>
               7.1. The Company and its affiliates or contractors shall not be
@@ -420,6 +443,8 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
               destruction, damage, loss, or failure to preserve data, including
               records, keys, and credentials regarding the Token.
             </Paragraph>
+          </Spacing>
+          <Spacing>
             <Paragraph>
               7.2. You waive your right to demand a refund of any virtual
               currency you paid the Company in the Sale under any circumstances.
@@ -441,9 +466,6 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
               including fitness for a particular purpose, satisfactory quality,
               merchantability, or non-infringement.
             </Paragraph>
-          </Spacing>
-
-          <Spacing>
             <Paragraph>
               8.3. Transactions using these technologies are risky. The Company
               is not responsible for any loss of data, Solana, Token, software,
@@ -470,6 +492,8 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
               of Tokens. The Company may also terminate this Agreement if you
               breach any term of this Agreement, Terms, or applicable law.
             </Paragraph>
+          </Spacing>
+          <Spacing>
             <Paragraph>
               10.3. Upon termination, the following terms apply: (i) all your
               rights under this Agreement terminate; (ii) you are not entitled
@@ -479,8 +503,6 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
               damages to you, including loss of credentials or access to the
               Site, your account, or device.
             </Paragraph>
-          </Spacing>
-          <Spacing>
             <Subtitle>11. MISCELLANEOUS</Subtitle>
             <Paragraph>
               11.1. You may use Confidential Information solely for acquiring
@@ -518,14 +540,13 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
               to the Company, use available communication means. All notices
               must be in English.
             </Paragraph>
-          </Spacing>
-
-          <Spacing>
             <Paragraph>
               11.7. You may not assign rights or obligations under this
               Agreement or sublicense or delegate rights or obligations without
               the Company's consent.
             </Paragraph>
+          </Spacing>
+          <Spacing>
             <Paragraph>
               11.8. The Company's failure to enforce any rights under this
               Agreement does not waive those rights. All waivers must be in
@@ -552,67 +573,64 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
               Agreement and the English version, the English version prevails.
             </Paragraph>
           </Spacing>
+          {showSignature && (
+            <SignatureContainer>
+              <SecondPartySignature>
+                <UserInputGroup>
+                  <UserInputLabel>Name: </UserInputLabel>
+                  <UserInput
+                    value={name}
+                    border="red"
+                    onChange={(e) => {
+                      if (setName) {
+                        setName(e.target.value);
+                      }
+                    }}
+                    disabled={true}
+                    placeholder="Your Full Name"
+                  />
+                </UserInputGroup>
 
-          <Spacing>
-            {showSignature && (
-              <SignatureContainer>
-                <SecondPartySignature>
-                  <UserInputGroup>
-                    <UserInputLabel>Name: </UserInputLabel>
-                    <UserInput
-                      value={name}
-                      border="red"
-                      onChange={(e) => {
-                        if (setName) {
-                          setName(e.target.value);
-                        }
-                      }}
-                      disabled={true}
-                      placeholder="Your Full Name"
-                    />
-                  </UserInputGroup>
+                <UserInputGroup>
+                  <UserInputLabel>Email: </UserInputLabel>
+                  <UserInput
+                    value={email}
+                    border="red"
+                    onChange={(e) => {
+                      if (setEmail) {
+                        setEmail(e.target.value);
+                      }
+                    }}
+                    placeholder="email@email.com"
+                  />
+                </UserInputGroup>
 
-                  <UserInputGroup>
-                    <UserInputLabel>Email: </UserInputLabel>
-                    <UserInput
-                      value={email}
-                      border="red"
-                      onChange={(e) => {
-                        if (setEmail) {
-                          setEmail(e.target.value);
-                        }
-                      }}
-                      placeholder="email@email.com"
-                    />
-                  </UserInputGroup>
+                <UserInputGroup>
+                  <UserInputLabel>Date: </UserInputLabel>
+                  <UserInput value={currentDate.decimal} disabled={true} />
+                </UserInputGroup>
 
-                  <UserInputGroup>
-                    <UserInputLabel>Date: </UserInputLabel>
-                    <UserInput value={currentDate.decimal} disabled={true} />
-                  </UserInputGroup>
-
-                  <UserInputGroup>
-                    <UserInputLabel>Signature: </UserInputLabel>
-                    <CanvasDraw
-                      ref={canvasRef}
-                      brushColor="#000"
-                      brushRadius={2}
-                      canvasWidth={300}
-                      canvasHeight={100}
-                      style={{
-                        border: "1px solid #000",
-                        borderRadius: "8px",
-                        padding: "6px",
-                      }}
-                    />
-                  </UserInputGroup>
-                </SecondPartySignature>
-                <OwnerPartySignature>
-                  <OwnerPartySignatureImg src="/owner.png" />
-                </OwnerPartySignature>
-              </SignatureContainer>
-            )}
-          </Spacing>
+                <UserInputGroup>
+                  <UserInputLabel>Signature: </UserInputLabel>
+                  <CanvasDraw
+                    ref={canvasRef}
+                    brushColor="#000"
+                    brushRadius={2}
+                    canvasWidth={300}
+                    canvasHeight={100}
+                    style={{
+                      border: "1px solid #000",
+                      borderRadius: "8px",
+                      padding: "6px",
+                    }}
+                  />
+                </UserInputGroup>
+              </SecondPartySignature>
+              <OwnerPartySignature>
+                <OwnerPartySignatureImg src="/owner.png" />
+              </OwnerPartySignature>
+            </SignatureContainer>
+          )}
         </DocumentContainer>
       </div>
       {showSignature && (
@@ -620,31 +638,10 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
           <Button onClick={clear} style={{ border: "2px solid red" }}>
             CLEAR
           </Button>
-          <Button
-            onClick={() => {
-              saveSignature();
-              // generatePDF(printRef, {
-              //   filename: "page.pdf",
-              //   page: {
-              //     margin: {
-              //       top: 20,
-              //       bottom: 20,
-              //       left: 10,
-              //       right: 10,
-              //     },
-              //     format: "letter",
-              //     orientation: "portrait",
-              //   },
-              //   // canvas: {
-              //   //   mimeType: "image/png",
-              //   //   qualityRatio: 2,
-              //   // },
-              // });
-            }}
-          >
+          <Button onClick={saveSignature}>
             {isLoading ? (
               <>
-                <Loader size={24} />
+                <Loader2 size={24} />
               </>
             ) : (
               "COMPLETE"
@@ -657,6 +654,11 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
 };
 
 export default SignaturePad;
+
+const Spacing = styled.div`
+  margin-top: 30px;
+  margin-bottom: 60px;
+`;
 
 const Container = styled.div`
   max-width: 90%;
@@ -681,13 +683,9 @@ const DocumentContainer = styled.div`
   background-color: #fff;
 `;
 
-const Spacing = styled.div`
-  margin-bottom: 150px;
-`;
-
 const Title = styled.h1`
   text-align: left;
-  font-size: 2rem;
+  font-size: 2rem; /* Use rem for responsive font size */
   margin-bottom: 20px;
 
   @media (max-width: 600px) {
@@ -696,7 +694,7 @@ const Title = styled.h1`
 `;
 
 const Subtitle = styled.h2`
-  font-size: 1.5rem;
+  font-size: 1.5rem; /* Use rem for responsive font size */
   margin: 20px 0 10px;
 
   @media (max-width: 600px) {
@@ -705,9 +703,9 @@ const Subtitle = styled.h2`
 `;
 
 const Paragraph = styled.p`
-  font-size: 1rem;
+  font-size: 1rem; /* Use rem for responsive font size */
   line-height: 1.5;
-  margin: 3.2rem 0;
+  margin: 10px 0;
 
   @media (max-width: 600px) {
     font-size: 1.4rem;
@@ -716,12 +714,12 @@ const Paragraph = styled.p`
 
 const SignatureContainer = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: column; /* Stack signatures on small screens */
   align-items: center;
   margin-top: 2rem;
 
   @media (min-width: 600px) {
-    flex-direction: row;
+    flex-direction: row; /* Arrange signatures in a row on larger screens */
     justify-content: space-around;
   }
 `;
@@ -756,7 +754,7 @@ const UserInput = styled.input<UserInputProps>`
   border: 0;
   overflow: hidden;
   border-bottom: 3px dotted ${({ border }) => border || "#000"};
-  width: 100%;
+  width: 100%; /* Full width to be responsive */
 `;
 
 const OwnerPartySignature = styled.div``;
@@ -764,8 +762,8 @@ const OwnerPartySignatureImg = styled.img``;
 
 const SignatureLine = styled.div`
   border-bottom: 1px solid #000;
-  width: 100%;
-  max-width: 300px;
+  width: 100%; /* Full width for responsiveness */
+  max-width: 300px; /* Limit maximum width */
   margin: 20px auto;
 `;
 
@@ -774,7 +772,7 @@ const Button = styled.button`
   padding: 0.5rem 1.4rem;
   outline-width: 0;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 1rem; /* Use rem for responsive font size */
 
   @media (max-width: 600px) {
     font-size: 1.4rem;
@@ -782,7 +780,7 @@ const Button = styled.button`
 `;
 
 const SignatureText = styled.p`
-  font-size: 0.875rem;
+  font-size: 0.875rem; /* Use rem for responsive font size */
   margin: 5px 0;
 
   @media (max-width: 600px) {

@@ -111,7 +111,20 @@ export const PagesWrapper = styled.div`
   gap: 1rem;
 
   #veriff-root {
-    width: 100%;
+    width: 100% !important;
+    padding: 1rem !important;
+
+    .veriff-container {
+      border-radius: 0.4rem;
+      background-color: #151720 !important;
+      width: 100% !important;
+    }
+
+    .veriff-text {
+      width: 100% !important;
+      border: none !important;
+      outline-width: 0 !important;
+    }
   }
 `;
 

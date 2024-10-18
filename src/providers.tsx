@@ -1,6 +1,8 @@
 "use client";
 import * as React from "react";
 import StyledComponentsRegistry from "./lib/registry";
+import { LoadingProvider } from "./context/loading-context";
+import LoadingOverlay from "./components/LoadingOverlay";
 require("@solana/wallet-adapter-react-ui/styles.css");
 
 interface ProvidersProps {
@@ -8,5 +10,12 @@ interface ProvidersProps {
 }
 
 export const Providers: React.FC<ProvidersProps> = ({ children }) => {
-  return <StyledComponentsRegistry>{children}</StyledComponentsRegistry>;
+  return (
+    <StyledComponentsRegistry>
+      <LoadingProvider>
+        {children}
+        <LoadingOverlay />
+      </LoadingProvider>
+    </StyledComponentsRegistry>
+  );
 };

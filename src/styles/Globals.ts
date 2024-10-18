@@ -37,8 +37,9 @@ export const GlobalStyle = createGlobalStyle`
     @media print {
         body {
             margin: 0;
-            font-family: Arial, sans-serif;
-            font-size: 14pt; 
+            padding: 0;
+            font-size: 12px;
+            font-family: Arial, sans-serif; 
         }
 
         .no-print {
