@@ -231,13 +231,12 @@ export default function Home() {
         );
 
         const isUserPaid = result?.purchases?.filter((item: any) => {
-          if (item.user.wallet === publicKey?.toBase58()) {
-            return true;
-          }
-          return false;
+          return item.user.wallet === publicKey?.toBase58();
         });
 
-        if (isUserPaid) {
+        console.log("isUserPaid: ", isUserPaid);
+        // Check if isUserPaid array has any items
+        if (isUserPaid.length > 0) {
           setAllowReferral(true);
         }
 
@@ -247,9 +246,10 @@ export default function Home() {
           bought: totalAmountPaid,
           total: allocations.total,
         });
-      } else {
       }
-    } catch (error) {}
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   useEffect(() => {
