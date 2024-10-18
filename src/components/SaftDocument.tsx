@@ -182,6 +182,9 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
 
       // check if app is running on in app
       const isInAppBrowser = /Phantom/i.test(navigator.userAgent);
+
+      // ssssdsfsdfs
+      ///sdssdsd
       if (isInAppBrowser) {
         const downloadLink = document.createElement("a");
         downloadLink.href = URL.createObjectURL(pdfBlob);
