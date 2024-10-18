@@ -25,12 +25,16 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({ children }) => {
         toastOptions={{
           success: {
             style: {
-              background: "green",
+              background: "#080b15",
+              color: "white",
+              fontSize: "1.5rem",
             },
           },
           error: {
             style: {
               background: "red",
+              color: "white",
+              fontSize: "1.5rem",
             },
           },
         }}
