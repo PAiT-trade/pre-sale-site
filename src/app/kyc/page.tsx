@@ -33,7 +33,7 @@ export default function KYC() {
   );
 }
 
-export const KycContent = styled.div`
+const KycContent = styled.div`
   display: "flex";
   justify-content: "center";
   align-items: "center";
