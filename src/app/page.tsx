@@ -561,12 +561,8 @@ export default function Home() {
             <PageContent>
               <PageSubTitle>Steps to Acquire PAiT Tokens</PageSubTitle>
               <PageDescription>
-                1. Connect your Phantom Wallet on the Solana
-                <PageDescriptionContext>
-                  <ExternalLink href="https://phantom.app" target="_blank">
-                    {" Phantom Wallet "}
-                  </ExternalLink>
-                </PageDescriptionContext>
+                1. Connect a wallet that supports the Solana network (do not use
+                centralized exchange wallets)
               </PageDescription>
               <PageDescription>
                 {" "}
@@ -593,13 +589,14 @@ export default function Home() {
                 press the "Buy PAiT" button
               </PageDescription>
               <PageDescription>
-                5. Sign the SAFT Agreement and provide your email address to
-                receive a copy
+                5. Sign the SAFT Agreement , and the contract will be
+                automatically downloaded.
               </PageDescription>
               <PageDescription>
                 {" "}
-                6. Share your referral code and earn 7.5% extra from purchases.
-                Referral pool 150,000 PAiT tokens, fully unlocked at TGE
+                6. Earn 5% cashback in USDC and 2.5% in PAiT tokens for each
+                successful personal referral, plus an additional 2.5% in PAiT
+                tokens through secondary referrals as the community grows.
               </PageDescription>
             </PageContent>
 
@@ -619,13 +616,9 @@ export default function Home() {
             </TermsAndCondition>
 
             <Terms>
-              Token sale will be conducted ONLY through via PAiT page/launchpad
-              or any other outlets that will be announced through PAiT official
-              channels. DO NOT purchase tokens in any other platforms that are
-              not announced in the official PAiT channels. PAiT team will NOT
-              contact anyone directly with any offers of any kind" to the
-              presale home page nearb by terms and conditions. That text should
-              be marked/bolded.
+              Token sale will be conducted ONLY via official PAiT presale page.
+              Token sale on Launchpads or any other outlets that will be
+              announced through PAiT official channels in later stages.
             </Terms>
 
             <ModalSection

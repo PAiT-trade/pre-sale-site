@@ -1,3 +1,4 @@
+import { devices } from "@/utils/common";
 import styled, { keyframes } from "styled-components";
 
 const blink = keyframes`
@@ -41,7 +42,7 @@ export const NavbarLogoCircle = styled.div`
 export const NavbarLogoCircleRight = styled(NavbarLogoCircle)`
   left: 2.55rem;
 `;
-export const NavbarNavWrapper = styled.ul`
+export const NavbarNavWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -53,8 +54,16 @@ export const NavbarNavWrapper = styled.ul`
   color: #fff;
   font-family: "Poppins", sans-serif;
   gap: 2rem;
+
+  @media ${devices.mobile} {
+    display: none;
+  }
 `;
-export const NavbarNavItem = styled.li`
+
+export const NavbarMenu = styled.div`
+  display: none;
+`;
+export const NavbarNavItem = styled.a`
   align-self: stretch;
   color: #fff;
   cursor: pointer;

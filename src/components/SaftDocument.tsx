@@ -210,11 +210,15 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
   };
 
   const downloadFile = (blob: Blob, fileName: string) => {
-    console.log("Running in standalone mode (PWA or in-app mode on iOS).");
-    const downloadLink = document.createElement("a");
-    downloadLink.href = URL.createObjectURL(blob);
-    downloadLink.download = fileName;
-    downloadLink.click();
+    // console.log("Running in standalone mode (PWA or in-app mode on iOS).");
+    // const downloadLink = document.createElement("a");
+    // downloadLink.href = URL.createObjectURL(blob);
+    // downloadLink.download = fileName;
+    // downloadLink.click();
+
+    const url = URL.createObjectURL(blob);
+
+    window.open(url, "_system");
   };
 
   return (

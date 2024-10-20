@@ -11,10 +11,13 @@ import {
   NavbarSocialsItem,
   NavbarSocialsWraper,
   NavbarSocialsItemWallet,
+  NavbarMenu,
 } from "./Navbar.styled";
 import { WalletButton } from "@/app/solana/solana-provider";
 import { useWallet } from "@/context/WalletContext";
 import { useWallet as useConnectWallet } from "@solana/wallet-adapter-react";
+import { AlignRightIcon } from "lucide-react";
+import { MobileMenu } from "./MobileMenu";
 
 interface NavbarProps {}
 export const Navbar: React.FC<NavbarProps> = () => {
@@ -36,26 +39,28 @@ export const Navbar: React.FC<NavbarProps> = () => {
         {/* <NavbarLogoCircle />
         <NavbarLogoCircleRight /> */}
       </NavbarLogoWrapper>
+
+      <MobileMenu />
       <NavbarNavWrapper>
-        {/* <NavbarNavItem>Home</NavbarNavItem>
-        <NavbarNavItem>Tokenomics</NavbarNavItem>
-        <NavbarNavItem>Whitepaper</NavbarNavItem>
-        <NavbarNavItem>Team</NavbarNavItem>
-        <NavbarNavItem>FAQ</NavbarNavItem> */}
+        <NavbarNavItem href={`https://pait.fi`}>Home</NavbarNavItem>
+        <NavbarNavItem href={`https://pait.gitbook.io/pait`}>
+          Whitepaper
+        </NavbarNavItem>
+        <NavbarNavItem href="#">Join Telegram</NavbarNavItem>
+        <NavbarSocialsWraper>
+          <NavbarSocialsItem>
+            <NavbarSocialsItemWallet suppressHydrationWarning>
+              <WalletButton>
+                {connected && phantomPublicKey
+                  ? phantomPublicKey?.toBase58().slice(0, 6) +
+                    "..." +
+                    phantomPublicKey?.toBase58().slice(-6)
+                  : "Connect Wallet"}
+              </WalletButton>
+            </NavbarSocialsItemWallet>
+          </NavbarSocialsItem>
+        </NavbarSocialsWraper>
       </NavbarNavWrapper>
-      <NavbarSocialsWraper>
-        <NavbarSocialsItem>
-          <NavbarSocialsItemWallet suppressHydrationWarning>
-            <WalletButton>
-              {connected && phantomPublicKey
-                ? phantomPublicKey?.toBase58().slice(0, 6) +
-                  "..." +
-                  phantomPublicKey?.toBase58().slice(-6)
-                : "Connect Wallet"}
-            </WalletButton>
-          </NavbarSocialsItemWallet>
-        </NavbarSocialsItem>
-      </NavbarSocialsWraper>
     </NavbarWrapper>
   );
 };
