@@ -5,18 +5,14 @@ import {
   NavbarLogoWrapper,
   NavbarLogo,
   NavbarNavWrapper,
-  NavbarLogoCircle,
-  NavbarLogoCircleRight,
   NavbarNavItem,
   NavbarSocialsItem,
   NavbarSocialsWraper,
   NavbarSocialsItemWallet,
-  NavbarMenu,
 } from "./Navbar.styled";
 import { WalletButton } from "@/app/solana/solana-provider";
 import { useWallet } from "@/context/WalletContext";
 import { useWallet as useConnectWallet } from "@solana/wallet-adapter-react";
-import { AlignRightIcon } from "lucide-react";
 import { MobileMenu } from "./MobileMenu";
 
 interface NavbarProps {}
