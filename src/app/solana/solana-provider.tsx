@@ -11,9 +11,6 @@ import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 import {
   PhantomWalletAdapter,
   SolflareWalletAdapter,
-  AlphaWalletAdapter,
-  AvanaWalletAdapter,
-  MathWalletAdapter,
 } from "@solana/wallet-adapter-wallets";
 
 import { ReactNode, useCallback, useMemo } from "react";
@@ -35,13 +32,13 @@ export function SolanaProvider({ children }: { children: ReactNode }) {
   const endpoint = useMemo(() => cluster.endpoint, [cluster]);
   const wallets = useMemo(
     () => [
-      new SolflareWalletAdapter({
-        network: toWalletAdapterNetwork(cluster.network),
-      }),
+      // new SolflareWalletAdapter({
+      //   network: toWalletAdapterNetwork(cluster.network),
+      // }),
       new PhantomWalletAdapter(),
-      new AlphaWalletAdapter(),
-      new AvanaWalletAdapter(),
-      new MathWalletAdapter(),
+      // new AlphaWalletAdapter(),
+      // new AvanaWalletAdapter(),
+      // new MathWalletAdapter(),
     ],
     [cluster]
   );
