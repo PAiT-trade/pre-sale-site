@@ -6,7 +6,7 @@ import { FlexBox } from "@/components/common/Common";
 import { FlexItem } from "@/components/common/Common.styled";
 import { BuyCard } from "@/components/buyCard/BuyCard";
 import { devices, formatNumber } from "@/utils/common";
-import { useWallet, useConnection, Wallet } from "@solana/wallet-adapter-react";
+import { useWallet } from "@solana/wallet-adapter-react";
 import { PublicKey, Transaction } from "@solana/web3.js";
 import toast from "react-hot-toast";
 import {
@@ -618,6 +618,16 @@ export default function Home() {
               Terms and conditions apply
             </TermsAndCondition>
 
+            <Terms>
+              Token sale will be conducted ONLY through via PAiT page/launchpad
+              or any other outlets that will be announced through PAiT official
+              channels. DO NOT purchase tokens in any other platforms that are
+              not announced in the official PAiT channels. PAiT team will NOT
+              contact anyone directly with any offers of any kind" to the
+              presale home page nearb by terms and conditions. That text should
+              be marked/bolded.
+            </Terms>
+
             <ModalSection
               title="Terms and Conditions"
               setIsOpen={setIsTermsModal}
@@ -766,6 +776,15 @@ const TermsAndCondition = styled.div`
 
   @media ${devices.mobile} {
     text-align: left;
+  }
+`;
+
+const Terms = styled.p`
+  margin-top: 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  @media ${devices.mobile} {
+    font-size: 1.5rem !important;
   }
 `;
 
