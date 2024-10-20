@@ -288,26 +288,24 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
               Agreement shall prevail.
             </Paragraph>
           </Spacing>
-          <Spacing>
-            <Subtitle>1. GENERAL TERMS</Subtitle>
-            <Paragraph>
-              1.1. You agree to be bound by all applicable terms, conditions,
-              and laws regarding your acquisition of Tokens. You must read and
-              understand the Risk Disclosure and the Terms. You certify that you
-              acquire Tokens for personal satisfaction and use, to support the
-              Company, and not for investment or other financial purposes. You
-              acknowledge that the Token may decrease in value or become
-              worthless. If you do not understand any provisions of the
-              Agreement, Terms, or other documents, you should contact the
-              Company via the provided communication channels.
-            </Paragraph>
-            <Paragraph>
-              1.2. Third parties may publish Content accessible to you. Such
-              Content may be subject to different rules, and you must
-              familiarize yourself with these rules. Your use of third-party
-              Content is at your own risk.
-            </Paragraph>
-          </Spacing>
+          <Subtitle>1. GENERAL TERMS</Subtitle>
+          <Paragraph>
+            1.1. You agree to be bound by all applicable terms, conditions, and
+            laws regarding your acquisition of Tokens. You must read and
+            understand the Risk Disclosure and the Terms. You certify that you
+            acquire Tokens for personal satisfaction and use, to support the
+            Company, and not for investment or other financial purposes. You
+            acknowledge that the Token may decrease in value or become
+            worthless. If you do not understand any provisions of the Agreement,
+            Terms, or other documents, you should contact the Company via the
+            provided communication channels.
+          </Paragraph>
+          <Paragraph>
+            1.2. Third parties may publish Content accessible to you. Such
+            Content may be subject to different rules, and you must familiarize
+            yourself with these rules. Your use of third-party Content is at
+            your own risk.
+          </Paragraph>
           <Spacing>
             <Paragraph>
               The Company is not liable for any payments, damages, or losses due
@@ -658,7 +656,11 @@ export default SignaturePad;
 
 const Spacing = styled.div`
   margin-top: 30px;
-  margin-bottom: 60px;
+
+  @media print {
+    margin-top: 10px;
+    margin-bottom: 20px;
+  }
 `;
 
 const Container = styled.div`
@@ -673,6 +675,13 @@ const Container = styled.div`
   gap: 1.3rem;
   justify-content: space-between;
   align-items: center;
+
+  @media print {
+    display: block;
+    border: none;
+    padding: 10px;
+    background-color: transparent;
+  }
 `;
 
 const DocumentContainer = styled.div`
@@ -682,64 +691,54 @@ const DocumentContainer = styled.div`
   color: #333;
   font-family: Arial, sans-serif;
   background-color: #fff;
+
+  @media print {
+    padding: 0;
+    background-color: transparent;
+  }
 `;
 
 const Title = styled.h1`
   text-align: left;
-  font-size: 2rem; /* Use rem for responsive font size */
+  font-size: 2rem;
   margin-bottom: 20px;
 
   @media (max-width: 600px) {
     font-size: 1.5rem;
   }
+
+  @media print {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+  }
 `;
 
 const Subtitle = styled.h2`
-  font-size: 1.5rem; /* Use rem for responsive font size */
+  font-size: 1.5rem;
   margin: 20px 0 10px;
 
   @media (max-width: 600px) {
     font-size: 1.4rem;
   }
+
+  @media print {
+    font-size: 1.2rem;
+    margin: 10px 0;
+  }
 `;
 
 const Paragraph = styled.p`
-  font-size: 1rem; /* Use rem for responsive font size */
+  font-size: 1rem;
   line-height: 1.5;
   margin: 10px 0;
 
   @media (max-width: 600px) {
     font-size: 1.4rem;
   }
-`;
 
-const SignatureContainer = styled.div`
-  display: flex;
-  flex-direction: column; /* Stack signatures on small screens */
-  align-items: center;
-  margin-top: 2rem;
-
-  @media (min-width: 600px) {
-    flex-direction: row; /* Arrange signatures in a row on larger screens */
-    justify-content: space-around;
-  }
-`;
-
-const SecondPartySignature = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-`;
-
-const UserInputGroup = styled.div`
-  display: flex;
-  flex-direction: column; /* Stack inputs on small screens */
-  align-items: flex-end;
-  justify-content: flex-start;
-  gap: 10px;
-
-  @media (min-width: 600px) {
-    flex-direction: row; /* Arrange inputs in a row on larger screens */
+  @media print {
+    font-size: 1rem;
+    margin: 5px 0;
   }
 `;
 
@@ -761,11 +760,39 @@ const UserInput = styled.input<UserInputProps>`
 const OwnerPartySignature = styled.div``;
 const OwnerPartySignatureImg = styled.img``;
 
-const SignatureLine = styled.div`
-  border-bottom: 1px solid #000;
-  width: 100%; /* Full width for responsiveness */
-  max-width: 300px; /* Limit maximum width */
-  margin: 20px auto;
+const SecondPartySignature = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+`;
+
+const UserInputGroup = styled.div`
+  display: flex;
+  flex-direction: column; /* Stack inputs on small screens */
+  align-items: flex-end;
+  justify-content: flex-start;
+  gap: 10px;
+
+  @media (min-width: 600px) {
+    flex-direction: row; /* Arrange inputs in a row on larger screens */
+  }
+`;
+
+const SignatureContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 2rem;
+
+  @media (min-width: 600px) {
+    flex-direction: row;
+    justify-content: space-around;
+  }
+
+  @media print {
+    flex-direction: column;
+    margin-top: 1rem;
+  }
 `;
 
 const Button = styled.button`
@@ -773,18 +800,38 @@ const Button = styled.button`
   padding: 0.5rem 1.4rem;
   outline-width: 0;
   cursor: pointer;
-  font-size: 1rem; /* Use rem for responsive font size */
+  font-size: 1rem;
 
   @media (max-width: 600px) {
     font-size: 1.4rem;
   }
+
+  @media print {
+    display: none; /* Hide buttons when printing */
+  }
+`;
+
+const SignatureLine = styled.div`
+  border-bottom: 1px solid #000;
+  width: 100%;
+  max-width: 300px;
+  margin: 20px auto;
+
+  @media print {
+    max-width: 100%;
+    margin: 10px 0;
+  }
 `;
 
 const SignatureText = styled.p`
-  font-size: 0.875rem; /* Use rem for responsive font size */
+  font-size: 0.875rem;
   margin: 5px 0;
 
   @media (max-width: 600px) {
+    font-size: 0.75rem;
+  }
+
+  @media print {
     font-size: 0.75rem;
   }
 `;
