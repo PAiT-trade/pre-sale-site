@@ -27,22 +27,28 @@ export async function POST(req: Request) {
     // Upload the file to S3
     // const data = await s3.upload(params).promise();
 
-    const data = await uploadToS3(
-      file,
-      process.env.AWS_S3_BUCKET_NAME!,
-      file.name
-    );
+    let url = "";
 
-    console.log("File uploaded successfully:", data.Location);
+    try {
+      const data = await uploadToS3(
+        file,
+        process.env.AWS_S3_BUCKET_NAME!,
+        file.name
+      );
 
-    const purchase = await prisma.purchase.update({
-      where: { id: purchase_id },
-      data: { signed_document_url: data.Location },
-    });
-    return NextResponse.json(
-      { status: "success", url: data.Location },
-      { status: 200 }
-    );
+      console.log("File uploaded successfully:", data);
+
+      if (data) {
+        url = data.Location!;
+        await prisma.purchase.update({
+          where: { id: purchase_id },
+          data: { signed_document_url: data.Location },
+        });
+      }
+    } catch (error) {
+      console.log("UPLOAD: ", error);
+    }
+    return NextResponse.json({ status: "success", url }, { status: 200 });
   } catch (error) {
     console.error("Error uploading file:", error);
     return NextResponse.json({ error: "File upload failed" }, { status: 500 });

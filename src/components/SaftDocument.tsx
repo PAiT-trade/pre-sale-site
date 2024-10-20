@@ -370,6 +370,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
             <Paragraph>
               3.3. All deliveries from the Sale shall be made online. Deliveries
               shall be made to your Solana account, or another wallet related to
+              <br />
               your acquisition of Tokens.
             </Paragraph>
             <Paragraph>

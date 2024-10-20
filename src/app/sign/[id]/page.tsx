@@ -3,6 +3,7 @@ import SignaturePad from "@/components/SaftDocument";
 import { useEffect, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletButton } from "@/app/solana/solana-provider";
+import { NavbarSocialsItemWallet } from "@/components/navigation/nav/Navbar.styled";
 
 interface QueryParams {
   params: {
@@ -68,10 +69,11 @@ const Home: React.FC<QueryParams> = ({ params }) => {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            zIndex: 100,
           }}
         >
-          <WalletButton>Connect Wallet</WalletButton>
+          <NavbarSocialsItemWallet>
+            <WalletButton>Connect Wallet</WalletButton>
+          </NavbarSocialsItemWallet>
         </div>
       )}
     </div>
