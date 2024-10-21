@@ -31,6 +31,11 @@ const nextConfig = {
     // ELLIPTIC
     ELLIPTIC_API_KEY: process.env.ELLIPTIC_API_KEY,
     ELLIPTIC_API_SECRET: process.env.ELLIPTIC_API_SECRET,
+    // MAIL
+    MAIL_HOST: process.env.MAIL_HOST,
+    MAIL_PORT: process.env.MAIL_PORT,
+    MAIL_USER: process.env.MAIL_USER,
+    MAIL_PASSWORD: process.env.MAIL_PASSWORD,
   },
 };
 

@@ -64,7 +64,8 @@
     "tls": "^0.0.1",
     "viem": "^2.21.1",
     "wagmi": "^2.12.8",
-    "yarn": "^1.22.22"
+    "yarn": "^1.22.22",
+    "zlib": "^1.0.5"
   },
   "devDependencies": {
     "@types/multer": "^1.4.12",

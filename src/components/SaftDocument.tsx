@@ -87,7 +87,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
   const uploadDocument = async (formData: FormData) => {
     if (formData) {
       try {
-        fetch("/api/upload-file", {
+        fetch("/api/sending-mail", {
           method: "POST",
           body: formData,
         });
@@ -164,39 +164,40 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
 
       const pdfBlob = pdf.output("blob");
       /// DOWNLOAD on IN App or PWA setup
-      const checkAppMode = () => {
-        const isInAppMode = window.matchMedia(
-          "(display-mode: standalone)"
-        ).matches;
+      // const checkAppMode = () => {
+      //   const isInAppMode = window.matchMedia(
+      //     "(display-mode: standalone)"
+      //   ).matches;
 
-        if (isInAppMode) {
-          downloadFile(pdfBlob, fileName);
-          console.log("Running in standalone or PWA mode.");
-        } else {
-          // Save the PDF
-          pdf.save(fileName);
-          console.log("Running in browser mode.");
-        }
-      };
-      // Initial check
-      checkAppMode();
-      // Listen for display mode changes
-      window
-        .matchMedia("(display-mode: standalone)")
-        .addEventListener("change", (e) => {
-          if (e.matches) {
-            downloadFile(pdfBlob, fileName);
-            console.log("App is now in standalone mode.");
-          } else {
-            // Save the PDF
-            pdf.save(fileName);
-            console.log("App is now in browser mode.");
-          }
-        });
+      //   if (isInAppMode) {
+      //     downloadFile(pdfBlob, fileName);
+      //     console.log("Running in standalone or PWA mode.");
+      //   } else {
+      //     // Save the PDF
+      //     pdf.save(fileName);
+      //     console.log("Running in browser mode.");
+      //   }
+      // };
+      // // Initial check
+      // checkAppMode();
+      // // Listen for display mode changes
+      // window
+      //   .matchMedia("(display-mode: standalone)")
+      //   .addEventListener("change", (e) => {
+      //     if (e.matches) {
+      //       downloadFile(pdfBlob, fileName);
+      //       console.log("App is now in standalone mode.");
+      //     } else {
+      //       // Save the PDF
+      //       pdf.save(fileName);
+      //       console.log("App is now in browser mode.");
+      //     }
+      //   });
 
       const formData = new FormData();
       formData.append("file", pdfBlob, fileName);
-      formData.append("purchase_id", purchaseId?.toString() || "");
+      formData.append("file_name", fileName);
+      formData.append("email", email ? email : "");
 
       for (const [key, value] of formData.entries()) {
         console.log(key, value);
