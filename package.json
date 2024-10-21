@@ -50,6 +50,7 @@
     "net": "^1.0.2",
     "next": "14.2.7",
     "nodemailer": "^6.9.15",
+    "pako": "^2.1.0",
     "pino-pretty": "^11.2.2",
     "react": "^18",
     "react-canvas-draw": "^1.2.1",
@@ -64,13 +65,13 @@
     "tls": "^0.0.1",
     "viem": "^2.21.1",
     "wagmi": "^2.12.8",
-    "yarn": "^1.22.22",
-    "zlib": "^1.0.5"
+    "yarn": "^1.22.22"
   },
   "devDependencies": {
     "@types/multer": "^1.4.12",
     "@types/node": "^22.7.5",
     "@types/nodemailer": "^6.4.16",
+    "@types/pako": "^2.0.3",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@types/react-signature-canvas": "^1.0.6",

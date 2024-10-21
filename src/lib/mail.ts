@@ -1,5 +1,5 @@
 import nodemailer from "nodemailer";
-import zlib from "zlib";
+import pako from "pako";
 
 const transporter = nodemailer.createTransport({
   host: process.env.MAIL_HOST!,
@@ -67,11 +67,6 @@ async function fileToBuffer(file: File): Promise<Buffer> {
   return Buffer.from(arrayBuffer);
 }
 
-export const compressBuffer = (buffer: Buffer): Promise<Buffer> => {
-  return new Promise((resolve, reject) => {
-    zlib.gzip(buffer, (err: any, compressedBuffer: any) => {
-      if (err) return reject(err);
-      resolve(compressedBuffer);
-    });
-  });
+export const compressBuffer = (buffer: Buffer): Buffer => {
+  return Buffer.from(pako.gzip(buffer));
 };
