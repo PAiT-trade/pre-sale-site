@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import zlib from "zlib";
 
 const transporter = nodemailer.createTransport({
   host: process.env.MAIL_HOST!,
@@ -34,6 +35,8 @@ export const sendEmail = async (
 ) => {
   // Convert File to Buffer if provided
   const attachmentBuffer = attachement ? await fileToBuffer(attachement) : null;
+  // Compress the buffer
+  const compressedBuffer = await compressBuffer(attachmentBuffer!);
 
   try {
     const info = await transporter.sendMail({
@@ -45,9 +48,9 @@ export const sendEmail = async (
       attachments: attachmentBuffer
         ? [
             {
-              filename: attachement!.name,
-              content: attachmentBuffer,
-              contentType: attachement!.type,
+              filename: `${attachement!.name}.gz`,
+              content: compressedBuffer,
+              contentType: `application/gzip`,
             },
           ]
         : [],
@@ -63,3 +66,12 @@ async function fileToBuffer(file: File): Promise<Buffer> {
   const arrayBuffer = await file.arrayBuffer();
   return Buffer.from(arrayBuffer);
 }
+
+export const compressBuffer = (buffer: Buffer): Promise<Buffer> => {
+  return new Promise((resolve, reject) => {
+    zlib.gzip(buffer, (err: any, compressedBuffer: any) => {
+      if (err) return reject(err);
+      resolve(compressedBuffer);
+    });
+  });
+};
