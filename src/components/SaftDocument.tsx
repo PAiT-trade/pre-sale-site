@@ -90,10 +90,18 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
         fetch("/api/sending-mail", {
           method: "POST",
           body: formData,
-        });
-        toast.success("Thank you for making the purchase!!!!");
-        setIsLoading(false);
-        router.push("/");
+        })
+          .then(() => {
+            toast.success("Thank you for making the purchase!!!!");
+            setIsLoading(false);
+            router.push("/");
+          })
+          .catch(() => {
+            setIsLoading(false);
+            toast.error(
+              "Error sending email. Please contact PAiT team for support. Thank you!!!"
+            );
+          });
       } catch (error) {
         console.log("App Error: ", error);
       }
@@ -146,7 +154,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
           pageCanvas.height
         );
 
-        const pageData = pageCanvas.toDataURL("image/png");
+        const pageData = pageCanvas.toDataURL("image/png", 0.2);
         if (i > 0) pdf.addPage();
         pdf.addImage(
           pageData,
@@ -161,6 +169,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
       }
 
       const fileName = `PAiT_SAFT_AGGREEMENT_DOCUMENT-${name}-${uuidv4()}-${publicKey?.toBase58()}.pdf`;
+      pdf.save(fileName);
 
       const pdfBlob = pdf.output("blob");
       /// DOWNLOAD on IN App or PWA setup
@@ -204,7 +213,6 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
       }
 
       await uploadDocument(formData);
-      setIsLoading(false);
       return formData;
     });
     return null;

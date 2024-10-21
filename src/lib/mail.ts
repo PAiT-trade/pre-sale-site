@@ -6,7 +6,7 @@ const transporter = nodemailer.createTransport({
   port: 587,
   secure: false,
   tls: {
-    rejectUnauthorized: false, // Disable certificate verification (for testing only)
+    rejectUnauthorized: false,
   },
   auth: {
     user: process.env.MAIL_USER!,
@@ -14,18 +14,6 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-console.log({
-  host: process.env.MAIL_HOST!,
-  port: 587,
-  secure: false,
-  tls: {
-    ciphers: "SSLv3",
-  },
-  auth: {
-    user: process.env.MAIL_USER!,
-    pass: process.env.MAIL_PASSWORD!,
-  },
-});
 export const sendEmail = async (
   to: string,
   subject: string,
@@ -68,5 +56,7 @@ async function fileToBuffer(file: File): Promise<Buffer> {
 }
 
 export const compressBuffer = (buffer: Buffer): Buffer => {
-  return Buffer.from(pako.gzip(buffer));
+  // Set maximum compression level
+  const compressed = pako.gzip(buffer, { level: 8 });
+  return Buffer.from(compressed);
 };

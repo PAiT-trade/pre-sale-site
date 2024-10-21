@@ -127,10 +127,14 @@ export const MobileMenu = () => {
       <DropdownButton onClick={toggleDropdown}>
         <AlignRightIcon />
       </DropdownButton>
-      <DropdownMenu isopen={isOpen}>
-        <DropdownItem href="#home">Home</DropdownItem>
-        <DropdownItem href="#about">About Us</DropdownItem>
-        <DropdownItem href="#support">Support</DropdownItem>
+      <DropdownMenu isopen={isOpen.toString()}>
+        <DropdownItem href="https://pait.fi" target="_blank">
+          Home
+        </DropdownItem>
+        <DropdownItem href="https://pait.gitbook.io/pait" target="_blank">
+          White Paper
+        </DropdownItem>
+        <DropdownItem href="#telegram">Join Telegram</DropdownItem>
         <DropdownItemDiv>
           <WalletButton>
             {connected && publicKey
@@ -166,11 +170,11 @@ const DropdownButton = styled.button`
 `;
 
 interface DropdownMenuProps {
-  isopen: boolean;
+  isopen: string;
 }
 
 const DropdownMenu = styled.div<DropdownMenuProps>`
-  display: ${({ isopen }) => (isopen ? "block" : "none")};
+  display: ${({ isopen }) => (isopen === "true" ? "block" : "none")};
   position: absolute;
   background-color: #191c26;
   min-width: 16rem;
