@@ -1,12 +1,13 @@
 import nodemailer from "nodemailer";
 import pako from "pako";
+import { Readable } from "stream";
 
 const transporter = nodemailer.createTransport({
   host: process.env.MAIL_HOST!,
   port: 587,
   secure: false,
   tls: {
-    rejectUnauthorized: false, // Disable certificate verification (for testing only)
+    rejectUnauthorized: false,
   },
   auth: {
     user: process.env.MAIL_USER!,
@@ -14,18 +15,6 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-console.log({
-  host: process.env.MAIL_HOST!,
-  port: 587,
-  secure: false,
-  tls: {
-    ciphers: "SSLv3",
-  },
-  auth: {
-    user: process.env.MAIL_USER!,
-    pass: process.env.MAIL_PASSWORD!,
-  },
-});
 export const sendEmail = async (
   to: string,
   subject: string,
@@ -36,7 +25,7 @@ export const sendEmail = async (
   // Convert File to Buffer if provided
   const attachmentBuffer = attachement ? await fileToBuffer(attachement) : null;
   // Compress the buffer
-  const compressedBuffer = await compressBuffer(attachmentBuffer!);
+  const compressedBuffer = compressBuffer(attachmentBuffer!);
 
   try {
     const info = await transporter.sendMail({
@@ -49,7 +38,7 @@ export const sendEmail = async (
         ? [
             {
               filename: `${attachement!.name}.gz`,
-              content: compressedBuffer,
+              content: bufferToStream(compressedBuffer),
               contentType: `application/gzip`,
             },
           ]
@@ -62,11 +51,22 @@ export const sendEmail = async (
   }
 };
 
+// Stream the compressed buffer to the email attachment
+const bufferToStream = (buffer: Buffer): Readable => {
+  const readable = new Readable();
+  readable._read = () => {}; // No-op
+  readable.push(buffer);
+  readable.push(null);
+  return readable;
+};
+
 async function fileToBuffer(file: File): Promise<Buffer> {
   const arrayBuffer = await file.arrayBuffer();
   return Buffer.from(arrayBuffer);
 }
 
 export const compressBuffer = (buffer: Buffer): Buffer => {
-  return Buffer.from(pako.gzip(buffer));
+  // Set maximum compression level
+  const compressed = pako.gzip(buffer, { level: 8 });
+  return Buffer.from(compressed);
 };
