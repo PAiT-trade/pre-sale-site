@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import {
   BuyCardContainer,
   BuyCardHeader,
@@ -145,7 +145,6 @@ export const BuyCard: React.FC<BuyCardProps> = ({
         )}
       </div>
       <BuyCardActionWrapper>
-        {/* <BuyCardsText>Choose payment method</BuyCardsText> */}
         <BuyCardActionButtonWrapper>
           <BuyCardActionButton
             bgcolor={paymentMethod == "usdc" ? "#131928" : ""}
@@ -161,12 +160,7 @@ export const BuyCard: React.FC<BuyCardProps> = ({
           <BuyCardActionButton
             bgcolor="#3a4662"
             onClick={() => setPaymentMethod("card")}
-          >
-            {/* <BuyCardActionButtonIcon>
-              <CreditCardIcon size={16} />
-            </BuyCardActionButtonIcon>
-            <BuyCardActionButtonText>Credit Card</BuyCardActionButtonText> */}
-          </BuyCardActionButton>
+          ></BuyCardActionButton>
         </BuyCardActionButtonWrapper>
 
         <BuyCardControlGroup>
@@ -249,14 +243,6 @@ export const BuyCard: React.FC<BuyCardProps> = ({
           )}
         </BuyCardControlGroup>
       </BuyCardActionWrapper>
-
-      {/* {!isConnected ? (
-        <Link href={"/wallet"}>
-          <DontHaveWallet href="#" target="_blank">
-            Do not have wallet?
-          </DontHaveWallet>
-        </Link>
-      ) : null} */}
     </BuyCardContainer>
   );
 };
