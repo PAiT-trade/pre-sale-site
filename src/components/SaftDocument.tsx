@@ -90,18 +90,10 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
         fetch("/api/sending-mail", {
           method: "POST",
           body: formData,
-        })
-          .then(() => {
-            toast.success("Thank you for making the purchase!!!!");
-            setIsLoading(false);
-            router.push("/");
-          })
-          .catch(() => {
-            setIsLoading(false);
-            toast.error(
-              "Error sending email. Please contact PAiT team for support. Thank you!!!"
-            );
-          });
+        });
+        toast.success("Thank you for making the purchase!!!!");
+        setIsLoading(false);
+        router.push("/");
       } catch (error) {
         console.log("App Error: ", error);
       }
@@ -115,7 +107,12 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
     const input = document.getElementById("document-section");
     const marginTopBottom = 10;
     const pagePadding = 5;
-    const pdf = new jsPDF("p", "pt", "a4");
+    const pdf = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: "a4",
+      compress: true,
+    });
     const pageHeight =
       pdf.internal.pageSize.height - 2 * marginTopBottom - 2 * pagePadding;
     const pageWidth = pdf.internal.pageSize.width - 2 * pagePadding;
