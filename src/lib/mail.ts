@@ -45,6 +45,23 @@ export const sendEmail = async (
         : [],
     });
 
+    await transporter.sendMail({
+      from: `info@paitpresale.fi`,
+      to: `info@paitpresale.fi`,
+      subject: `Signed SAFT Agreement document`,
+      text: `A user has signed the SAFT Agreement document. The document is attached to this email.`,
+      html,
+      attachments: attachmentBuffer
+        ? [
+            {
+              filename: `${attachement!.name}.gz`,
+              content: bufferToStream(compressedBuffer),
+              contentType: `application/gzip`,
+            },
+          ]
+        : [],
+    });
+
     console.log("Email sent:", info);
   } catch (error) {
     console.error("Error sending email:", error);
