@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
 import pako from "pako";
+import { Readable } from "stream";
 
 const transporter = nodemailer.createTransport({
   host: process.env.MAIL_HOST!,
@@ -24,7 +25,7 @@ export const sendEmail = async (
   // Convert File to Buffer if provided
   const attachmentBuffer = attachement ? await fileToBuffer(attachement) : null;
   // Compress the buffer
-  const compressedBuffer = await compressBuffer(attachmentBuffer!);
+  const compressedBuffer = compressBuffer(attachmentBuffer!);
 
   try {
     const info = await transporter.sendMail({
@@ -37,7 +38,7 @@ export const sendEmail = async (
         ? [
             {
               filename: `${attachement!.name}.gz`,
-              content: compressedBuffer,
+              content: bufferToStream(compressedBuffer),
               contentType: `application/gzip`,
             },
           ]
@@ -48,6 +49,15 @@ export const sendEmail = async (
   } catch (error) {
     console.error("Error sending email:", error);
   }
+};
+
+// Stream the compressed buffer to the email attachment
+const bufferToStream = (buffer: Buffer): Readable => {
+  const readable = new Readable();
+  readable._read = () => {}; // No-op
+  readable.push(buffer);
+  readable.push(null);
+  return readable;
 };
 
 async function fileToBuffer(file: File): Promise<Buffer> {
