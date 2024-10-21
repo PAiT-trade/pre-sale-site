@@ -514,16 +514,6 @@ export default function Home() {
         wrap="nowrap"
       >
         <FlexItem>
-          {/* <Button
-            label="Pay with Card"
-            icon={<CreditCardIcon />}
-            onClick={() => {
-              setIsMoonPayEnabled(false);
-              setIsTransakEnabled(false);
-              setPaymentModal(!paymentModal);
-            }}
-          /> */}
-
           <BuyCard
             allocations={allocations}
             isInValid={isInValid}
@@ -589,8 +579,8 @@ export default function Home() {
                 press the "Buy PAiT" button
               </PageDescription>
               <PageDescription>
-                5. Sign the SAFT Agreement , and the contract will be
-                automatically downloaded.
+                5. Sign the SAFT Agreement, and the contract will be sent to
+                your email
               </PageDescription>
               <PageDescription
                 style={{
@@ -604,12 +594,12 @@ export default function Home() {
                 <ul style={{ marginLeft: "1.5rem" }}>
                   <li>
                     Get 5% cashback in USDC and 2.5% in PAiT tokens for each
-                    personal referral.
+                    personal referral
                   </li>
                   <li>
                     {" "}
                     Earn an extra 2.5% in PAiT tokens through secondary
-                    referrals as the community grows.
+                    referrals as the community grows
                   </li>
                 </ul>
                 <div
@@ -642,9 +632,9 @@ export default function Home() {
             </TermsAndCondition>
 
             <Terms>
-              Token sale will be conducted ONLY via official PAiT presale page.
-              Token sale on Launchpads or any other outlets that will be
-              announced through PAiT official channels in later stages.
+              DO NOT purchase tokens in any other platforms that are not
+              announced in the official PAiT channels. PAiT team will NOT
+              contact anyone directly with any offers of any kind
             </Terms>
 
             <ModalSection
