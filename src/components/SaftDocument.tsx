@@ -166,40 +166,9 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
       }
 
       const fileName = `PAiT_SAFT_AGGREEMENT_DOCUMENT-${name}-${uuidv4()}-${publicKey?.toBase58()}.pdf`;
-      pdf.save(fileName);
+      // pdf.save(fileName);
 
       const pdfBlob = pdf.output("blob");
-      /// DOWNLOAD on IN App or PWA setup
-      // const checkAppMode = () => {
-      //   const isInAppMode = window.matchMedia(
-      //     "(display-mode: standalone)"
-      //   ).matches;
-
-      //   if (isInAppMode) {
-      //     downloadFile(pdfBlob, fileName);
-      //     console.log("Running in standalone or PWA mode.");
-      //   } else {
-      //     // Save the PDF
-      //     pdf.save(fileName);
-      //     console.log("Running in browser mode.");
-      //   }
-      // };
-      // // Initial check
-      // checkAppMode();
-      // // Listen for display mode changes
-      // window
-      //   .matchMedia("(display-mode: standalone)")
-      //   .addEventListener("change", (e) => {
-      //     if (e.matches) {
-      //       downloadFile(pdfBlob, fileName);
-      //       console.log("App is now in standalone mode.");
-      //     } else {
-      //       // Save the PDF
-      //       pdf.save(fileName);
-      //       console.log("App is now in browser mode.");
-      //     }
-      //   });
-
       const formData = new FormData();
       formData.append("file", pdfBlob, fileName);
       formData.append("file_name", fileName);

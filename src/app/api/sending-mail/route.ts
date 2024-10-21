@@ -1,4 +1,3 @@
-import { get_analysis } from "@/lib/elliptic";
 import { sendEmail } from "@/lib/mail";
 import { NextResponse } from "next/server";
 
