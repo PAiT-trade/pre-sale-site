@@ -592,11 +592,37 @@ export default function Home() {
                 5. Sign the SAFT Agreement , and the contract will be
                 automatically downloaded.
               </PageDescription>
-              <PageDescription>
+              <PageDescription
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  flexDirection: "column",
+                }}
+              >
                 {" "}
-                6. Earn 5% cashback in USDC and 2.5% in PAiT tokens for each
-                successful personal referral, plus an additional 2.5% in PAiT
-                tokens through secondary referrals as the community grows.
+                <p>6. Earn rewards for referrals:</p>
+                <ul style={{ marginLeft: "1.5rem" }}>
+                  <li>
+                    Get 5% cashback in USDC and 2.5% in PAiT tokens for each
+                    personal referral.
+                  </li>
+                  <li>
+                    {" "}
+                    Earn an extra 2.5% in PAiT tokens through secondary
+                    referrals as the community grows.
+                  </li>
+                </ul>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "flex-start",
+                    marginTop: "0.8rem",
+                  }}
+                >
+                  <p>[Cash back payouts 6pm-9pm next day]</p>
+                  <p>[All referrals tokens unlocked on TGE]</p>
+                </div>
               </PageDescription>
             </PageContent>
 
