@@ -84,6 +84,19 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
     });
   };
 
+  const updatePurchase = async () => {
+    try {
+      fetch(`/api/update-purchase/${purchaseId}`, {
+        method: "POST",
+        body: JSON.stringify({
+          email,
+          name,
+        }),
+      });
+    } catch (error) {
+      console.log("App Error: ", error);
+    }
+  };
   const uploadDocument = async (formData: FormData) => {
     if (formData) {
       try {
@@ -177,7 +190,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
       for (const [key, value] of formData.entries()) {
         console.log(key, value);
       }
-
+      await updatePurchase();
       await uploadDocument(formData);
       return formData;
     });
