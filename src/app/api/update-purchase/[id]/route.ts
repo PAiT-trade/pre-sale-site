@@ -21,9 +21,8 @@ export async function POST(
 
     const purchaseId = parseInt(id, 10);
 
-    const purchase = await prisma.purchase.update({
+    const purchase = await prisma.purchase.findFirst({
       where: { id: purchaseId },
-      data: {},
     });
 
     if (!purchase) {
@@ -36,6 +35,27 @@ export async function POST(
       );
     }
 
+    const user = await prisma.user.findFirst({
+      where: { id: purchase.user_id },
+    });
+    if (!user) {
+      return NextResponse.json(
+        {
+          status: "error",
+          message: "User not found",
+        },
+        { status: 404 }
+      );
+    }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        email: data.email,
+        name: data.name,
+        telegram: data.telegram,
+      },
+    });
     return NextResponse.json({
       status: "success",
       purchase: purchase,

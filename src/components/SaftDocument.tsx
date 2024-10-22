@@ -16,6 +16,8 @@ interface SignaturePadProps {
   name?: string;
   email?: string;
   purchaseId?: number;
+  telegram?: string;
+  setTelegram?: (telegram: string) => void;
   setName?: (name: string) => void;
   setEmail?: (email: string) => void;
   showSignature: boolean;
@@ -29,6 +31,8 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
   name,
   setName,
   purchaseId,
+  telegram,
+  setTelegram,
   setEmail,
   showSignature,
   tokens,
@@ -77,6 +81,12 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
       setIsLoading(false);
       return;
     }
+
+    if (!telegram) {
+      toast.error("Please provide your telegram handle to proceed");
+      setIsLoading(false);
+      return;
+    }
     await generatePDF().catch((_error) => {
       toast.error(
         "Error downloading your pdf document. Please contact PAiT team for support. Thank you!!!"
@@ -84,6 +94,19 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
     });
   };
 
+  const updatePurchase = async () => {
+    try {
+      fetch(`/api/update-purchase/${purchaseId}`, {
+        method: "POST",
+        body: JSON.stringify({
+          email,
+          name,
+        }),
+      });
+    } catch (error) {
+      console.log("App Error: ", error);
+    }
+  };
   const uploadDocument = async (formData: FormData) => {
     if (formData) {
       try {
@@ -177,7 +200,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
       for (const [key, value] of formData.entries()) {
         console.log(key, value);
       }
-
+      await updatePurchase();
       await uploadDocument(formData);
       return formData;
     });
@@ -580,6 +603,20 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
                       }
                     }}
                     placeholder="email@email.com"
+                  />
+                </UserInputGroup>
+
+                <UserInputGroup>
+                  <UserInputLabel>Telegram Handle: </UserInputLabel>
+                  <UserInput
+                    value={telegram}
+                    border="red"
+                    onChange={(e) => {
+                      if (setTelegram) {
+                        setTelegram(e.target.value);
+                      }
+                    }}
+                    placeholder="@pait_app"
                   />
                 </UserInputGroup>
 
