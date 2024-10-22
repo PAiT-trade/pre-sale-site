@@ -53,7 +53,7 @@ export async function POST(
       data: {
         email: data.email,
         name: data.name,
-        telegram: data.telegram,
+        telegram: data.telegram ? data.telegram : "",
       },
     });
     return NextResponse.json({
