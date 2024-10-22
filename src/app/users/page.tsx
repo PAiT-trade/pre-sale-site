@@ -12,6 +12,21 @@ export default function KYC() {
     useAnalyzedWallet();
 
   const [users, setUsers] = useState<Array<User>>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = 5;
+
+  // Calculate index of first and last user in the current page
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+
+  // Slice the users to display only the current page
+  const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
+
+  // Total pages
+  const totalPages = Math.ceil(users.length / usersPerPage);
+
+  // Change page
+  const handlePageChange = (pageNumber: number) => setCurrentPage(pageNumber);
 
   useEffect(() => {
     if (connected && publicKey) {
@@ -52,33 +67,59 @@ export default function KYC() {
     <PagesWrapper>
       {connected ? (
         <div style={{ padding: "1rem" }}>
-          <PageTitle>PAiT Users </PageTitle>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableHeader>ID</TableHeader>
-                <TableHeader>Name</TableHeader>
-                <TableHeader>Wallet</TableHeader>
-                <TableHeader>Email</TableHeader>
-                <TableHeader>Referral Earnings</TableHeader>
-              </TableRow>
-            </TableHead>
-            <tbody>
-              {users
-                .filter((item) => item.name)
-                .map((user, index) => (
-                  <TableRow key={index}>
-                    <TableData>{user.id}</TableData>
-                    <TableData>{user.name}</TableData>
-                    <TableData>{user.wallet}</TableData>
-                    <TableData>{user.email}</TableData>
-                    <TableData style={{ textAlign: "center" }}>
-                      {user.referral_earnings ? user.referral_earnings : 0}
-                    </TableData>
-                  </TableRow>
-                ))}
-            </tbody>
-          </Table>
+          <Container>
+            <PageTitle>PAiT Users </PageTitle>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableHeader>#</TableHeader>
+                  <TableHeader>Name</TableHeader>
+                  <TableHeader>Wallet</TableHeader>
+                  <TableHeader>Email</TableHeader>
+                  <TableHeader>Referral Earnings</TableHeader>
+                </TableRow>
+              </TableHead>
+              <tbody>
+                {currentUsers
+                  .filter((item) => item.name)
+                  .map((user, index) => (
+                    <TableRow key={index}>
+                      <TableData>{index + 1}</TableData>
+                      <TableData>{user.name}</TableData>
+                      <TableData>{user.wallet}</TableData>
+                      <TableData>{user.email ? user.email : "N/A"}</TableData>
+                      <TableData style={{ textAlign: "center" }}>
+                        {user.referral_earnings ? user.referral_earnings : 0}
+                      </TableData>
+                    </TableRow>
+                  ))}
+              </tbody>
+            </Table>
+
+            <Pagination>
+              <PageButton
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                Prev
+              </PageButton>
+              {[...Array(totalPages).keys()].map((number) => (
+                <PageButton
+                  key={number}
+                  onClick={() => handlePageChange(number + 1)}
+                  disabled={currentPage === number + 1}
+                >
+                  {number + 1}
+                </PageButton>
+              ))}
+              <PageButton
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </PageButton>
+            </Pagination>
+          </Container>
         </div>
       ) : (
         <div
@@ -96,11 +137,18 @@ export default function KYC() {
   );
 }
 
+const Container = styled.div`
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+`;
+
 // Styled components
 const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
-  margin: 20px 0;
+  margin: 10px 0;
   font-size: 16px;
 `;
 
@@ -122,4 +170,24 @@ const TableData = styled.td`
   padding: 12px 15px;
   border: 1px solid #ddd;
   border-radius: 5px;
+`;
+
+const Pagination = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+`;
+
+const PageButton = styled.button`
+  padding: 8px 12px;
+  border: none;
+  border: 1px solid #80dcd7;
+  background-color: #343e56;
+  color: #fff;
+  border-radius: 5px;
+  cursor: pointer;
+  &:disabled {
+    cursor: not-allowed;
+    background-color: #1c2130;
+  }
 `;
