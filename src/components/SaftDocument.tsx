@@ -1,7 +1,8 @@
 import React, { useRef, useEffect, useState } from "react";
 import styled from "styled-components";
 import moment from "moment";
-import html2canvas from "html2canvas";
+// import html2canvas from "html2canvas";
+import domtoimage from "dom-to-image";
 import jsPDF from "jspdf";
 import toast from "react-hot-toast";
 import { useWallet } from "@solana/wallet-adapter-react";
@@ -82,11 +83,19 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
       return;
     }
 
-    await generatePDF().catch((_error) => {
-      toast.error(
-        "Error downloading your pdf document. Please contact PAiT team for support. Thank you!!!"
-      );
-    });
+    await generatePDF()
+      .then(() => {
+        toast.success("PDF generated successfully");
+        setIsLoading(false);
+      })
+      .catch((_error) => {
+        console.log("Error generating PDF: ", _error);
+        setIsLoading(false);
+        toast.error(
+          "Error downloading your pdf document. Please contact PAiT team for support. Thank you!!!",
+          _error
+        );
+      });
   };
 
   const updatePurchase = async () => {
@@ -117,97 +126,88 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
       }
     }
   };
-
-  const generatePDF = async (): Promise<FormData | null> => {
-    setIsLoading(true);
-    toast.success("Please wait as we complete your purchase process!!!");
-    console.group("Generating PDF");
-    const input = document.getElementById("document-section");
-    const marginTopBottom = 10;
-    const pagePadding = 5;
-    const pdf = new jsPDF({
-      orientation: "portrait",
-      unit: "mm",
-      format: "a4",
-      compress: true,
+  const canvasBlobToDataURL = (blob: any) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
     });
-    const pageHeight =
-      pdf.internal.pageSize.height - 2 * marginTopBottom - 2 * pagePadding;
-    const pageWidth = pdf.internal.pageSize.width - 2 * pagePadding;
-    let currentPosition = 0;
-    if (!input) {
-      return null;
-    }
-    html2canvas(input, { scale: 3 }).then(async (canvas) => {
-      const totalCanvasHeight = canvas.height;
-      const totalPDFPages = Math.ceil(
-        totalCanvasHeight / ((pageHeight * canvas.width) / pageWidth)
-      );
-
-      for (let i = 0; i < totalPDFPages; i++) {
-        const pageCanvas = document.createElement("canvas");
-        pageCanvas.width = canvas.width;
-        pageCanvas.height = (pageHeight * canvas.width) / pageWidth;
-
-        const pageCtx = pageCanvas.getContext("2d");
-
-        if (!pageCtx) {
-          return null;
-        }
-        pageCtx.fillStyle = "white";
-        pageCtx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
-
-        pageCtx.drawImage(
-          canvas,
-          0,
-          currentPosition,
-          canvas.width,
-          pageCanvas.height,
-          0,
-          0,
-          canvas.width,
-          pageCanvas.height
-        );
-
-        const pageData = pageCanvas.toDataURL("image/png", 0.2);
-        if (i > 0) pdf.addPage();
-        pdf.addImage(
-          pageData,
-          "PNG",
-          pagePadding,
-          marginTopBottom + pagePadding,
-          pageWidth,
-          pageHeight
-        );
-
-        currentPosition += (pageHeight * canvas.width) / pageWidth;
+  };
+  const generatePDF = async () => {
+    try {
+      setIsLoading(true);
+      toast.success("Please wait as we complete your purchase process!!!");
+      console.group("Generating PDF");
+      const input = document.getElementById("document-section");
+      if (!input) {
+        throw new Error("No input found");
       }
+      const marginTopBottom = 10;
+      const pagePadding = 5;
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
 
+      const pageHeight = pdf.internal.pageSize.height;
+      const pageWidth = pdf.internal.pageSize.width;
+
+      // Calculate the total height of the input element
+      const totalHeight = input.scrollHeight;
+      const segmentHeight = pageHeight * 3.78; // Convert mm to px (approx. scale)
+      let currentPosition = 0;
+      while (currentPosition < totalHeight) {
+        // Clone the input element to avoid modifying the original element
+        const clone = document.createElement("div");
+        clone.innerHTML = input.innerHTML;
+
+        // Apply styles to the clone to create the segment
+        clone.style.height = `${segmentHeight}px`;
+        clone.style.overflow = "hidden";
+        clone.style.position = "absolute";
+        clone.style.top = `-${currentPosition}px`;
+        clone.style.left = "0";
+        clone.style.backgroundColor = "#fff"; // Ensure white background for clarity
+        clone.style.zIndex = "-1";
+
+        document.body.appendChild(clone);
+
+        // Generate the segment image
+        const imgData = await domtoimage.toPng(clone);
+
+        // Add image to the PDF
+        pdf.addImage(imgData, "PNG", 0, 0, pageWidth, pageHeight);
+
+        currentPosition += segmentHeight;
+        if (currentPosition < totalHeight) {
+          pdf.addPage();
+        }
+
+        // Clean up the cloned element
+        document.body.removeChild(clone);
+      }
       const fileName = `PAiT_SAFT_AGGREEMENT_DOCUMENT-${name}-${uuidv4()}-${publicKey?.toBase58()}.pdf`;
-      // pdf.save(fileName);
 
-      const pdfBlob = pdf.output("blob");
       const formData = new FormData();
-
-      // const pdfFile = new File([pdfBlob], fileName, {
-      //   type: "application/pdf",
-      // });
-      // formData.append("file", pdfFile);
-      // formData.append("file_name", fileName);
+      const pdfBlob = pdf.output("blob");
       const reader = new FileReader();
       reader.onloadend = () => {
-        const base64data =
-          typeof reader.result === "string" ? reader.result.split(",")[1] : "";
-        formData.append("file", base64data);
-        formData.append("file_name", fileName);
-
-        if (email && email.includes("@")) {
-          formData.append("email", email);
+        const base64data = reader.result;
+        if (base64data) {
+          const pdfFile = new File([base64data], fileName, {
+            type: "application/pdf",
+          });
+          formData.append("file", pdfFile);
+        } else {
+          toast.error("Failed to generate PDF file.");
+          setIsLoading(false);
+          return;
         }
-
-        // Send formData as before
       };
       reader.readAsDataURL(pdfBlob);
+      formData.append("file_name", fileName);
 
       if (email && email.includes("@")) {
         formData.append("email", email ? email : "");
@@ -219,8 +219,9 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
       await updatePurchase();
       await uploadDocument(formData);
       return formData;
-    });
-    return null;
+    } catch (error: any) {
+      toast.error(`Error: ${error}`);
+    }
   };
 
   const downloadFile = (blob: Blob, fileName: string) => {
@@ -734,7 +735,7 @@ const DocumentContainer = styled.div`
 
 const Title = styled.h1`
   text-align: left;
-  font-size: 2rem;
+  font-size: 18px;
   margin-bottom: 20px;
 
   @media (max-width: 600px) {
@@ -756,14 +757,14 @@ const Subtitle = styled.h2`
   }
 
   @media print {
-    font-size: 1.2rem;
+    font-size: 1.18px;
     margin: 5px 0;
     page-break-after: avoid;
   }
 `;
 
 const Paragraph = styled.p`
-  font-size: 1rem;
+  font-size: 12px;
   line-height: 1.5;
   margin: 10px 0;
 
@@ -821,7 +822,7 @@ const SignatureContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 2rem;
+  margin-top: 18px;
 
   @media (min-width: 600px) {
     flex-direction: row;
@@ -829,7 +830,7 @@ const SignatureContainer = styled.div`
   }
 
   @media print {
-    margin-top: 1rem;
+    margin-top: 12px;
     page-break-inside: avoid; /* Keep signatures together */
   }
 `;
@@ -839,7 +840,7 @@ const Button = styled.button`
   padding: 0.5rem 1.4rem;
   outline-width: 0;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 12px;
 
   @media (max-width: 600px) {
     font-size: 1.4rem;
