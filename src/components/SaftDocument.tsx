@@ -185,32 +185,23 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
           pdf.addPage();
         }
 
-        // Clean up the cloned element
         document.body.removeChild(clone);
       }
       const fileName = `PAiT_SAFT_AGGREEMENT_DOCUMENT-${name}-${uuidv4()}-${publicKey?.toBase58()}.pdf`;
 
       const formData = new FormData();
       const pdfBlob = pdf.output("blob");
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64data = reader.result;
-        if (base64data) {
-          const pdfFile = new File([base64data], fileName, {
-            type: "application/pdf",
-          });
-          formData.append("file", pdfFile);
-        } else {
-          toast.error("Failed to generate PDF file.");
-          setIsLoading(false);
-          return;
-        }
-      };
-      reader.readAsDataURL(pdfBlob);
+      const pdfFile = new File([pdfBlob], fileName, {
+        type: "application/pdf",
+      });
+      formData.append("file", pdfFile);
       formData.append("file_name", fileName);
 
+      // Ensure email is valid and append it
       if (email && email.includes("@")) {
-        formData.append("email", email ? email : "");
+        formData.append("email", email);
+      } else {
+        console.error("Invalid email address");
       }
 
       for (const [key, value] of formData.entries()) {
