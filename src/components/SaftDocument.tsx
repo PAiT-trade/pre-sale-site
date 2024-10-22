@@ -16,6 +16,8 @@ interface SignaturePadProps {
   name?: string;
   email?: string;
   purchaseId?: number;
+  telegram?: string;
+  setTelegram?: (telegram: string) => void;
   setName?: (name: string) => void;
   setEmail?: (email: string) => void;
   showSignature: boolean;
@@ -29,6 +31,8 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
   name,
   setName,
   purchaseId,
+  telegram,
+  setTelegram,
   setEmail,
   showSignature,
   tokens,
@@ -74,6 +78,12 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
     }
     if (!name || !email) {
       toast.error("Please provide your email to proceed");
+      setIsLoading(false);
+      return;
+    }
+
+    if (!telegram) {
+      toast.error("Please provide your telegram handle to proceed");
       setIsLoading(false);
       return;
     }
@@ -593,6 +603,20 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
                       }
                     }}
                     placeholder="email@email.com"
+                  />
+                </UserInputGroup>
+
+                <UserInputGroup>
+                  <UserInputLabel>Telegram Handle: </UserInputLabel>
+                  <UserInput
+                    value={telegram}
+                    border="red"
+                    onChange={(e) => {
+                      if (setTelegram) {
+                        setTelegram(e.target.value);
+                      }
+                    }}
+                    placeholder="@pait_app"
                   />
                 </UserInputGroup>
 

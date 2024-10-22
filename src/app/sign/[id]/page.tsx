@@ -17,6 +17,7 @@ const Home: React.FC<QueryParams> = ({ params }) => {
   const [email, setEmail] = useState("");
   const [tokens, setTokens] = useState("");
   const [name, setName] = useState("");
+  const [telegram, setTelegram] = useState("");
   const { connected, publicKey, isValidWallet, disconnect } =
     useAnalyzedWallet();
 
@@ -74,6 +75,8 @@ const Home: React.FC<QueryParams> = ({ params }) => {
           email={email}
           purchaseId={Number(id)}
           tokens={Number(tokens)}
+          telegram={telegram}
+          setTelegram={setTelegram}
           setName={setName}
           setEmail={setEmail}
           address={publicKey!}

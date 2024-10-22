@@ -14,6 +14,7 @@ model User {
   referral          String     @default("")
   is_approved       Boolean    @default(false)
   name              String?    @default("")
+  telegram          String?    @default("")
   email             String?    @default("")
   referral_earnings Float      @default(0)
   purchases         Purchase[]
