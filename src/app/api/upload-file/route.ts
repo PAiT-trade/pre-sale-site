@@ -40,10 +40,10 @@ export async function POST(req: Request) {
 
       if (data) {
         url = data.Location!;
-        await prisma.purchase.update({
-          where: { id: purchase_id },
-          data: { signed_document_url: data.Location },
-        });
+        // await prisma.purchase.update({
+        //   where: { id: purchase_id },
+        //   data: { signed_document_url: data.Location },
+        // });
       }
     } catch (error) {
       console.log("UPLOAD: ", error);

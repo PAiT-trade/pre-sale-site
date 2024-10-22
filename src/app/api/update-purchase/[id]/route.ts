@@ -23,9 +23,7 @@ export async function POST(
 
     const purchase = await prisma.purchase.update({
       where: { id: purchaseId },
-      data: {
-        signed_document_url: data.url,
-      },
+      data: {},
     });
 
     if (!purchase) {
