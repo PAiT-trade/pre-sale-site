@@ -193,9 +193,16 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
 
       const pdfBlob = pdf.output("blob");
       const formData = new FormData();
-      formData.append("file", pdfBlob, fileName);
+
+      const pdfFile = new File([pdfBlob], fileName, {
+        type: "application/pdf",
+      });
+      formData.append("file", pdfFile);
       formData.append("file_name", fileName);
-      formData.append("email", email ? email : "");
+
+      if (email && email.includes("@")) {
+        formData.append("email", email ? email : "");
+      }
 
       for (const [key, value] of formData.entries()) {
         console.log(key, value);
