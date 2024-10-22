@@ -11,22 +11,29 @@ import {
   NavbarSocialsItemWallet,
 } from "./Navbar.styled";
 import { WalletButton } from "@/app/solana/solana-provider";
-import { useWallet } from "@/context/WalletContext";
-import { useWallet as useConnectWallet } from "@solana/wallet-adapter-react";
 import { MobileMenu } from "./MobileMenu";
+import { useAnalyzedWallet } from "@/context/connect-wallet-context";
+import toast from "react-hot-toast";
 
 interface NavbarProps {}
 export const Navbar: React.FC<NavbarProps> = () => {
   // wallet created by user
-  const { publicKey, connectWallet, isWalletConnected } = useWallet();
   // connected to phatom wallet
-  const { connected, publicKey: phantomPublicKey } = useConnectWallet();
+  const { connected, publicKey, isValidWallet, disconnect } =
+    useAnalyzedWallet();
 
   useEffect(() => {
-    if (connected && phantomPublicKey) {
-      connectWallet();
+    if (connected && publicKey) {
+      if (isValidWallet) {
+        console.log("Connected to wallet", publicKey);
+      } else {
+        toast.error(
+          "This wallet is not valid. It might be a compromised wallet, please use another one"
+        );
+        disconnect();
+      }
     }
-  }, [connected, phantomPublicKey, connectWallet]);
+  }, [connected, publicKey, isValidWallet]);
 
   return (
     <NavbarWrapper>
@@ -47,10 +54,8 @@ export const Navbar: React.FC<NavbarProps> = () => {
           <NavbarSocialsItem>
             <NavbarSocialsItemWallet suppressHydrationWarning>
               <WalletButton>
-                {connected && phantomPublicKey
-                  ? phantomPublicKey?.toBase58().slice(0, 6) +
-                    "..." +
-                    phantomPublicKey?.toBase58().slice(-6)
+                {connected && publicKey
+                  ? publicKey.slice(0, 6) + "..." + publicKey.slice(-6)
                   : "Connect Wallet"}
               </WalletButton>
             </NavbarSocialsItemWallet>

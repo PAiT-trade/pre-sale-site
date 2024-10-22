@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletButton } from "@/app/solana/solana-provider";
 import { NavbarSocialsItemWallet } from "@/components/navigation/nav/Navbar.styled";
+import { useAnalyzedWallet } from "@/context/connect-wallet-context";
+import toast from "react-hot-toast";
 
 interface QueryParams {
   params: {
@@ -15,7 +17,21 @@ const Home: React.FC<QueryParams> = ({ params }) => {
   const [email, setEmail] = useState("");
   const [tokens, setTokens] = useState("");
   const [name, setName] = useState("");
-  const { connected, publicKey } = useWallet();
+  const { connected, publicKey, isValidWallet, disconnect } =
+    useAnalyzedWallet();
+
+  useEffect(() => {
+    if (connected && publicKey) {
+      if (isValidWallet) {
+        console.log("Connected to wallet", publicKey);
+      } else {
+        toast.error(
+          "This wallet is not valid. It might be a compromised wallet, please use another one"
+        );
+        disconnect();
+      }
+    }
+  }, [connected, publicKey, isValidWallet]);
 
   const { id } = params;
 
@@ -60,7 +76,7 @@ const Home: React.FC<QueryParams> = ({ params }) => {
           tokens={Number(tokens)}
           setName={setName}
           setEmail={setEmail}
-          address={publicKey?.toBase58()}
+          address={publicKey!}
           showSignature={true}
         />
       ) : (
