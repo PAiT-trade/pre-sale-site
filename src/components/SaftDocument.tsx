@@ -82,11 +82,6 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
       return;
     }
 
-    if (!telegram) {
-      toast.error("Please provide your telegram handle to proceed");
-      setIsLoading(false);
-      return;
-    }
     await generatePDF().catch((_error) => {
       toast.error(
         "Error downloading your pdf document. Please contact PAiT team for support. Thank you!!!"
@@ -185,7 +180,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
           pageHeight
         );
 
-        currentPosition += (pageHeight * canvas.width) / pageWidth; // Update position for the next page
+        currentPosition += (pageHeight * canvas.width) / pageWidth;
       }
 
       const fileName = `PAiT_SAFT_AGGREEMENT_DOCUMENT-${name}-${uuidv4()}-${publicKey?.toBase58()}.pdf`;
@@ -194,11 +189,25 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
       const pdfBlob = pdf.output("blob");
       const formData = new FormData();
 
-      const pdfFile = new File([pdfBlob], fileName, {
-        type: "application/pdf",
-      });
-      formData.append("file", pdfFile);
-      formData.append("file_name", fileName);
+      // const pdfFile = new File([pdfBlob], fileName, {
+      //   type: "application/pdf",
+      // });
+      // formData.append("file", pdfFile);
+      // formData.append("file_name", fileName);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64data =
+          typeof reader.result === "string" ? reader.result.split(",")[1] : "";
+        formData.append("file", base64data);
+        formData.append("file_name", fileName);
+
+        if (email && email.includes("@")) {
+          formData.append("email", email);
+        }
+
+        // Send formData as before
+      };
+      reader.readAsDataURL(pdfBlob);
 
       if (email && email.includes("@")) {
         formData.append("email", email ? email : "");
