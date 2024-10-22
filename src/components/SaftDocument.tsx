@@ -672,7 +672,9 @@ const DocumentContainer = styled.div`
   background-color: #fff;
 
   @media print {
+    max-width: 100%;
     padding: 0;
+    margin: 0;
     background-color: transparent;
   }
 `;
@@ -688,7 +690,7 @@ const Title = styled.h1`
 
   @media print {
     font-size: 1.5rem;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
   }
 `;
 
@@ -702,7 +704,8 @@ const Subtitle = styled.h2`
 
   @media print {
     font-size: 1.2rem;
-    margin: 10px 0;
+    margin: 5px 0;
+    page-break-after: avoid;
   }
 `;
 
@@ -716,8 +719,9 @@ const Paragraph = styled.p`
   }
 
   @media print {
-    font-size: 1rem;
+    font-size: 0.9rem;
     margin: 5px 0;
+    page-break-inside: avoid;
   }
 `;
 
@@ -755,6 +759,9 @@ const UserInputGroup = styled.div`
   @media (min-width: 600px) {
     flex-direction: row; /* Arrange inputs in a row on larger screens */
   }
+  @media print {
+    page-break-inside: avoid; /* Avoid breaking input groups */
+  }
 `;
 
 const SignatureContainer = styled.div`
@@ -769,8 +776,8 @@ const SignatureContainer = styled.div`
   }
 
   @media print {
-    flex-direction: column;
     margin-top: 1rem;
+    page-break-inside: avoid; /* Keep signatures together */
   }
 `;
 

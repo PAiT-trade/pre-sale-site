@@ -9,26 +9,26 @@ datasource db {
 }
 
 model User {
-  id          Int        @id @default(autoincrement())
-  wallet      String     @unique
-  referral    String     @default("")
-  is_approved Boolean    @default(false)
-  name        String?    @default("")
-  email       String?    @default("")
-  purchases   Purchase[]
+  id                Int        @id @default(autoincrement())
+  wallet            String     @unique
+  referral          String     @default("")
+  is_approved       Boolean    @default(false)
+  name              String?    @default("")
+  email             String?    @default("")
+  referral_earnings Float      @default(0)
+  purchases         Purchase[]
 
   @@map("users")
 }
 
 model Purchase {
-  id                  Int      @id @default(autoincrement())
-  user_id             Int
-  user                User?    @relation(fields: [user_id], references: [id])
-  pait_tokens         Int      @default(0)
-  usdc_amount         Int      @default(0)
-  used_referral       String?  @default("")
-  signed_document_url String?  @default("")
-  created_at          DateTime @default(now())
+  id            Int      @id @default(autoincrement())
+  user_id       Int
+  user          User?    @relation(fields: [user_id], references: [id])
+  pait_tokens   Int      @default(0)
+  usdc_amount   Int      @default(0)
+  used_referral String?  @default("")
+  created_at    DateTime @default(now())
 
   @@map("purchases")
 }
