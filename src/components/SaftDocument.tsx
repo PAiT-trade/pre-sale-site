@@ -117,10 +117,16 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
         fetch("/api/sending-mail", {
           method: "POST",
           body: formData,
-        });
-        toast.success("Thank you for making the purchase!!!!");
-        setIsLoading(false);
-        router.push("/");
+        })
+          .then(() => {
+            toast.success("Thank you for making the purchase!!!!");
+            setIsLoading(false);
+            router.push("/");
+          })
+          .catch(() => {
+            toast.error("Error uploading your SAFT agreement");
+            setIsLoading(false);
+          });
       } catch (error) {
         console.log("App Error: ", error);
       }
