@@ -98,40 +98,19 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
       });
   };
 
-  const updatePurchase = async () => {
-    try {
-      fetch(`/api/update-purchase/${purchaseId}`, {
-        method: "POST",
-        body: JSON.stringify({
-          email,
-          name,
-        }),
-      });
-    } catch (error) {
-      console.log("App Error: ", error);
-    }
-  };
-  const uploadDocument = async (formData: FormData) => {
-    if (formData) {
-      try {
-        fetch("/api/sending-mail", {
-          method: "POST",
-          body: formData,
-        })
-          .then(() => {
-            toast.success("Thank you for making the purchase!!!!");
-            setIsLoading(false);
-            router.push("/");
-          })
-          .catch(() => {
-            toast.error("Error uploading your SAFT agreement");
-            setIsLoading(false);
-          });
-      } catch (error) {
-        console.log("App Error: ", error);
-      }
-    }
-  };
+  // const updatePurchase = async () => {
+  //   try {
+  //     await fetch(`/api/update-purchase/${purchaseId}`, {
+  //       method: "POST",
+  //       body: JSON.stringify({
+  //         email,
+  //         name,
+  //       }),
+  //     });
+  //   } catch (error) {
+  //     console.log("App Error: ", error);
+  //   }
+  // };
 
   const generatePDF = async () => {
     try {
@@ -246,15 +225,28 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
       for (const [key, value] of formData.entries()) {
         console.log(key, value);
       }
-      await uploadDocument(formData)
-        .then(async () => {
-          await updatePurchase();
-        })
-        .catch(() => {
-          console.log("App Error: ::: ");
-        });
+
+      console.log("Form Data: ", formData);
+      // updating the purchases
+      await fetch(`/api/update-purchase/${purchaseId}`, {
+        method: "POST",
+        body: JSON.stringify({
+          email,
+          name,
+        }),
+      });
+      // await uploadDocument(formData);
+      await fetch("/api/sending-mail", {
+        method: "POST",
+        body: formData,
+      });
+      toast.success("Thank you for making the purchase!!!!");
+      setIsLoading(false);
+      router.push("/");
+
       return formData;
     } catch (error: any) {
+      setIsLoading(false);
       toast.error(`Error: ${error}`);
     }
   };
