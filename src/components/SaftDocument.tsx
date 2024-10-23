@@ -126,14 +126,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
       }
     }
   };
-  const canvasBlobToDataURL = (blob: any) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
-  };
+
   const generatePDF = async () => {
     try {
       setIsLoading(true);
@@ -145,49 +138,80 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
       }
       const marginTopBottom = 10;
       const pagePadding = 5;
+
       const pdf = new jsPDF({
         orientation: "portrait",
         unit: "mm",
         format: "a4",
       });
 
-      const pageHeight = pdf.internal.pageSize.height;
-      const pageWidth = pdf.internal.pageSize.width;
+      // Define page dimensions
+      const pageHeight =
+        pdf.internal.pageSize.height - 2 * marginTopBottom - 2 * pagePadding;
+      const pageWidth = pdf.internal.pageSize.width - 2 * pagePadding;
 
-      // Calculate the total height of the input element
-      const totalHeight = input.scrollHeight;
-      const segmentHeight = pageHeight * 3.78; // Convert mm to px (approx. scale)
+      // Capture the element using dom-to-image
+      const imgData = await domtoimage.toPng(input, {
+        bgcolor: "#fff",
+        quality: 0.95,
+      });
+
+      // Create an offscreen image element to calculate dimensions
+      const img = new Image();
+      img.src = imgData;
+      await new Promise((resolve) => (img.onload = resolve));
+
+      // Calculate the image height based on the PDF page width
+      const imgWidth = img.width;
+      const imgHeight = img.height;
+      const totalPDFPages = Math.ceil(
+        imgHeight / (pageHeight * (imgWidth / pageWidth))
+      );
+
       let currentPosition = 0;
-      while (currentPosition < totalHeight) {
-        // Clone the input element to avoid modifying the original element
-        const clone = document.createElement("div");
-        clone.innerHTML = input.innerHTML;
+      for (let i = 0; i < totalPDFPages; i++) {
+        const canvas = document.createElement("canvas");
+        canvas.width = imgWidth;
+        canvas.height = pageHeight * (imgWidth / pageWidth);
 
-        // Apply styles to the clone to create the segment
-        clone.style.height = `${segmentHeight}px`;
-        clone.style.overflow = "hidden";
-        clone.style.position = "absolute";
-        clone.style.top = `-${currentPosition}px`;
-        clone.style.left = "0";
-        clone.style.backgroundColor = "#fff"; // Ensure white background for clarity
-        clone.style.zIndex = "-1";
-
-        document.body.appendChild(clone);
-
-        // Generate the segment image
-        const imgData = await domtoimage.toPng(clone);
-
-        // Add image to the PDF
-        pdf.addImage(imgData, "PNG", 0, 0, pageWidth, pageHeight);
-
-        currentPosition += segmentHeight;
-        if (currentPosition < totalHeight) {
-          pdf.addPage();
+        const context = canvas.getContext("2d");
+        if (!context) {
+          throw new Error("Failed to get canvas context");
         }
 
-        document.body.removeChild(clone);
+        context.fillStyle = "#fff";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Draw the image segment
+        context.drawImage(
+          img,
+          0,
+          currentPosition,
+          imgWidth,
+          pageHeight * (imgWidth / pageWidth),
+          0,
+          0,
+          imgWidth,
+          pageHeight * (imgWidth / pageWidth)
+        );
+
+        // Convert the segment to a data URL
+        const segmentImgData = canvas.toDataURL("image/png", 0.95);
+
+        if (i > 0) pdf.addPage();
+        pdf.addImage(
+          segmentImgData,
+          "PNG",
+          pagePadding,
+          marginTopBottom + pagePadding,
+          pageWidth,
+          pageHeight
+        );
+
+        currentPosition += pageHeight * (imgWidth / pageWidth);
       }
       const fileName = `PAiT_SAFT_AGGREEMENT_DOCUMENT-${name}-${uuidv4()}-${publicKey?.toBase58()}.pdf`;
+      pdf.save(fileName);
 
       const formData = new FormData();
       const pdfBlob = pdf.output("blob");
@@ -213,18 +237,6 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
     } catch (error: any) {
       toast.error(`Error: ${error}`);
     }
-  };
-
-  const downloadFile = (blob: Blob, fileName: string) => {
-    // console.log("Running in standalone mode (PWA or in-app mode on iOS).");
-    // const downloadLink = document.createElement("a");
-    // downloadLink.href = URL.createObjectURL(blob);
-    // downloadLink.download = fileName;
-    // downloadLink.click();
-
-    const url = URL.createObjectURL(blob);
-
-    window.open(url, "_system");
   };
 
   return (
@@ -755,7 +767,7 @@ const Subtitle = styled.h2`
 `;
 
 const Paragraph = styled.p`
-  font-size: 12px;
+  font-size: 15px;
   line-height: 1.5;
   margin: 10px 0;
 
@@ -764,7 +776,7 @@ const Paragraph = styled.p`
   }
 
   @media print {
-    font-size: 0.9rem;
+    font-size: 12px;
     margin: 5px 0;
     page-break-inside: avoid;
   }
