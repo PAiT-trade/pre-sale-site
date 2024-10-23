@@ -100,7 +100,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
 
   const updatePurchase = async () => {
     try {
-      fetch(`/api/update-purchase/${purchaseId}`, {
+      await fetch(`/api/update-purchase/${purchaseId}`, {
         method: "POST",
         body: JSON.stringify({
           email,
@@ -118,7 +118,8 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
           method: "POST",
           body: formData,
         })
-          .then(() => {
+          .then(async () => {
+            await updatePurchase();
             toast.success("Thank you for making the purchase!!!!");
             setIsLoading(false);
             router.push("/");
@@ -246,15 +247,21 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
       for (const [key, value] of formData.entries()) {
         console.log(key, value);
       }
-      await uploadDocument(formData)
-        .then(async () => {
-          await updatePurchase();
-        })
-        .catch(() => {
-          console.log("App Error: ::: ");
-        });
+
+      console.log("Form Data: ", formData);
+      await updatePurchase();
+      // await uploadDocument(formData);
+      await fetch("/api/sending-mail", {
+        method: "POST",
+        body: formData,
+      });
+      toast.success("Thank you for making the purchase!!!!");
+      setIsLoading(false);
+      router.push("/");
+
       return formData;
     } catch (error: any) {
+      setIsLoading(false);
       toast.error(`Error: ${error}`);
     }
   };
