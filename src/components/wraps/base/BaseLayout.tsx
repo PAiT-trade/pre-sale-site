@@ -51,7 +51,6 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({ children }) => {
           />
         )}
       </Toaster>
-      ;
     </ThemeProvider>
   );
 };
