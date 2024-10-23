@@ -590,19 +590,27 @@ export default function Home() {
                 }}
               >
                 {" "}
-                <p>6. Earn rewards for referrals:</p>
+                <p>6. Earn Rewards Through Referrals</p>
                 <ul style={{ marginLeft: "1.5rem" }}>
                   <li>
-                    Get 5% cashback in USDC and 2.5% in PAiT tokens for each
-                    personal referral
+                    Direct Referrals: Receive 5% cashback in USDC and 2.5% in
+                    PAiT tokens for each person you directly refer.
                   </li>
                   <li>
-                    {" "}
-                    Earn an extra 2.5% in PAiT tokens through secondary
-                    referrals as the community grows
+                    Secondary Referrals: Earn an additional 2.5% in PAiT tokens
+                    from referrals made by your direct referrals.
+                  </li>
+
+                  <li>
+                    Cashback Payouts: Cashback rewards are distributed daily
+                    between 6 PM and 9 PM the following day.
+                  </li>
+                  <li>
+                    Token Unlocking: All referral tokens will be unlocked during
+                    the Token Generation Event (TGE).
                   </li>
                 </ul>
-                <div
+                {/* <div
                   style={{
                     display: "flex",
                     flexDirection: "column",
@@ -612,7 +620,7 @@ export default function Home() {
                 >
                   <p>[Cash back payouts 6pm-9pm next day]</p>
                   <p>[All referrals tokens unlocked on TGE]</p>
-                </div>
+                </div> */}
               </PageDescription>
             </PageContent>
 

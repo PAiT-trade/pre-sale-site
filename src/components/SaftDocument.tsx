@@ -640,7 +640,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
                 </UserInputGroup>
 
                 <UserInputGroup>
-                  <UserInputLabel>Telegram Handle: </UserInputLabel>
+                  <UserInputLabel>Telegram: </UserInputLabel>
                   <UserInput
                     value={telegram}
                     border="red"
