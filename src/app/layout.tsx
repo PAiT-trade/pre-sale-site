@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Open_Sans } from "next/font/google";
 import "@rainbow-me/rainbowkit/styles.css";
 import { Providers } from "@/providers";
 import { BaseLayout } from "@/components/wraps/base/BaseLayout";
@@ -8,7 +8,7 @@ import { SolanaProvider } from "./solana/solana-provider";
 import { WalletProvider } from "@/context/WalletContext";
 import { AnalyzeConnectWalletProvider } from "@/context/connect-wallet-context";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Open_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "PAiT | Pre-sale",

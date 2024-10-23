@@ -34,18 +34,12 @@ export const GlobalStyle = createGlobalStyle`
         line-height: 1.5;
     }
 
-    #document-section {
-        line-height: 1.6; /* Adjust to your preference */
-        letter-spacing: 0.5px; /* Adjust for better spacing */
-        padding: 20px; /* Add padding for better visual spacing */
-    }
-
-
     @media print {
         body {
             margin: 0;
             padding: 0;
-            font-size: 12px;
+            font-size: 15px;
+            line-height: 1.6;
             font-family: Arial, sans-serif; 
         }
 

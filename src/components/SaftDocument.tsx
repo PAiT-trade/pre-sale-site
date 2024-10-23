@@ -138,15 +138,23 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
       }
 
       input.style.lineHeight = "1.6";
-      input.style.letterSpacing = "0.5px";
+      input.style.letterSpacing = "1.5";
+      input.style.fontSize = "20px !important";
+      input.style.fontFamily = "'Open Sans', sans-serif";
       input.style.padding = "20px";
-      const marginTopBottom = 10;
-      const pagePadding = 5;
+      // Apply A4 styles before capturing
+      input.style.width = "210mm";
+      input.style.maxWidth = "210mm";
+      input.style.minHeight = "297mm";
+      input.style.boxSizing = "border-box";
+
+      const marginTopBottom = 15;
+      const pagePadding = 10;
 
       const pdf = new jsPDF({
         orientation: "portrait",
         unit: "mm",
-        format: "a4",
+        format: [210, 297], // A4 size in mm
       });
 
       // Define page dimensions
@@ -155,9 +163,9 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
       const pageWidth = pdf.internal.pageSize.width - 2 * pagePadding;
 
       // Capture the element using dom-to-image
-      const imgData = await domtoimage.toPng(input, {
+      const imgData = await domtoimage.toSvg(input, {
         bgcolor: "#fff",
-        quality: 0.95,
+        // quality: 0.95,
       });
 
       // Create an offscreen image element to calculate dimensions
@@ -215,7 +223,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
         currentPosition += pageHeight * (imgWidth / pageWidth);
       }
       const fileName = `PAiT_SAFT_AGGREEMENT_DOCUMENT-${name}-${uuidv4()}-${publicKey?.toBase58()}.pdf`;
-
+      pdf.save(fileName);
       const formData = new FormData();
       const pdfBlob = pdf.output("blob");
       const pdfFile = new File([pdfBlob], fileName, {
@@ -224,7 +232,6 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
       formData.append("file", pdfFile);
       formData.append("file_name", fileName);
 
-      // Ensure email is valid and append it
       if (email && email.includes("@")) {
         formData.append("email", email);
       } else {
@@ -234,8 +241,13 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
       for (const [key, value] of formData.entries()) {
         console.log(key, value);
       }
-      await updatePurchase();
-      await uploadDocument(formData);
+      await uploadDocument(formData)
+        .then(async () => {
+          await updatePurchase();
+        })
+        .catch(() => {
+          console.log("App Error: ::: ");
+        });
       return formData;
     } catch (error: any) {
       toast.error(`Error: ${error}`);
@@ -244,7 +256,10 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
 
   return (
     <>
-      <div id="document-section" style={{}}>
+      <div
+        id="document-section"
+        style={{ fontFamily: "Open Sans", fontSize: "15px", lineHeight: "1.5" }}
+      >
         <DocumentContainer>
           <Title>Token Sale Agreement</Title>
           <Subtitle>Effective as of {currentDate.human}</Subtitle>
@@ -334,97 +349,101 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
             including network information, fee information, or other data. The
             Company may edit, publish, and delete the Content.
           </Paragraph>
-          <Subtitle>2. SECURITY TERMS AND DATA PRIVACY PROTECTION</Subtitle>
-          <Paragraph>
-            2.1. You must deploy appropriate technical and security measures to
-            secure access to (a) any device associated with your access point,
-            (b) private keys required to access your Solana address or Tokens,
-            and (c) your username, password, and other credentials. If you lose
-            access to a device associated with your account, the Company may
-            grant access to your account to another party providing additional
-            credentials. The Company may determine the required credentials,
-            which may include notarized identification, in-person meetings,
-            photo proof of identity, video identification, and copies of
-            identification documents.
-          </Paragraph>
-          <Paragraph>
-            2.2. Upon request, you shall provide the Company with any additional
-            information needed to comply with applicable law, including but not
-            limited to ID cards, passports, driver’s licenses, or other
-            documents and proof.
-          </Paragraph>
-          <Paragraph>
-            2.3. The Company may collect statistical information about your
-            activity, including your activity on the Site and logins to various
-            platforms, for marketing or related purposes. The Company may use
-            your IP address to verify you and your Token. The Company will not
-            release your personal identification or identifiable data to third
-            parties without your consent, except as provided here or in
-            accordance with the Terms or the Company's Privacy Policy.
-          </Paragraph>
-          <Subtitle>3. PURCHASE AND DELIVERY OF TOKEN</Subtitle>
-          <Paragraph>
-            3.1. You agree to pay for and acquire Tokens in accordance with
-            Appendix Nr.1 of this Agreement. The Company agrees to sell you the
-            Tokens on the terms of this Agreement. Your acquisition is final and
-            non-refundable. The Company shall not provide any refund of the
-            acquisition price under any circumstances unless otherwise specified
-            on the Site.
-          </Paragraph>
-          <Paragraph style={{ marginTop: "20px" }}>
-            3.2. Aquared PAiT tokens{" "}
-            <b style={{ borderBottom: "2px solid #000" }}>
-              {tokens ? `${" " + tokens + " "}` : " ............. "}
-            </b>
-            will be credited to your wallet{" "}
-            <b style={{ borderBottom: "2px solid #000" }}>
-              {address ? address : " ............. "}
-            </b>{" "}
-            through the escrow account no later than the TGE. 5% unlock on TGE,
-            3 month cliff, 9 months linear vesting. Token Generation Event (TGE)
-            Planned on December 10th, 2024
-          </Paragraph>
 
-          <Paragraph>
-            3.3. All deliveries from the Sale shall be made online. Deliveries
-            shall be made to your Solana account, or another wallet related to
-            <br />
-            your acquisition of Tokens.
-          </Paragraph>
-          <Paragraph>
-            3.4. If you acquire cryptocurrency using a third-party payment
-            processor, that processor acts as your agent, and the Company is not
-            responsible for the actions of such an agent. You are responsible
-            for ensuring the Company receives the amount of cryptocurrency you
-            sent. The Company is not responsible for any financial losses or
-            damages when using third-party payment processors.
-          </Paragraph>
-          <Subtitle>4. REGULATORY COMPLIANCE AND TAXES</Subtitle>
-          <Paragraph>
-            4.1. All fees and charges that you must pay in accordance with
-            national and international laws are your responsibility. You shall
-            provide the Company with any information it requests to determine
-            whether the Company is subject to VAT or other taxes. We may require
-            you to provide tax exemption certificates. If deductions or
-            withholdings are required by law, you shall notify the Company and
-            pay additional sums to ensure that the net amount is equal to the
-            amount the Company would have received if no deduction or
-            withholding had occurred. You shall provide documentation showing
-            that the deducted and withheld amounts have been paid to taxing
-            authorities.
-          </Paragraph>
+          <Spacing>
+            <Subtitle>2. SECURITY TERMS AND DATA PRIVACY PROTECTION</Subtitle>
+            <Paragraph>
+              2.1. You must deploy appropriate technical and security measures
+              to secure access to (a) any device associated with your access
+              point, (b) private keys required to access your Solana address or
+              Tokens, and (c) your username, password, and other credentials. If
+              you lose access to a device associated with your account, the
+              Company may grant access to your account to another party
+              providing additional credentials. The Company may determine the
+              required credentials, which may include notarized identification,
+              in-person meetings, photo proof of identity, video identification,
+              and copies of identification documents.
+            </Paragraph>
+            <Paragraph>
+              2.2. Upon request, you shall provide the Company with any
+              additional information needed to comply with applicable law,
+              including but not limited to ID cards, passports, driver’s
+              licenses, or other documents and proof.
+            </Paragraph>
+            <Paragraph>
+              2.3. The Company may collect statistical information about your
+              activity, including your activity on the Site and logins to
+              various platforms, for marketing or related purposes. The Company
+              may use your IP address to verify you and your Token. The Company
+              will not release your personal identification or identifiable data
+              to third parties without your consent, except as provided here or
+              in accordance with the Terms or the Company's Privacy Policy.
+            </Paragraph>
+            <Subtitle>3. PURCHASE AND DELIVERY OF TOKEN</Subtitle>
+            <Paragraph>
+              3.1. You agree to pay for and acquire Tokens in accordance with
+              Appendix Nr.1 of this Agreement. The Company agrees to sell you
+              the Tokens on the terms of this Agreement. Your acquisition is
+              final and non-refundable. The Company shall not provide any refund
+              of the acquisition price under any circumstances unless otherwise
+              specified on the Site.
+            </Paragraph>
+            <Paragraph style={{ marginTop: "20px" }}>
+              3.2. Aquared PAiT tokens{" "}
+              <b style={{ borderBottom: "2px solid #000" }}>
+                {tokens ? `${" " + tokens + " "}` : " ............. "}
+              </b>
+              will be credited to your wallet{" "}
+              <b style={{ borderBottom: "2px solid #000" }}>
+                {address ? address : " ............. "}
+              </b>{" "}
+              through the escrow account no later than the TGE. 5% unlock on
+              TGE, 3 month cliff, 9 months linear vesting. Token Generation
+              Event (TGE) Planned on December 10th, 2024
+            </Paragraph>
 
-          <Subtitle>5. YOUR RESPONSIBILITIES</Subtitle>
-          <Paragraph>
-            5.1. You are responsible for setting up the software that provides
-            your access to Tokens. Your credentials are for your personal use
-            and shall not be accessible to any third party.
-          </Paragraph>
-          <Paragraph>
-            5.2. You shall comply with the Agreement, Terms, and applicable
-            laws. If you violate the Agreement, Terms, or applicable laws, the
-            Company may act against you.
-          </Paragraph>
+            <Paragraph>
+              3.3. All deliveries from the Sale shall be made online. Deliveries
+              shall be made to your Solana account, or another wallet related to
+              <br />
+              your acquisition of Tokens.
+            </Paragraph>
+            <Paragraph>
+              3.4. If you acquire cryptocurrency using a third-party payment
+              processor, that processor acts as your agent, and the Company is
+              not responsible for the actions of such an agent. You are
+              responsible for ensuring the Company receives the amount of
+              cryptocurrency you sent. The Company is not responsible for any
+              financial losses or damages when using third-party payment
+              processors.
+            </Paragraph>
+            <Subtitle>4. REGULATORY COMPLIANCE AND TAXES</Subtitle>
+            <Paragraph>
+              4.1. All fees and charges that you must pay in accordance with
+              national and international laws are your responsibility. You shall
+              provide the Company with any information it requests to determine
+              whether the Company is subject to VAT or other taxes. We may
+              require you to provide tax exemption certificates. If deductions
+              or withholdings are required by law, you shall notify the Company
+              and pay additional sums to ensure that the net amount is equal to
+              the amount the Company would have received if no deduction or
+              withholding had occurred. You shall provide documentation showing
+              that the deducted and withheld amounts have been paid to taxing
+              authorities.
+            </Paragraph>
+
+            <Subtitle>5. YOUR RESPONSIBILITIES</Subtitle>
+            <Paragraph>
+              5.1. You are responsible for setting up the software that provides
+              your access to Tokens. Your credentials are for your personal use
+              and shall not be accessible to any third party.
+            </Paragraph>
+            <Paragraph>
+              5.2. You shall comply with the Agreement, Terms, and applicable
+              laws. If you violate the Agreement, Terms, or applicable laws, the
+              Company may act against you.
+            </Paragraph>
+          </Spacing>
           <Subtitle>6. PROPRIETARY RIGHTS</Subtitle>
           <Paragraph>
             6.1. If you provide any ideas to the Company or its personnel, the
@@ -437,85 +456,89 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
             6.2. By using any services of the Company, Token, or Site, you do
             not obtain any proprietary rights in any Content.
           </Paragraph>
-          <Paragraph>
-            6.3. The Company holds all rights, interests, and titles in all
-            intellectual property, including works, inventions, discoveries,
-            processes, trademarks, formulae, compositions, methods, techniques,
-            information, and data, whether copyrightable, patentable, or
-            trademarkable. You may not use any of the Company's intellectual
-            property except for personal use with one copy on each device.
-          </Paragraph>
-          <Subtitle>7. LIMITATIONS OF LIABILITY</Subtitle>
-          <Paragraph>
-            7.1. The Company and its affiliates or contractors shall not be
-            liable for any direct, indirect, or other damages for loss of
-            profits, goodwill, use, or information, even if advised of the
-            possibility of such damage. The Company and its affiliates or
-            contractors will not be responsible for compensation or damages
-            arising from: (i) your inability to use the Token, including
-            suspension or termination of this Agreement due to force majeure;
-            (ii) the cost of replacement; (iii) any losses or burdens related to
-            the Agreement or your access to the Token; or (iv) changes to,
-            destruction, damage, loss, or failure to preserve data, including
-            records, keys, and credentials regarding the Token.
-          </Paragraph>
+          <Spacing>
+            <Paragraph>
+              6.3. The Company holds all rights, interests, and titles in all
+              intellectual property, including works, inventions, discoveries,
+              processes, trademarks, formulae, compositions, methods,
+              techniques, information, and data, whether copyrightable,
+              patentable, or trademarkable. You may not use any of the Company's
+              intellectual property except for personal use with one copy on
+              each device.
+            </Paragraph>
+            <Subtitle>7. LIMITATIONS OF LIABILITY</Subtitle>
+            <Paragraph>
+              7.1. The Company and its affiliates or contractors shall not be
+              liable for any direct, indirect, or other damages for loss of
+              profits, goodwill, use, or information, even if advised of the
+              possibility of such damage. The Company and its affiliates or
+              contractors will not be responsible for compensation or damages
+              arising from: (i) your inability to use the Token, including
+              suspension or termination of this Agreement due to force majeure;
+              (ii) the cost of replacement; (iii) any losses or burdens related
+              to the Agreement or your access to the Token; or (iv) changes to,
+              destruction, damage, loss, or failure to preserve data, including
+              records, keys, and credentials regarding the Token.
+            </Paragraph>
 
-          <Paragraph>
-            7.2. You waive your right to demand a refund of any virtual currency
-            you paid the Company in the Sale under any circumstances.
-          </Paragraph>
-          <Paragraph>8. RISKS AND DISCLAIMERS</Paragraph>
-          <Paragraph>
-            8.1. You agree that Tokens, blockchain technology, cryptocurrencies,
-            the Solana protocol, Solana, and other cryptocurrencies are new
-            technologies and not under the Company's control. You accept all
-            risks of loss and damage arising from the use of these technologies.
-          </Paragraph>
-          <Paragraph>
-            8.2. The Token is provided on an "as is" basis. The Company and its
-            affiliates and contractors make no warranties or representations
-            regarding the Token, Site, or Content, including warranties that
-            they will be available, free of illegal components and errors, or
-            secure. The Company disclaims all warranties, including fitness for
-            a particular purpose, satisfactory quality, merchantability, or
-            non-infringement.
-          </Paragraph>
-          <Paragraph>
-            8.3. Transactions using these technologies are risky. The Company is
-            not responsible for any loss of data, Solana, Token, software, or
-            devices resulting from any type of failure.
-          </Paragraph>
-          <Subtitle>9. INDEMNIFICATION</Subtitle>
-          <Paragraph>
-            9.1. You shall defend, indemnify, and hold harmless the Company, its
-            affiliates, contractors, employees, managers, directors, and
-            representatives from any liabilities, damages, claims, losses,
-            costs, and expenses (including attorneys’ fees) relating to a
-            third-party claim concerning this Agreement or your use of Tokens.
-            If the Company or its affiliates must respond to a legal action, you
-            will reimburse the Company's attorneys’ fees and resources spent on
-            handling the third-party legal action.
-          </Paragraph>
-          <Subtitle>10. TERM AND TERMINATION</Subtitle>
-          <Paragraph>
-            10.1. The term of this Agreement begins on the Effective Date and
-            continues until terminated.
-          </Paragraph>
-          <Paragraph>
-            10.2. This Agreement terminates upon your acquisition and delivery
-            of Tokens. The Company may also terminate this Agreement if you
-            breach any term of this Agreement, Terms, or applicable law.
-          </Paragraph>
+            <Paragraph>
+              7.2. You waive your right to demand a refund of any virtual
+              currency you paid the Company in the Sale under any circumstances.
+            </Paragraph>
+            <Paragraph>8. RISKS AND DISCLAIMERS</Paragraph>
+            <Paragraph>
+              8.1. You agree that Tokens, blockchain technology,
+              cryptocurrencies, the Solana protocol, Solana, and other
+              cryptocurrencies are new technologies and not under the Company's
+              control. You accept all risks of loss and damage arising from the
+              use of these technologies.
+            </Paragraph>
+            <Paragraph>
+              8.2. The Token is provided on an "as is" basis. The Company and
+              its affiliates and contractors make no warranties or
+              representations regarding the Token, Site, or Content, including
+              warranties that they will be available, free of illegal components
+              and errors, or secure. The Company disclaims all warranties,
+              including fitness for a particular purpose, satisfactory quality,
+              merchantability, or non-infringement.
+            </Paragraph>
+            <Paragraph>
+              8.3. Transactions using these technologies are risky. The Company
+              is not responsible for any loss of data, Solana, Token, software,
+              or devices resulting from any type of failure.
+            </Paragraph>
+            <Subtitle>9. INDEMNIFICATION</Subtitle>
+            <Paragraph>
+              9.1. You shall defend, indemnify, and hold harmless the Company,
+              its affiliates, contractors, employees, managers, directors, and
+              representatives from any liabilities, damages, claims, losses,
+              costs, and expenses (including attorneys’ fees) relating to a
+              third-party claim concerning this Agreement or your use of Tokens.
+              If the Company or its affiliates must respond to a legal action,
+              you will reimburse the Company's attorneys’ fees and resources
+              spent on handling the third-party legal action.
+            </Paragraph>
+            <Subtitle>10. TERM AND TERMINATION</Subtitle>
+            <Paragraph>
+              10.1. The term of this Agreement begins on the Effective Date and
+              continues until terminated.
+            </Paragraph>
+            <Paragraph>
+              10.2. This Agreement terminates upon your acquisition and delivery
+              of Tokens. The Company may also terminate this Agreement if you
+              breach any term of this Agreement, Terms, or applicable law.
+            </Paragraph>
 
-          <Paragraph>
-            10.3. Upon termination, the following terms apply: (i) all your
-            rights under this Agreement terminate; (ii) you are not entitled to
-            any refund; (iii) you must return or destroy all Content as required
-            by the Company; and (iv) Clauses 4, 5.1, 6, 7, 8, 9, 10.3, and 11
-            remain in effect. The Company is not liable for any damages to you,
-            including loss of credentials or access to the Site, your account,
-            or device.
-          </Paragraph>
+            <Paragraph>
+              10.3. Upon termination, the following terms apply: (i) all your
+              rights under this Agreement terminate; (ii) you are not entitled
+              to any refund; (iii) you must return or destroy all Content as
+              required by the Company; and (iv) Clauses 4, 5.1, 6, 7, 8, 9,
+              10.3, and 11 remain in effect. The Company is not liable for any
+              damages to you, including loss of credentials or access to the
+              Site, your account, or device.
+            </Paragraph>
+          </Spacing>
           <Subtitle>11. MISCELLANEOUS</Subtitle>
           <Paragraph>
             11.1. You may use Confidential Information solely for acquiring
@@ -644,8 +667,8 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
                     canvasWidth={300}
                     canvasHeight={100}
                     style={{
-                      border: "1px solid #000",
-                      borderRadius: "8px",
+                      // border: "1px solid #000",
+                      // borderRadius: "8px",
                       padding: "6px",
                     }}
                   />
@@ -681,7 +704,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
 export default SignaturePad;
 
 const Spacing = styled.div`
-  margin-top: 30px;
+  margin-top: 120px;
 
   @media print {
     margin-top: 10px;
@@ -706,6 +729,7 @@ const Container = styled.div`
     display: block;
     border: none;
     padding: 10px;
+    width: 100%;
     background-color: transparent;
   }
 `;
@@ -732,17 +756,18 @@ const Title = styled.h1`
   margin-bottom: 20px;
 
   @media (max-width: 600px) {
-    font-size: 1.5rem;
+    font-size: 18px;
   }
 
   @media print {
-    font-size: 1.5rem;
+    font-size: 18px;
     margin-bottom: 5px;
+    width: 100%;
   }
 `;
 
 const Subtitle = styled.h2`
-  font-size: 1.5rem;
+  font-size: 18px;
   margin: 20px 0 10px;
 
   @media (max-width: 600px) {
@@ -750,24 +775,27 @@ const Subtitle = styled.h2`
   }
 
   @media print {
-    font-size: 1.18px;
+    font-size: 18px;
     margin: 5px 0;
+    width: 100%;
     page-break-after: avoid;
   }
 `;
 
 const Paragraph = styled.p`
-  font-size: 15px;
+  font-size: 18px;
   line-height: 1.5;
   margin: 10px 0;
+  font-family: "Open Sans", open-serif;
 
   @media (max-width: 600px) {
-    font-size: 1.4rem;
+    font-size: 2rem;
   }
 
   @media print {
-    font-size: 12px;
+    font-size: 18px;
     margin: 5px 0;
+    width: 100%;
     page-break-inside: avoid;
   }
 `;
@@ -820,11 +848,12 @@ const SignatureContainer = styled.div`
   @media (min-width: 600px) {
     flex-direction: row;
     justify-content: space-around;
+    gap: 2rem;
   }
 
   @media print {
-    margin-top: 12px;
-    page-break-inside: avoid; /* Keep signatures together */
+    margin-top: 18px;
+    page-break-inside: avoid; //Keep signatures together
   }
 `;
 
@@ -833,7 +862,7 @@ const Button = styled.button`
   padding: 0.5rem 1.4rem;
   outline-width: 0;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 18px;
 
   @media (max-width: 600px) {
     font-size: 1.4rem;
@@ -841,30 +870,5 @@ const Button = styled.button`
 
   @media print {
     display: none; /* Hide buttons when printing */
-  }
-`;
-
-const SignatureLine = styled.div`
-  border-bottom: 1px solid #000;
-  width: 100%;
-  max-width: 300px;
-  margin: 20px auto;
-
-  @media print {
-    max-width: 100%;
-    margin: 10px 0;
-  }
-`;
-
-const SignatureText = styled.p`
-  font-size: 0.875rem;
-  margin: 5px 0;
-
-  @media (max-width: 600px) {
-    font-size: 0.75rem;
-  }
-
-  @media print {
-    font-size: 0.75rem;
   }
 `;
