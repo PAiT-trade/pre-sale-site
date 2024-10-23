@@ -163,9 +163,9 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
       const pageWidth = pdf.internal.pageSize.width - 2 * pagePadding;
 
       // Capture the element using dom-to-image
-      const imgData = await domtoimage.toPng(input, {
+      const imgData = await domtoimage.toSvg(input, {
         bgcolor: "#fff",
-        quality: 0.95,
+        // quality: 0.95,
       });
 
       // Create an offscreen image element to calculate dimensions
