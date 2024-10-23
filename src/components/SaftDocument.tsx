@@ -215,7 +215,6 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
         currentPosition += pageHeight * (imgWidth / pageWidth);
       }
       const fileName = `PAiT_SAFT_AGGREEMENT_DOCUMENT-${name}-${uuidv4()}-${publicKey?.toBase58()}.pdf`;
-      pdf.save(fileName);
 
       const formData = new FormData();
       const pdfBlob = pdf.output("blob");
