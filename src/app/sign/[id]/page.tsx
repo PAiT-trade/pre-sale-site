@@ -6,6 +6,8 @@ import { WalletButton } from "@/app/solana/solana-provider";
 import { NavbarSocialsItemWallet } from "@/components/navigation/nav/Navbar.styled";
 import { useAnalyzedWallet } from "@/context/connect-wallet-context";
 import toast from "react-hot-toast";
+import { ConnectWalletButtonExtends } from "@/components/common/Common";
+import { PagesWrapper } from "@/components/common/Common.styled";
 
 interface QueryParams {
   params: {
@@ -83,17 +85,11 @@ const Home: React.FC<QueryParams> = ({ params }) => {
           showSignature={true}
         />
       ) : (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <NavbarSocialsItemWallet>
+        <PagesWrapper>
+          <ConnectWalletButtonExtends>
             <WalletButton>Connect Wallet</WalletButton>
-          </NavbarSocialsItemWallet>
-        </div>
+          </ConnectWalletButtonExtends>
+        </PagesWrapper>
       )}
     </div>
   );

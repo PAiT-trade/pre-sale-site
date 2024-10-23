@@ -7,6 +7,7 @@ import { WalletButton } from "../solana/solana-provider";
 import styled from "styled-components";
 import { useAnalyzedWallet } from "@/context/connect-wallet-context";
 import toast from "react-hot-toast";
+import { ConnectWalletButtonExtends } from "@/components/common/Common";
 
 export default function KYC() {
   const { connected, publicKey, isValidWallet, disconnect } =
@@ -35,16 +36,9 @@ export default function KYC() {
           </KycContent>
         </div>
       ) : (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 100,
-          }}
-        >
+        <ConnectWalletButtonExtends>
           <WalletButton>Connect Wallet</WalletButton>
-        </div>
+        </ConnectWalletButtonExtends>
       )}
     </PagesWrapper>
   );
