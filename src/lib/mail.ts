@@ -23,9 +23,9 @@ export const sendEmail = async (
   attachement?: File
 ) => {
   // Convert File to Buffer if provided
-  const attachmentBuffer = attachement ? await fileToBuffer(attachement) : null;
-  // Compress the buffer
-  const compressedBuffer = compressBuffer(attachmentBuffer!);
+  // const attachmentBuffer = attachement ? await fileToBuffer(attachement) : null;
+  // // Compress the buffer
+  // const compressedBuffer = compressBuffer(attachmentBuffer!);
 
   try {
     const info = await transporter.sendMail({
@@ -34,15 +34,18 @@ export const sendEmail = async (
       subject,
       text,
       html,
-      attachments: attachmentBuffer
-        ? [
-            {
-              filename: `${attachement!.name}.gz`,
-              content: bufferToStream(compressedBuffer),
-              contentType: `application/gzip`,
-            },
-          ]
-        : [],
+      attachments: [],
+
+      // attachmentBuffer
+      //   ? [
+      //       {
+      //         filename: `${attachement!.name}.gz`,
+      //         content: bufferToStream(compressedBuffer),
+      //         contentType: `application/gzip`,
+      //       },
+      //     ]
+      //   :
+      // [],
     });
 
     await transporter.sendMail({
@@ -51,15 +54,7 @@ export const sendEmail = async (
       subject: `Signed SAFT Agreement document`,
       text: `A user has signed the SAFT Agreement document. The document is attached to this email.`,
       html,
-      attachments: attachmentBuffer
-        ? [
-            {
-              filename: `${attachement!.name}.gz`,
-              content: bufferToStream(compressedBuffer),
-              contentType: `application/gzip`,
-            },
-          ]
-        : [],
+      attachments: [],
     });
 
     console.log("Email sent:", info);

@@ -246,7 +246,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
         name,
       });
 
-      axios.post("/api/sending-mail", formData, {
+      axios.post("/api/upload-file", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
