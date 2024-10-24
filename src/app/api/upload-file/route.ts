@@ -1,31 +1,16 @@
-import { prisma } from "@/db/prisma";
 import { NextResponse } from "next/server";
 import { uploadToS3 } from "@/lib/aws";
+import { sendEmail } from "@/lib/mail";
 export async function POST(req: Request) {
   try {
     const formData = await req.formData();
     const file = formData.get("file") as File;
 
-    const purchase_id = Number(formData.get("purchase_id"));
+    const email = formData.get("email") as string;
 
     if (!file) {
       return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
     }
-
-    // Read the file as a Blob
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
-    // S3 upload parameters
-    const params = {
-      Bucket: process.env.AWS_S3_BUCKET_NAME!, // Your S3 bucket name
-      Key: file.name, // Use the original file name
-      Body: buffer, // Use the Buffer
-      ContentType: file.type || "application/octet-stream", // Set ContentType
-    };
-
-    // Upload the file to S3
-    // const data = await s3.upload(params).promise();
 
     let url = "";
 
@@ -40,10 +25,45 @@ export async function POST(req: Request) {
 
       if (data) {
         url = data.Location!;
-        // await prisma.purchase.update({
-        //   where: { id: purchase_id },
-        //   data: { signed_document_url: data.Location },
-        // });
+        const res = await sendEmail(
+          email,
+          "Your signed SAFT Agreement",
+          "Hello, this is a test email!",
+          `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            color: #333;
+        }
+        .email-content {
+            margin: 20px 0;
+        }
+        .signature {
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-content">
+        <p>Dear Sir/Madam,</p>
+
+        <p>Follow the link to download your signed document. <a href = "${data.Location}"> Link </a></p>
+
+        <p>If you have any questions or need further assistance, please feel free to reach out.</p>
+
+        <p class="signature">Best regards,<br>
+        PAit Team</p>
+    </div>
+</body>
+</html>`
+        );
       }
     } catch (error) {
       console.log("UPLOAD: ", error);
