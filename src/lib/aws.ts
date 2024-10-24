@@ -27,7 +27,7 @@ export const uploadToS3 = async (
       },
       // Optional: Configure multipart upload settings
       queueSize: 4, // Number of concurrent uploads (default: 4)
-      partSize: 5 * 1024 * 1024, // Size of each part in bytes (5 MB)
+      partSize: 100 * 1024 * 1024, // Size of each part in bytes (100 MB)
     });
 
     // Listen to progress events
