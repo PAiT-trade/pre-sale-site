@@ -10,6 +10,8 @@ import { Loader, Loader2 } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import CanvasDraw from "react-canvas-draw";
 import { useRouter } from "next/navigation";
+import imageCompression from "browser-image-compression";
+
 import { useLoading } from "@/context/loading-context";
 
 interface SignaturePadProps {
@@ -110,8 +112,23 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
   //   } catch (error) {
   //     console.log("App Error: ", error);
   //   }
+
   // };
 
+  const compressImage = async (file: File): Promise<File | null> => {
+    const options = {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 1024,
+      useWebWorker: true,
+    };
+    try {
+      const compressedFile = await imageCompression(file, options);
+      return compressedFile;
+    } catch (error) {
+      console.error("Error compressing image:", error);
+      return null;
+    }
+  };
   const generatePDF = async () => {
     try {
       setIsLoading(true);
@@ -148,9 +165,9 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
       const pageWidth = pdf.internal.pageSize.width - 2 * pagePadding;
 
       // Capture the element using dom-to-image
-      const imgData = await domtoimage.toSvg(input, {
+      const imgData = await domtoimage.toJpeg(input, {
         bgcolor: "#fff",
-        // quality: 0.95,
+        quality: 0.7, // Use JPEG format
       });
 
       // Create an offscreen image element to calculate dimensions
@@ -193,7 +210,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
         );
 
         // Convert the segment to a data URL
-        const segmentImgData = canvas.toDataURL("image/png", 0.95);
+        const segmentImgData = canvas.toDataURL("image/png", 0.6);
 
         if (i > 0) pdf.addPage();
         pdf.addImage(
@@ -208,12 +225,16 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
         currentPosition += pageHeight * (imgWidth / pageWidth);
       }
       const fileName = `PAiT_SAFT_AGGREEMENT_DOCUMENT-${name}-${uuidv4()}-${publicKey?.toBase58()}.pdf`;
+      // to be removed
+      pdf.save(fileName);
       const formData = new FormData();
       const pdfBlob = pdf.output("blob");
       const pdfFile = new File([pdfBlob], fileName, {
         type: "application/pdf",
       });
-      formData.append("file", pdfFile);
+
+      const compressedFie = await compressImage(pdfFile);
+      formData.append("file", compressedFie ? compressedFie : pdfFile);
       formData.append("file_name", fileName);
 
       if (email && email.includes("@")) {
@@ -235,7 +256,6 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
           name,
         }),
       });
-      // await uploadDocument(formData);
       await fetch("/api/sending-mail", {
         method: "POST",
         body: formData,
