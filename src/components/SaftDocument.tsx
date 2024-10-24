@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from "uuid";
 import CanvasDraw from "react-canvas-draw";
 import { useRouter } from "next/navigation";
 import imageCompression from "browser-image-compression";
+import axios from "axios";
 
 import { useLoading } from "@/context/loading-context";
 
@@ -226,15 +227,13 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
       }
       const fileName = `PAiT_SAFT_AGGREEMENT_DOCUMENT-${name}-${uuidv4()}-${publicKey?.toBase58()}.pdf`;
       // to be removed
-      pdf.save(fileName);
       const formData = new FormData();
       const pdfBlob = pdf.output("blob");
       const pdfFile = new File([pdfBlob], fileName, {
         type: "application/pdf",
       });
 
-      const compressedFie = await compressImage(pdfFile);
-      formData.append("file", compressedFie ? compressedFie : pdfFile);
+      formData.append("file", pdfFile);
       formData.append("file_name", fileName);
 
       if (email && email.includes("@")) {
@@ -242,24 +241,18 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
       } else {
         console.error("Invalid email address");
       }
+      await axios.post(`/api/update-purchase/${purchaseId}`, {
+        email,
+        name,
+      });
 
-      for (const [key, value] of formData.entries()) {
-        console.log(key, value);
-      }
-
-      console.log("Form Data: ", formData);
+      axios.post("/api/sending-mail", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       // updating the purchases
-      await fetch(`/api/update-purchase/${purchaseId}`, {
-        method: "POST",
-        body: JSON.stringify({
-          email,
-          name,
-        }),
-      });
-      await fetch("/api/sending-mail", {
-        method: "POST",
-        body: formData,
-      });
+
       toast.success("Thank you for making the purchase!!!!");
       setIsLoading(false);
       router.push("/");
