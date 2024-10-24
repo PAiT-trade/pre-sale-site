@@ -29,40 +29,14 @@ export async function POST(req: Request) {
           email,
           "Your signed SAFT Agreement",
           "Hello, this is a test email!",
-          `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Email</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            line-height: 1.6;
-            padding: 20px;
-            color: #333;
-        }
-        .email-content {
-            margin: 20px 0;
-        }
-        .signature {
-            margin-top: 40px;
-        }
-    </style>
-</head>
-<body>
-    <div class="email-content">
-        <p>Dear Sir/Madam,</p>
+          `Dear Sir/Madam,
+Follow the link to download your signed document. ${data.Location}
 
-        <p>Follow the link to download your signed document. <a href = "${data.Location}"> Link </a></p>
+If you have any questions or need further assistance, please feel free to reach out.
 
-        <p>If you have any questions or need further assistance, please feel free to reach out.</p>
-
-        <p class="signature">Best regards,<br>
-        PAit Team</p>
-    </div>
-</body>
-</html>`
+Best regards
+PAit Team
+    `
         );
       }
     } catch (error) {
