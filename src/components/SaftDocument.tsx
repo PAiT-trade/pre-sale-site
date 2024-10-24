@@ -153,6 +153,32 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
     }
   };
 
+  const compressPdf = async (file: File) => {
+    // Load the existing PDF
+    const arrayBuffer = await file.arrayBuffer();
+    const pdfDoc = await PDFDocument.load(arrayBuffer);
+
+    // Iterate over each page to compress it
+    const pages = pdfDoc.getPages();
+    pages.forEach((page) => {
+      const { width, height } = page.getSize();
+      // Resize pages to reduce the resolution
+      page.setSize(width * 0.8, height * 0.8);
+    });
+
+    // Save the compressed PDF with reduced quality
+    const pdfBytes = await pdfDoc.save({
+      useObjectStreams: false, // reduces file size
+      updateFieldAppearances: false, // removes extra data
+    });
+
+    // Convert compressed PDF to Blob for download or further processing
+    const compressedBlob = new Blob([pdfBytes], { type: "application/pdf" });
+
+    // Return compressed PDF Blob
+    return compressedBlob;
+  };
+
   const generatePDF = async () => {
     try {
       setIsLoading(true);
@@ -234,7 +260,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
         );
 
         // Convert the segment to a data URL
-        const segmentImgData = canvas.toDataURL("image/png", 0.6);
+        const segmentImgData = canvas.toDataURL("image/png", 0.3);
 
         if (i > 0) pdf.addPage();
         pdf.addImage(
@@ -256,7 +282,9 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
         type: "application/pdf",
       });
 
-      formData.append("file", pdfFile);
+      const compressedPdf = await compressPdf(pdfFile);
+
+      formData.append("file", compressedPdf);
       formData.append("file_name", fileName);
 
       if (email && email.includes("@")) {
