@@ -1,17 +1,3 @@
-// import AWS from "aws-sdk";
-
-// // Load environment variables from .env.local
-// AWS.config.update({
-//   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-//   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-//   region: process.env.AWS_REGION,
-// });
-
-// // Create an S3 instance
-// const s3 = new AWS.S3();
-
-// export default s3;
-
 import { S3Client } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
 
@@ -24,7 +10,7 @@ export const s3Client = new S3Client({
   },
 });
 
-//Upload file to S3
+// Upload file to S3
 export const uploadToS3 = async (
   file: File,
   bucketName: string,
@@ -39,6 +25,9 @@ export const uploadToS3 = async (
         Key: fileName, // File name
         Body: file, // The file object or stream
       },
+      // Optional: Configure multipart upload settings
+      queueSize: 4, // Number of concurrent uploads (default: 4)
+      partSize: 5 * 1024 * 1024, // Size of each part in bytes (5 MB)
     });
 
     // Listen to progress events
