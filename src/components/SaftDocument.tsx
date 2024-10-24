@@ -116,7 +116,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
 
   // };
 
-  const compressImage = async (file: File): Promise<File | null> => {
+  const compressFile = async (file: File): Promise<File | null> => {
     const options = {
       maxSizeMB: 1,
       maxWidthOrHeight: 1024,
@@ -233,7 +233,13 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
         type: "application/pdf",
       });
 
-      formData.append("file", pdfFile);
+      const file = await compressFile(pdfFile);
+
+      if (!file) {
+        toast.error("Error compressing file");
+        return;
+      }
+      formData.append("file", file);
       formData.append("file_name", fileName);
 
       if (email && email.includes("@")) {
