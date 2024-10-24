@@ -5,7 +5,6 @@ export async function POST(req: Request) {
   const formData = await req.formData();
   const file = formData.get("file") as File;
 
-  // const file_name = Number(formData.get("file_name"));
   const email = formData.get("email") as string;
 
   if (!email) {
