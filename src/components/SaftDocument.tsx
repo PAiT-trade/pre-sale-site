@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import styled from "styled-components";
+import { PDFDocument } from "pdf-lib";
 import moment from "moment";
 // import html2canvas from "html2canvas";
 import domtoimage from "dom-to-image";
@@ -11,6 +12,7 @@ import { v4 as uuidv4 } from "uuid";
 import CanvasDraw from "react-canvas-draw";
 import { useRouter } from "next/navigation";
 import imageCompression from "browser-image-compression";
+import Compressor from "compressorjs";
 import axios from "axios";
 
 import { useLoading } from "@/context/loading-context";
@@ -100,36 +102,57 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
         );
       });
   };
-
-  // const updatePurchase = async () => {
-  //   try {
-  //     await fetch(`/api/update-purchase/${purchaseId}`, {
-  //       method: "POST",
-  //       body: JSON.stringify({
-  //         email,
-  //         name,
-  //       }),
-  //     });
-  //   } catch (error) {
-  //     console.log("App Error: ", error);
-  //   }
-
-  // };
-
-  const compressImage = async (file: File): Promise<File | null> => {
-    const options = {
-      maxSizeMB: 1,
-      maxWidthOrHeight: 1024,
-      useWebWorker: true,
-    };
+  /**
+   * Compresses a PDF file by removing metadata and reducing the number of pages.
+   * @param file The PDF file to compress.
+   */
+  const handleFileCompression = async (
+    file: File,
+    fileName: string
+  ): Promise<File | null> => {
     try {
-      const compressedFile = await imageCompression(file, options);
+      // Read the PDF file
+      const arrayBuffer = await file.arrayBuffer();
+      const pdfDoc = await PDFDocument.load(arrayBuffer);
+
+      // Optionally: Remove metadata to reduce size
+      pdfDoc.setTitle("");
+      pdfDoc.setAuthor("");
+      pdfDoc.setSubject("");
+      pdfDoc.setKeywords([]);
+      pdfDoc.setProducer("");
+      pdfDoc.setCreator("");
+
+      // Optionally: Remove unused pages
+      const numPages = pdfDoc.getPageCount();
+      for (let i = numPages - 1; i >= 5; i--) {
+        pdfDoc.removePage(i);
+      }
+
+      // Save the modified PDF
+      const compressedPdfBytes = await pdfDoc.save();
+
+      // Create a new Blob for the compressed PDF
+      const compressedBlob = new Blob([compressedPdfBytes], {
+        type: "application/pdf",
+      });
+
+      // Convert the Blob to a File
+      const compressedFile = new File([compressedBlob], fileName, {
+        type: "application/pdf",
+      });
+
+      console.log("Original File Size:", file.size / 1024, "KB");
+      console.log("Compressed File Size:", compressedBlob.size / 1024, "KB");
+
       return compressedFile;
     } catch (error) {
-      console.error("Error compressing image:", error);
+      console.error("Error compressing PDF:", error);
+
       return null;
     }
   };
+
   const generatePDF = async () => {
     try {
       setIsLoading(true);

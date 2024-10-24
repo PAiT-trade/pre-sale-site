@@ -19,20 +19,14 @@ export const uploadToS3 = async (
 ) => {
   try {
     // Convert File to Buffer if provided
-    const attachmentBuffer = await fileToBuffer(file);
-    // Compress the buffer
-    const compressedBuffer = compressBuffer(attachmentBuffer!);
 
-    const compressedFile = new File([compressedBuffer], `${file.name}.gz`, {
-      type: "application/gzip",
-    });
     // Use AWS SDK's Upload for larger files
     const upload = new Upload({
       client: s3Client,
       params: {
         Bucket: bucketName, // S3 bucket name
         Key: fileName, // File name
-        Body: compressedFile, // The file object or stream
+        Body: file, // The file object or stream
       },
       // Optional: Configure multipart upload settings
       queueSize: 4, // Number of concurrent uploads (default: 4)
