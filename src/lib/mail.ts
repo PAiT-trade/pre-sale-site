@@ -64,7 +64,7 @@ export const sendEmail = async (
 };
 
 // Stream the compressed buffer to the email attachment
-const bufferToStream = (buffer: Buffer): Readable => {
+export const bufferToStream = (buffer: Buffer): Readable => {
   const readable = new Readable();
   readable._read = () => {}; // No-op
   readable.push(buffer);
@@ -72,13 +72,23 @@ const bufferToStream = (buffer: Buffer): Readable => {
   return readable;
 };
 
-async function fileToBuffer(file: File): Promise<Buffer> {
+export const fileToBuffer = async (file: File): Promise<Buffer> => {
   const arrayBuffer = await file.arrayBuffer();
   return Buffer.from(arrayBuffer);
-}
+};
 
 export const compressBuffer = (buffer: Buffer): Buffer => {
   // Set maximum compression level
   const compressed = pako.gzip(buffer, { level: 8 });
   return Buffer.from(compressed);
+};
+
+const bufferToFile = (buffer: any, filename: string, mimeType: any) => {
+  // Create a Blob from the Buffer
+  const blob = new Blob([buffer], { type: mimeType });
+
+  // Create a File from the Blob
+  const file = new File([blob], filename, { type: mimeType });
+
+  return file;
 };
