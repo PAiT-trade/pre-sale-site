@@ -297,10 +297,9 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
         name,
       });
 
-      axios.post("/api/upload-file", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+      await fetch("/api/upload-file", {
+        method: "POST",
+        body: formData,
       });
       // updating the purchases
 
