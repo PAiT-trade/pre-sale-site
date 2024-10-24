@@ -153,20 +153,6 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
     }
   };
 
-  const compressFile = async (file: File): Promise<File | null> => {
-    const options = {
-      maxSizeMB: 3,
-      maxWidthOrHeight: 1024,
-      useWebWorker: true,
-    };
-    try {
-      const compressedFile = await imageCompression(file, options);
-      return compressedFile;
-    } catch (error) {
-      console.error("Error compressing image:", error);
-      return null;
-    }
-  };
   const generatePDF = async () => {
     try {
       setIsLoading(true);
@@ -270,13 +256,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
         type: "application/pdf",
       });
 
-      const file = await handleFileCompression(pdfFile, fileName);
-
-      if (!file) {
-        toast.error("Error compressing file");
-        return;
-      }
-      formData.append("file", file);
+      formData.append("file", pdfFile);
       formData.append("file_name", fileName);
 
       if (email && email.includes("@")) {
